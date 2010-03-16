@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Discovery Data Tool" default="test">
+    <target name="clean"
+        description="Remove all generated files.">
+        <delete dir="build.ant"/>
+    </target>
+
+    <path id="build.classpath">
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+            <exclude name="**/*-sources.jar"/>
+            <exclude name="**/*-src.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile"
+        description="Compile the Java sources.">
+        <mkdir dir="build.ant/main"/>
+        <javac destdir="build.ant/main" target="1.6" debug="true">
+            <src path="src/main/java"/>
+            <classpath refid="build.classpath"/>
+        </javac>
+        <mkdir dir="build.ant/test"/>
+        <javac destdir="build.ant/test" target="1.6" debug="true">
+            <src path="src/test/java"/>
+            <classpath path="build.ant/main"/>
+            <classpath refid="build.classpath"/>
+        </javac>
+    </target>
+
+    <target name="test" depends="compile"
+        description="Run the unit tests.">
+        <delete dir="build.ant/junit"/>
+        <delete dir="build.ant/report"/>
+        <mkdir dir="build.ant/junit"/>
+        <junit haltonerror="false" errorproperty="junit.error"
+          haltonfailure="false" failureproperty="junit.error"
+          printsummary="true">
+            <classpath>
+                <path refid="build.classpath"/>
+                <path path="src/docroot"/>
+                <path path="src/main/java"/>
+                <path path="src/test/java"/>
+                <path path="build.ant/main"/>
+                <path path="build.ant/test"/>
+            </classpath>
+            <formatter type="xml"/>
+            <sysproperty key="java.util.logging.config.file"
+                value="src/test/java/logging.properties"/>
+            <batchtest todir="build.ant/junit">
+                <fileset dir="src/test/java">
+                    <include name="**/*Test.java"/>
+                    <include name="**/*TestCase.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <mkdir dir="build.ant/report"/>
+        <junitreport todir="build.ant/report">
+            <fileset dir="build.ant/junit">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report todir="build.ant/report/html"/>
+        </junitreport>
+        <echo message="Test report in: build.ant/report/html/index.html"/>
+        <fail if="junit.error" message="Tests failed."/>
+    </target>
+
+    <target name="javadoc"
+        description="Build the Javadoc.">
+        <delete dir="build.ant/javadoc"/>
+        <javadoc destdir="build.ant/javadoc">
+            <classpath refid="build.classpath" />
+            <packageset dir="src/main/java" defaultexcludes="yes"/>
+        </javadoc>
+        <echo message="Java documentation now available in build.ant/javadoc/index.html"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <delete file="build.ant/discovery_datatool.jar"/>
+        <jar destfile="build.ant/discovery_datatool.jar">
+            <fileset dir="build.ant/main"/>
+        </jar>
+    </target>
+
+    <target name="war" depends="jar, test"
+        description="Build the WAR, can be dropped into a web container like Tomcat.">
+        <delete file="build.ant/discovery_datatool.war"/>
+        <delete file="build.ant/war.lib"/>
+        <mkdir dir="build.ant/war.lib"/>
+        <copy todir="build.ant/war.lib" flatten="true">
+            <fileset dir="lib">
+                <include name="**/*.jar"/>
+                <exclude name="javax/servlet-*.jar"/>
+                <exclude name="test/**"/>
+                <exclude name="jetty/**"/>
+                <exclude name="**/*-sources.jar"/>
+                <exclude name="**/*-src.jar"/>
+            </fileset>
+            <fileset file="build.ant/discovery_datatool.jar"/>
+        </copy>
+        <war destfile="build.ant/discovery_datatool.war" webxml="src/docroot/WEB-INF/web.xml">
+            <lib dir="build.ant/war.lib">
+                <include name="*.jar"/>
+            </lib>
+            <webinf dir="src/docroot/WEB-INF"/>
+            <fileset dir="src/docroot">
+                <exclude name="WEB-INF/**"/>
+            </fileset>
+        </war>
+        <delete file="build.ant/war.lib"/>
+    </target>
+
+    <property name="server.port" value="8080"/>
+    <target name="jetty">
+        <java fork="true" maxmemory="256m"
+            classname="org.mortbay.xml.XmlConfiguration">
+            <classpath>
+                <fileset dir="lib/jetty">
+                    <include name="*.jar"/>
+                    <exclude name="*-sources.jar"/>
+                </fileset>
+                <fileset file="lib/javax/servlet-2.5.jar"/>
+                <fileset file="lib/c3p0-0.9.1.2.jar"/>
+                <fileset file="lib/mysql-connector-java-5.1.10-bin.jar"/>
+                <path refid="jetty.classpath"/>
+                <fileset file="lib/jakarta/commons-lang-2.4.jar"/>
+            </classpath>
+            <sysproperty key="java.util.logging.config.file"
+                value="src/test/java/logging.properties"/>
+            <sysproperty key="jetty.port" value="${server.port}"/>
+            <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,address=8081,suspend=n"/>
+            <arg line="${argline}"/>
+        </java>
+    </target>
+
+    <target name="test-single" depends="compile"
+        description="Runs a single junit test case.">
+        <fail message="Please set the test.class variable." unless="test.class"/>
+        <junit showoutput="true" fork="true">
+            <classpath>
+                <path refid="build.classpath"/>
+                <path path="src/docroot"/>
+                <path path="src/main/java"/>
+                <path path="src/test/java"/>
+                <path path="build.ant/main"/>
+                <path path="build.ant/test"/>
+            </classpath>
+            <sysproperty key="java.util.logging.config.file"
+                value="src/test/java/logging.properties"/>
+            <test name="${test.class}"/>
+            <formatter usefile="no" type="plain"/>
+        </junit>
+    </target>
+</project>
