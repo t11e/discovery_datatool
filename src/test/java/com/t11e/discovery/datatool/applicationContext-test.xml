@@ -11,22 +11,23 @@
            http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
 
   <jdbc:embedded-database id="dataSource" type="DERBY">
+    <jdbc:script location="com/t11e/discovery/datatool/ChangesetExtractorTest.sql"/>
   </jdbc:embedded-database>
 
   <context:annotation-config/>
   <context:component-scan base-package="com.t11e"/>
 
-  <bean class="com.t11e.discovery.datatool.ChangesetExtractor">
+  <bean name="dateRange" class="com.t11e.discovery.datatool.ChangesetExtractor">
     <property name="selectTemplates">
       <list>
         <bean class="com.t11e.discovery.datatool.SqlQueryTemplate">
-          <property name="selectClause" value="id, foo, bar"/>
+          <property name="selectClause" value="id, foo, bar, json_column"/>
           <property name="fromClause" value="content_example"/>
           <property name="whereClause" value="1=1"/>
           <property name="deltaDateConstraint">
             <value>
               <![CDATA[
-              lastUpdated >= :start and lastUpdated < :end 
+              lastUpdated >= :start and lastUpdated < :end
               ]]>
             </value>
           </property>
@@ -43,4 +44,33 @@
       </list>
     </property>
   </bean>
+
+  <bean name="emptyTable" class="com.t11e.discovery.datatool.ChangesetExtractor">
+    <property name="selectTemplates">
+      <list>
+        <bean class="com.t11e.discovery.datatool.SqlQueryTemplate">
+          <property name="selectClause" value="id, foo, bar, json_column"/>
+          <property name="fromClause" value="empty_table"/>
+          <property name="whereClause" value="1=1"/>
+          <property name="deltaDateConstraint">
+            <value>
+              <![CDATA[
+              lastUpdated >= :start and lastUpdated < :end
+              ]]>
+            </value>
+          </property>
+          <property name="snapshotDateConstraint">
+            <value>
+              <![CDATA[
+              lastUpdated < :end
+              ]]>
+            </value>
+          </property>
+          <property name="useLowerCaseColumnNames" value="true"/>
+          <property name="jsonColumnNames" value="jsonColumn"/>
+        </bean>
+      </list>
+    </property>
+  </bean>
+
 </beans>
