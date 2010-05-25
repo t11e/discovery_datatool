@@ -93,11 +93,8 @@ public class ChangesetController
       StaxUtil.newOutputFactory().createXMLStreamWriter(response.getOutputStream());
     xml.writeStartDocument();
     xml.writeStartElement("changeset");
-    if (changesetExtractor != null)
-    {
-      changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
-        changesetType, start, end );
-    }
+    changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
+      changesetType, start, end );
     xml.writeEndElement();
     xml.writeEndDocument();
     xml.flush();
