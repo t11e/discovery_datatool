@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+<Configure id="Server" class="org.mortbay.jetty.Server">
+  <Call name="addConnector">
+    <Arg>
+        <New class="org.mortbay.jetty.nio.SelectChannelConnector">
+          <Set name="port"><SystemProperty name="jetty.port" default="8080"/></Set>
+        </New>
+    </Arg>
+  </Call>
+
+  <Array id="plusConfig" type="java.lang.String">
+    <Item>org.mortbay.jetty.webapp.WebInfConfiguration</Item>
+    <Item>org.mortbay.jetty.plus.webapp.EnvConfiguration</Item>
+    <Item>org.mortbay.jetty.plus.webapp.Configuration</Item>
+    <Item>org.mortbay.jetty.webapp.JettyWebXmlConfiguration</Item>
+    <Item>org.mortbay.jetty.webapp.TagLibConfiguration</Item>
+  </Array>
+
+  <Set name="handler">
+    <New id="Handlers" class="org.mortbay.jetty.handler.HandlerCollection">
+      <Set name="handlers">
+       <Array type="org.mortbay.jetty.Handler">
+         <Item>
+           <New id="WebAppContext" class="org.mortbay.jetty.webapp.WebAppContext">
+            <Set name="contextPath">/</Set>
+            <Set name="configurationClasses"><Ref id="plusConfig"/></Set>
+           </New>
+         </Item>
+       </Array>
+      </Set>
+    </New>
+  </Set>
+
+</Configure>

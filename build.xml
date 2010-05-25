@@ -110,28 +110,50 @@
         <delete file="build.ant/war.lib"/>
     </target>
 
-    <property name="server.port" value="8080"/>
-    <target name="jetty">
-        <java fork="true" maxmemory="256m"
-            classname="org.mortbay.xml.XmlConfiguration">
-            <classpath>
-                <fileset dir="lib/jetty">
-                    <include name="*.jar"/>
-                    <exclude name="*-sources.jar"/>
-                </fileset>
-                <fileset file="lib/javax/servlet-2.5.jar"/>
-                <fileset file="lib/c3p0-0.9.1.2.jar"/>
-                <fileset file="lib/mysql-connector-java-5.1.10-bin.jar"/>
-                <path refid="jetty.classpath"/>
-                <fileset file="lib/jakarta/commons-lang-2.4.jar"/>
-            </classpath>
-            <sysproperty key="java.util.logging.config.file"
-                value="src/test/java/logging.properties"/>
-            <sysproperty key="jetty.port" value="${server.port}"/>
-            <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,address=8081,suspend=n"/>
-            <arg line="${argline}"/>
-        </java>
-    </target>
+  <target name="dev-server" depends="compile"
+      description="Run a Jetty server using the freshly compiled classes, you can edit the ftl files in place while this is running.">
+      <path id="jetty.classpath.dev">
+          <fileset dir="lib">
+              <include name="**/*.jar"/>
+              <exclude name="test/**"/>
+              <exclude name="**/*-sources.jar"/>
+              <exclude name="**/*-src.jar"/>
+          </fileset>
+          <path path="build.ant/main"/>
+      </path>
+      <antcall target="jetty">
+          <param name="argline"
+              value="src/config/jetty.xml src/config/jetty-dev.xml"/>
+          <reference refid="jetty.classpath.dev" torefid="jetty.classpath"/>
+      </antcall>
+  </target>
+
+  <property name="server.port" value="8080"/>
+  <target name="jetty">
+      <java fork="true" maxmemory="256m"
+          classname="org.mortbay.xml.XmlConfiguration">
+          <classpath>
+              <fileset dir="lib/jetty">
+                  <include name="*.jar"/>
+                  <exclude name="*-sources.jar"/>
+              </fileset>
+              <fileset file="lib/javax/servlet-2.5.jar"/>
+              <fileset file="lib/c3p0-0.9.1.2.jar"/>
+              <fileset file="lib/mysql-connector-java-5.1.10-bin.jar"/>
+              <path refid="jetty.classpath"/>
+              <fileset file="lib/jakarta/commons-lang-2.4.jar"/>
+          </classpath>
+<!--
+          <sysproperty key="java.util.logging.config.file"
+              value="src/java/test/logging.properties"/>
+-->
+          <sysproperty key="jetty.port" value="${server.port}"/>
+<!--
+          <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,address=8081,suspend=n"/>
+-->
+          <arg line="${argline}"/>
+      </java>
+  </target>
 
     <target name="test-single" depends="compile"
         description="Runs a single junit test case.">
