@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.t11e.discovery.datatool;
 
@@ -14,7 +14,7 @@ final class CountingChangesetListener
   {
   }
 
-  public void onSetItem(final String id, final Map properties)
+  public void onSetItem(final String id, final Map<String, Object> properties)
   {
     ++setItemCount;
   }
@@ -32,7 +32,7 @@ final class CountingChangesetListener
   {
   }
 
-  public void onAddToItem(final String id, final Map properties)
+  public void onAddToItem(final String id, final Map<String, Object> properties)
   {
   }
 

@@ -14,9 +14,9 @@ public interface IItemChangesetListener
 
   public void onEndChangeset();
 
-  public void onSetItem(String id, Map properties);
+  public void onSetItem(String id, Map<String, Object> properties);
 
-  public void onAddToItem(String id, Map properties);
+  public void onAddToItem(String id, Map<String, Object> properties);
 
   public void onRemoveFromItem(String id, Object properties);
 

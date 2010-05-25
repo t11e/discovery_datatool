@@ -28,7 +28,9 @@ public class ChangesetStaxUtil
     // Prevent instantiation
   }
 
-  public static void parseChangeset(final InputStream is, final IItemChangesetListener listener)
+  public static void parseChangeset(
+    final InputStream is,
+    final IItemChangesetListener listener)
     throws XMLStreamException
   {
     final XMLInputFactory factory = StaxUtil.newInputFactory();
@@ -53,7 +55,8 @@ public class ChangesetStaxUtil
     }
   }
 
-  public static void parseChangeset(final XMLStreamReader reader,
+  public static void parseChangeset(
+    final XMLStreamReader reader,
     final IItemChangesetListener listener)
     throws XMLStreamException
   {
@@ -67,7 +70,8 @@ public class ChangesetStaxUtil
     listener.onEndChangeset();
   }
 
-  public static void parseChangesetAction(final XMLStreamReader reader,
+  public static void parseChangesetAction(
+    final XMLStreamReader reader,
     final IItemChangesetListener listener)
   throws XMLStreamException
   {
@@ -81,7 +85,7 @@ public class ChangesetStaxUtil
         reader.require(XMLStreamConstants.START_ELEMENT, null, "properties");
         if (reader.nextTag() == XMLStreamConstants.START_ELEMENT)
         {
-          final Map properties = readProperties(reader, false);
+          final Map<String,Object> properties = readProperties(reader, false);
           reader.nextTag();
           listener.onSetItem(id, properties);
         }
@@ -98,7 +102,7 @@ public class ChangesetStaxUtil
         reader.require(XMLStreamConstants.START_ELEMENT, null, "properties");
         if (reader.nextTag() == XMLStreamConstants.START_ELEMENT)
         {
-          final Map properties = readProperties(reader, false);
+          final Map<String, Object> properties = readProperties(reader, false);
           listener.onAddToItem(id, properties);
           reader.nextTag();
         }
@@ -124,7 +128,7 @@ public class ChangesetStaxUtil
           reader.require(XMLStreamConstants.START_ELEMENT, null, "properties");
           if (reader.nextTag() == XMLStreamConstants.START_ELEMENT)
           {
-            final Map properties = readProperties(reader, true);
+            final Map<String, Object> properties = readProperties(reader, true);
             listener.onRemoveFromItem(id, properties);
             reader.nextTag();
           }
@@ -150,18 +154,23 @@ public class ChangesetStaxUtil
     }
   }
 
-  private static Map readProperties(final XMLStreamReader reader, final boolean allowEmpty)
+  @SuppressWarnings("unchecked")
+  private static <T> Map<String, T> readProperties(
+    final XMLStreamReader reader,
+    final boolean allowEmpty)
     throws XMLStreamException
   {
     final Object value = readValue(reader, allowEmpty);
-    if (value != null && !(value instanceof Map))
+    if (value != null && !(value instanceof Map< ?, ?>))
     {
       throw new XMLStreamException("Properties must be a struct: " + value);
     }
-    return (Map) value;
+    return (Map<String, T>) value;
   }
 
-  private static Object readValue(final XMLStreamReader reader, final boolean allowEmpty)
+  private static Object readValue(
+    final XMLStreamReader reader,
+    final boolean allowEmpty)
     throws XMLStreamException
   {
     Object output = null;
@@ -169,7 +178,7 @@ public class ChangesetStaxUtil
     final String localName = reader.getLocalName();
     if (localName.equals("struct"))
     {
-      final Map struct = new LinkedHashMap();
+      final Map<String, Object> struct = new LinkedHashMap<String, Object>();
       while (reader.nextTag() == XMLStreamConstants.START_ELEMENT)
       {
         reader.require(XMLStreamConstants.START_ELEMENT, null, "entry");
@@ -191,7 +200,7 @@ public class ChangesetStaxUtil
     }
     else if (localName.equals("array"))
     {
-      final Collection array = new ArrayList();
+      final Collection<Object> array = new ArrayList<Object>();
       while (reader.nextTag() == XMLStreamConstants.START_ELEMENT)
       {
         reader.require(XMLStreamConstants.START_ELEMENT, null, "element");
@@ -235,7 +244,7 @@ public class ChangesetStaxUtil
 
   public static void writeChangeset(
     final OutputStream os,
-    final Collection<Map> changedItems,
+    final Collection<Map<String, Object>> changedItems,
     final Collection<String> deletedItemIds)
   {
     try
@@ -244,7 +253,7 @@ public class ChangesetStaxUtil
         StaxUtil.newOutputFactory().createXMLStreamWriter(os);
       writer.writeStartDocument();
       writer.writeStartElement("changeset");
-      for (final Map properties : changedItems)
+      for (final Map<String, Object> properties : changedItems)
       {
         final String id = (String) properties.get("id");
         writeSetItem(writer, id, properties);
@@ -263,8 +272,10 @@ public class ChangesetStaxUtil
     }
   }
 
-  public static void writeSetItem(final XMLStreamWriter writer, final String id,
-    final Map properties)
+  public static void writeSetItem(
+    final XMLStreamWriter writer,
+    final String id,
+    final Map<String, Object> properties)
     throws XMLStreamException
   {
     writer.writeStartElement("set-item");
@@ -275,8 +286,10 @@ public class ChangesetStaxUtil
     writer.writeEndElement();
   }
 
-  public static void writeAddToItem(final XMLStreamWriter writer, final String id,
-    final Map properties)
+  public static void writeAddToItem(
+    final XMLStreamWriter writer,
+    final String id,
+    final Map<String, Object> properties)
     throws XMLStreamException
   {
     writer.writeStartElement("add-to-item");
@@ -287,8 +300,10 @@ public class ChangesetStaxUtil
     writer.writeEndElement();
   }
 
-  public static void writeRemoveFromItem(final XMLStreamWriter writer, final String id,
-    final Map properties)
+  public static void writeRemoveFromItem(
+    final XMLStreamWriter writer,
+    final String id,
+    final Map<String, Object> properties)
     throws XMLStreamException
   {
     writer.writeStartElement("remove-from-item");
@@ -299,7 +314,9 @@ public class ChangesetStaxUtil
     writer.writeEndElement();
   }
 
-  public static void writeRemoveAllFromItem(final XMLStreamWriter writer, final String id)
+  public static void writeRemoveAllFromItem(
+    final XMLStreamWriter writer,
+    final String id)
     throws XMLStreamException
   {
     writer.writeStartElement("remove-from-item");
@@ -308,7 +325,9 @@ public class ChangesetStaxUtil
     writer.writeEndElement();
   }
 
-  public static void writeAddItem(final XMLStreamWriter writer, final String id)
+  public static void writeAddItem(
+    final XMLStreamWriter writer,
+    final String id)
     throws XMLStreamException
   {
     writer.writeStartElement("add-item");
@@ -316,7 +335,9 @@ public class ChangesetStaxUtil
     writer.writeEndElement();
   }
 
-  public static void writeRemoveItem(final XMLStreamWriter writer, final String id)
+  public static void writeRemoveItem(
+    final XMLStreamWriter writer,
+    final String id)
     throws XMLStreamException
   {
     writer.writeStartElement("remove-item");
@@ -324,8 +345,12 @@ public class ChangesetStaxUtil
     writer.writeEndElement();
   }
 
-  private static void writeValue(final XMLStreamWriter writer, final String id,
-    final Object object, final boolean allowEmpty)
+  @SuppressWarnings("unchecked")
+  private static void writeValue(
+    final XMLStreamWriter writer,
+    final String id,
+    final Object object,
+    final boolean allowEmpty)
     throws XMLStreamException
   {
     if (object instanceof Map)
