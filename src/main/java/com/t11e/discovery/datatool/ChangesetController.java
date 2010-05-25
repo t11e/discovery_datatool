@@ -13,6 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.time.FastDateFormat;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ChangesetController
 {
+  @Autowired
+  ChangesetPublisherManager changesetPublisherManager;
+
   private static Format HTTP_DATE_FORMAT = FastDateFormat.getInstance(
     "EEE, dd MMM yyyy HH:mm:ss zzz",
     TimeZone.getTimeZone("GMT"),
@@ -39,18 +43,23 @@ public class ChangesetController
     binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true, 19));
   }
 
-  @RequestMapping("/ws/publisher/{name}")
+  @RequestMapping("/ws/publisher/{publisherName}")
   public void publish(
     final HttpServletResponse response,
-    @PathVariable("name") final String name,
+    @PathVariable("publisherName") final String publisherName,
     @RequestParam(value="startDate", defaultValue="", required=false) final Date startParam,
     @RequestParam(value="endDate", defaultValue="", required=false) final Date endParam,
     @RequestParam(value="profile", defaultValue="", required=false) final String profile,
     @RequestParam(value="dryRun", defaultValue="false", required=false) final boolean dryRun)
     throws XMLStreamException, IOException
   {
-    // TODO Get the appropriate ChangesetExtractor
-    final ChangesetExtractor changesetExtractor = null;
+    final ChangesetPublisher changesetPublisher =
+      changesetPublisherManager.getChangesetPublisher(publisherName);
+    if (changesetPublisher == null)
+    {
+      response.sendError(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
     final Date start;
     final Date end;
     if (profile == null)
@@ -60,11 +69,12 @@ public class ChangesetController
     }
     else
     {
-      // TODO
+      // TODO Get the profile from the publisher
       start = null;
       end = null;
     }
-    publishImpl(response, changesetExtractor, start, end);
+    publishImpl(response, changesetPublisher.getChangesetExtractor(), start, end);
+    // TODO if we have a profile and this wasn't a dryRun, persist the state
   }
 
   public void publishImpl(
