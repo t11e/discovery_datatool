@@ -16,8 +16,9 @@ public class ChangesetExtractor
 {
   @Autowired
   private DataSource dataSource;
-  private NamedParameterJdbcTemplate jdbcTemplate;
   private List<SqlTemplate> sqlTemplates;
+  // Locally created
+  private NamedParameterJdbcTemplate jdbcTemplate;
 
   @PostConstruct
   public void initialize()
