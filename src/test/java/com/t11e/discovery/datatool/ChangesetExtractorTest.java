@@ -1,15 +1,16 @@
 package com.t11e.discovery.datatool;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.annotation.Resource;
+import javax.xml.stream.XMLStreamException;
 
-import junit.framework.Assert;
-
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,46 +25,49 @@ public class ChangesetExtractorTest
   private ChangesetExtractor emptyTableExtractor;
   @Resource(name="dateRange")
   private ChangesetExtractor dateRangeExtractor;
+  private Mockery mockery;
 
-  @Test
-  public void testEmptyChangeset() throws Exception
+  @Before
+  public void setup()
   {
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    emptyTableExtractor.getChangeset(os, "snapshot", null, null);
-
-    final CountingChangesetListener listener = new CountingChangesetListener();
-    ChangesetReader.parseChangeset(
-      new ByteArrayInputStream(os.toByteArray()), listener);
-
-    Assert.assertEquals("Should have no set items",
-      0, listener.getSetItemCount());
-    Assert.assertEquals("Should have no remove items",
-      0, listener.getRemoveItemCount());
+    mockery = new Mockery();
   }
 
   @Test
-  public void testDateRange() throws Exception
+  public void testEmptyChangeset()
+    throws XMLStreamException
   {
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations() {{
+      never(writer);
+    }});
+    emptyTableExtractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testDateRange()
+    throws ParseException, XMLStreamException
+  {
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations() {{
+      never(writer);
+      oneOf(writer).setItem(
+        "1",
+        CollectionsFactory.makeMap(
+          "id", "1"));
+      oneOf(writer).setItem(
+        "2",
+        CollectionsFactory.makeMap(
+          "id", "2"));
+    }});
+
     final DateFormat format = new SimpleDateFormat("yyyy-MM-dd-hh.mm.ss.S");
     final Date start = format.parse("2010-02-01-00.00.00.0000");
     final Date end = format.parse("2010-02-01-00.00.03.0000");
 
-    dateRangeExtractor.getChangeset(os, "delta", start, end);
-
-    final CountingChangesetListener listener = new CountingChangesetListener();
-    ChangesetReader.parseChangeset(
-      new ByteArrayInputStream(os.toByteArray()), listener);
-
-    Assert.assertEquals("Should have set items",
-      2, listener.getSetItemCount());
-    Assert.assertEquals("Should have no remove items",
-      0, listener.getRemoveItemCount());
-  }
-
-  @Test
-  public void testLargeChangeset()
-  {
-    Assert.fail("Not yet implemented");
+    dateRangeExtractor.writeChangeset(writer, "delta", start, end);
+    mockery.assertIsSatisfied();
   }
 }

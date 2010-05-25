@@ -90,6 +90,19 @@
 	<classpathentry kind="lib" path="lib/test/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/stax-api-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/wstx-asl-3.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/jmock-junit4-2.5.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/discovery_datatool/lib/test/jmock-2.5.1-javadoc.zip!/jmock-2.5.1/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/test/jmock-2.5.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/discovery_datatool/lib/test/jmock-2.5.1-javadoc.zip!/jmock-2.5.1/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/test/hamcrest-core-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/hamcrest-library-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/json_simple-1.1.jar" sourcepath="lib/json_simple-1.1-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="output" path="build.eclipse"/>
 </classpath>

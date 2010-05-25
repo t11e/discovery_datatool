@@ -26,55 +26,9 @@
           <property name="query">
             <value>
               <![CDATA[
-              SELECT id,foo,bar,json_column
-              FROM content_example
-              WHERE last_updated >= :start and last_updated < :end
-              ]]>
-            </value>
-          </property>
-          <property name="idColumn" value="id"/>
-          <property name="useLowerCaseColumnNames" value="true"/>
-          <property name="jsonColumnNames" value="jsonColumn"/>
-        </bean>
-        <bean class="com.t11e.discovery.datatool.SqlTemplate">
-          <property name="filter" value="delta"/>
-          <property name="action" value="delete"/>
-          <property name="query">
-            <value>
-              <![CDATA[
               SELECT id
-              FROM content_deleted
+              FROM date_range_test
               WHERE last_updated >= :start and last_updated < :end
-              ]]>
-            </value>
-          </property>
-          <property name="idColumn" value="id"/>
-          <property name="useLowerCaseColumnNames" value="true"/>
-          <property name="jsonColumnNames" value="jsonColumn"/>
-        </bean>
-        <bean class="com.t11e.discovery.datatool.SqlTemplate">
-          <property name="filter" value="snapshot"/>
-          <property name="action" value="create"/>
-          <property name="query">
-            <value>
-              <![CDATA[
-              SELECT id,foo,bar,json_column
-              FROM content_example
-              WHERE last_updated < :end
-              ]]>
-            </value>
-          </property>
-          <property name="idColumn" value="id"/>
-          <property name="useLowerCaseColumnNames" value="true"/>
-          <property name="jsonColumnNames" value="jsonColumn"/>
-        </bean>
-        <bean class="com.t11e.discovery.datatool.SqlTemplate">
-          <property name="filter" value="delta,snapshot"/>
-          <property name="action" value="create"/>
-          <property name="query">
-            <value>
-              <![CDATA[
-              call cs_content_example(:kind, :start, :end)
               ]]>
             </value>
           </property>

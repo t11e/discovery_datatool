@@ -3,7 +3,6 @@ package com.t11e.discovery.datatool;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,7 +13,9 @@ public class SqlTemplate
   private String action;
   private String query;
   private String idColumn;
-  private List<String> jsonColumnNames;
+  private String idPrefix;
+  private String idSuffix;
+  private Set<String> jsonColumnNames;
   private boolean useLowerCaseColumnNames;
 
   public Set<String> getFilter()
@@ -53,7 +54,7 @@ public class SqlTemplate
   {
     this.query = query;
   }
-  public void setIdColumn(String idColumn)
+  public void setIdColumn(final String idColumn)
   {
     this.idColumn = idColumn;
   }
@@ -61,15 +62,32 @@ public class SqlTemplate
   {
     return idColumn;
   }
-  public List<String> getJsonColumnNames()
+  public String getIdPrefix()
+  {
+    return idPrefix;
+  }
+  public void setIdPrefix(final String idPrefix)
+  {
+    this.idPrefix = idPrefix;
+  }
+  public String getIdSuffix()
+  {
+    return idSuffix;
+  }
+  public void setIdSuffix(final String idSuffix)
+  {
+    this.idSuffix = idSuffix;
+  }
+  public Set<String> getJsonColumnNames()
   {
     return jsonColumnNames;
   }
   public void setJsonColumnNames(final String jsonColumnNames)
   {
-    this.jsonColumnNames = Arrays.asList(StringUtils.split(jsonColumnNames, ", "));
+    this.jsonColumnNames = new HashSet<String>(
+        Arrays.asList(StringUtils.split(jsonColumnNames, ", ")));
   }
-  public void setJsonColumnNames(final List<String> jsonColumnNames)
+  public void setJsonColumnNames(final Set<String> jsonColumnNames)
   {
     this.jsonColumnNames = jsonColumnNames;
   }

@@ -1,13 +1,10 @@
 package com.t11e.discovery.datatool;
 
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -28,32 +25,18 @@ public class ChangesetExtractor
     jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
 
-  public void getChangeset(
-    final OutputStream os,
+  public void writeChangeset(
+    final ChangesetWriter writer,
     final String changesetType,
     final Date start,
     final Date end)
   {
-    try
+    for (final SqlTemplate sqlTemplate : sqlTemplates)
     {
-      final XMLStreamWriter xml = StaxUtil.newOutputFactory().createXMLStreamWriter(os);
-      xml.writeStartDocument();
-      xml.writeStartElement("changeset");
-      final ChangesetWriter writer = new XmlChangesetWriter(xml);
-      for (final SqlTemplate sqlTemplate : sqlTemplates)
+      if (sqlTemplate.getFilter().contains(changesetType))
       {
-        if (sqlTemplate.getFilter().contains(changesetType))
-        {
-          process(writer, sqlTemplate, changesetType, start, end);
-        }
+        process(writer, sqlTemplate, changesetType, start, end);
       }
-      xml.writeEndElement();
-      xml.writeEndDocument();
-      xml.flush();
-    }
-    catch (final XMLStreamException e)
-    {
-      throw new RuntimeException(e);
     }
   }
 
@@ -71,8 +54,14 @@ public class ChangesetExtractor
     final RowCallbackHandler callbackHandler;
     if ("create".equals(sqlTemplate.getAction()))
     {
-      // TODO
-      callbackHandler = null;
+      callbackHandler =
+        new CreateActionRowCallbackHandler(
+          writer,
+          sqlTemplate.getIdColumn(),
+          sqlTemplate.getIdPrefix(),
+          sqlTemplate.getIdSuffix(),
+          sqlTemplate.isUseLowerCaseColumnNames(),
+          sqlTemplate.getJsonColumnNames());
     }
     else if ("delete".equals(sqlTemplate.getAction()))
     {
