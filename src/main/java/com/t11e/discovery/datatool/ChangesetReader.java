@@ -1,10 +1,8 @@
 package com.t11e.discovery.datatool;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -12,7 +10,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -20,10 +17,10 @@ import org.apache.commons.lang.math.NumberUtils;
 /**
  * Utility class to use StAX to read/write changesets.
  */
-public class ChangesetStaxUtil
+public class ChangesetReader
   extends StaxUtil
 {
-  private ChangesetStaxUtil()
+  private ChangesetReader()
   {
     // Prevent instantiation
   }
@@ -240,185 +237,5 @@ public class ChangesetStaxUtil
       throw new XMLStreamException("Unable to parse value");
     }
     return output;
-  }
-
-  public static void writeChangeset(
-    final OutputStream os,
-    final Collection<Map<String, Object>> changedItems,
-    final Collection<String> deletedItemIds)
-  {
-    try
-    {
-      final XMLStreamWriter writer =
-        StaxUtil.newOutputFactory().createXMLStreamWriter(os);
-      writer.writeStartDocument();
-      writer.writeStartElement("changeset");
-      for (final Map<String, Object> properties : changedItems)
-      {
-        final String id = (String) properties.get("id");
-        writeSetItem(writer, id, properties);
-      }
-      for (final String id : deletedItemIds)
-      {
-        writeRemoveItem(writer, id);
-      }
-      writer.writeEndElement();
-      writer.writeEndDocument();
-      writer.flush();
-    }
-    catch (final XMLStreamException e)
-    {
-      throw new RuntimeException("Problem serializing changeset", e);
-    }
-  }
-
-  public static void writeSetItem(
-    final XMLStreamWriter writer,
-    final String id,
-    final Map<String, Object> properties)
-    throws XMLStreamException
-  {
-    writer.writeStartElement("set-item");
-    writer.writeAttribute("id", id);
-    writer.writeStartElement("properties");
-    writeValue(writer, id, properties, false);
-    writer.writeEndElement();
-    writer.writeEndElement();
-  }
-
-  public static void writeAddToItem(
-    final XMLStreamWriter writer,
-    final String id,
-    final Map<String, Object> properties)
-    throws XMLStreamException
-  {
-    writer.writeStartElement("add-to-item");
-    writer.writeAttribute("id", id);
-    writer.writeStartElement("properties");
-    writeValue(writer, id, properties, false);
-    writer.writeEndElement();
-    writer.writeEndElement();
-  }
-
-  public static void writeRemoveFromItem(
-    final XMLStreamWriter writer,
-    final String id,
-    final Map<String, Object> properties)
-    throws XMLStreamException
-  {
-    writer.writeStartElement("remove-from-item");
-    writer.writeAttribute("id", id);
-    writer.writeStartElement("properties");
-    writeValue(writer, id, properties, true);
-    writer.writeEndElement();
-    writer.writeEndElement();
-  }
-
-  public static void writeRemoveAllFromItem(
-    final XMLStreamWriter writer,
-    final String id)
-    throws XMLStreamException
-  {
-    writer.writeStartElement("remove-from-item");
-    writer.writeAttribute("id", id);
-    writer.writeEmptyElement("all");
-    writer.writeEndElement();
-  }
-
-  public static void writeAddItem(
-    final XMLStreamWriter writer,
-    final String id)
-    throws XMLStreamException
-  {
-    writer.writeStartElement("add-item");
-    writer.writeAttribute("id", id);
-    writer.writeEndElement();
-  }
-
-  public static void writeRemoveItem(
-    final XMLStreamWriter writer,
-    final String id)
-    throws XMLStreamException
-  {
-    writer.writeStartElement("remove-item");
-    writer.writeAttribute("id", id);
-    writer.writeEndElement();
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void writeValue(
-    final XMLStreamWriter writer,
-    final String id,
-    final Object object,
-    final boolean allowEmpty)
-    throws XMLStreamException
-  {
-    if (object instanceof Map)
-    {
-      final Map struct = (Map) object;
-      writer.writeStartElement("struct");
-      for (final Iterator i = struct.entrySet().iterator(); i.hasNext(); )
-      {
-        final Map.Entry entry = (Map.Entry) i.next();
-        final String name = entry.getKey().toString();
-        final Object value = entry.getValue();
-        writer.writeStartElement("entry");
-        writer.writeAttribute("name", name);
-        if (value != null || !allowEmpty)
-        {
-          writeValue(writer, id + ":" + name, value, allowEmpty);
-        }
-        writer.writeEndElement();
-      }
-      writer.writeEndElement();
-    }
-    else if (object instanceof Collection)
-    {
-      final Collection array = (Collection) object;
-      writer.writeStartElement("array");
-      for (final Iterator i = array.iterator(); i.hasNext(); )
-      {
-        final Object value = i.next();
-        writer.writeStartElement("element");
-        writeValue(writer, id, value, allowEmpty);
-        writer.writeEndElement();
-      }
-      writer.writeEndElement();
-    }
-    else if (object instanceof String)
-    {
-      final String value = (String) object;
-      writer.writeStartElement("string");
-      writer.writeCharacters(value);
-      writer.writeEndElement();
-    }
-    else if (object instanceof Integer)
-    {
-      final Integer value = (Integer) object;
-      writer.writeStartElement("int");
-      writer.writeCharacters(value.toString());
-      writer.writeEndElement();
-    }
-    else if (object instanceof Double)
-    {
-      final Double value = (Double) object;
-      writer.writeStartElement("real");
-      writer.writeCharacters(value.toString());
-      writer.writeEndElement();
-    }
-    else if (object instanceof Boolean)
-    {
-      final Boolean value = (Boolean) object;
-      writer.writeStartElement("bool");
-      writer.writeCharacters(value.booleanValue() ? "1" : "0");
-      writer.writeEndElement();
-    }
-    else
-    {
-      throw new XMLStreamException("Unable to write object with id " + id + ": " +
-        (object == null
-          ? "NULL"
-          : (object.getClass().getName() + ": " + object)));
-    }
   }
 }

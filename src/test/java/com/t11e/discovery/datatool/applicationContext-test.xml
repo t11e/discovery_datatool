@@ -18,26 +18,67 @@
   <context:component-scan base-package="com.t11e"/>
 
   <bean name="dateRange" class="com.t11e.discovery.datatool.ChangesetExtractor">
-    <property name="selectTemplates">
+    <property name="sqlTemplates">
       <list>
-        <bean class="com.t11e.discovery.datatool.SqlQueryTemplate">
-          <property name="selectClause" value="id, foo, bar, json_column"/>
-          <property name="fromClause" value="content_example"/>
-          <property name="whereClause" value="1=1"/>
-          <property name="deltaDateConstraint">
+        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+          <property name="filter" value="delta"/>
+          <property name="action" value="create"/>
+          <property name="query">
             <value>
               <![CDATA[
-              lastUpdated >= :start and lastUpdated < :end
+              SELECT id,foo,bar,json_column
+              FROM content_example
+              WHERE last_updated >= :start and last_updated < :end
               ]]>
             </value>
           </property>
-          <property name="snapshotDateConstraint">
+          <property name="idColumn" value="id"/>
+          <property name="useLowerCaseColumnNames" value="true"/>
+          <property name="jsonColumnNames" value="jsonColumn"/>
+        </bean>
+        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+          <property name="filter" value="delta"/>
+          <property name="action" value="delete"/>
+          <property name="query">
             <value>
               <![CDATA[
-              lastUpdated < :end
+              SELECT id
+              FROM content_deleted
+              WHERE last_updated >= :start and last_updated < :end
               ]]>
             </value>
           </property>
+          <property name="idColumn" value="id"/>
+          <property name="useLowerCaseColumnNames" value="true"/>
+          <property name="jsonColumnNames" value="jsonColumn"/>
+        </bean>
+        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+          <property name="filter" value="snapshot"/>
+          <property name="action" value="create"/>
+          <property name="query">
+            <value>
+              <![CDATA[
+              SELECT id,foo,bar,json_column
+              FROM content_example
+              WHERE last_updated < :end
+              ]]>
+            </value>
+          </property>
+          <property name="idColumn" value="id"/>
+          <property name="useLowerCaseColumnNames" value="true"/>
+          <property name="jsonColumnNames" value="jsonColumn"/>
+        </bean>
+        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+          <property name="filter" value="delta,snapshot"/>
+          <property name="action" value="create"/>
+          <property name="query">
+            <value>
+              <![CDATA[
+              call cs_content_example(:kind, :start, :end)
+              ]]>
+            </value>
+          </property>
+          <property name="idColumn" value="id"/>
           <property name="useLowerCaseColumnNames" value="true"/>
           <property name="jsonColumnNames" value="jsonColumn"/>
         </bean>
@@ -46,26 +87,51 @@
   </bean>
 
   <bean name="emptyTable" class="com.t11e.discovery.datatool.ChangesetExtractor">
-    <property name="selectTemplates">
+    <property name="sqlTemplates">
       <list>
-        <bean class="com.t11e.discovery.datatool.SqlQueryTemplate">
-          <property name="selectClause" value="id, foo, bar, json_column"/>
-          <property name="fromClause" value="empty_table"/>
-          <property name="whereClause" value="1=1"/>
-          <property name="deltaDateConstraint">
+        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+          <property name="filter" value="delta"/>
+          <property name="action" value="create"/>
+          <property name="query">
             <value>
               <![CDATA[
-              lastUpdated >= :start and lastUpdated < :end
+              SELECT id,foo,bar,json_column
+              FROM empty_table
+              WHERE last_updated >= :start and last_updated < :end
               ]]>
             </value>
           </property>
-          <property name="snapshotDateConstraint">
+          <property name="idColumn" value="id"/>
+          <property name="useLowerCaseColumnNames" value="true"/>
+          <property name="jsonColumnNames" value="jsonColumn"/>
+        </bean>
+        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+          <property name="filter" value="snapshot"/>
+          <property name="action" value="create"/>
+          <property name="query">
             <value>
               <![CDATA[
-              lastUpdated < :end
+              SELECT id,foo,bar,json_column
+              FROM empty_table
+              WHERE last_updated < :end
               ]]>
             </value>
           </property>
+          <property name="idColumn" value="id"/>
+          <property name="useLowerCaseColumnNames" value="true"/>
+          <property name="jsonColumnNames" value="jsonColumn"/>
+        </bean>
+        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+          <property name="filter" value="delta,snapshot"/>
+          <property name="action" value="create"/>
+          <property name="query">
+            <value>
+              <![CDATA[
+              call cs_empty_table(:kind, :start, :end)
+              ]]>
+            </value>
+          </property>
+          <property name="idColumn" value="id"/>
           <property name="useLowerCaseColumnNames" value="true"/>
           <property name="jsonColumnNames" value="jsonColumn"/>
         </bean>

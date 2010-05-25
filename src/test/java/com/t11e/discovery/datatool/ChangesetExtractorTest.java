@@ -29,10 +29,10 @@ public class ChangesetExtractorTest
   public void testEmptyChangeset() throws Exception
   {
     final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    emptyTableExtractor.getChangesetForRange(os, null, null);
+    emptyTableExtractor.getChangeset(os, "snapshot", null, null);
 
     final CountingChangesetListener listener = new CountingChangesetListener();
-    ChangesetStaxUtil.parseChangeset(
+    ChangesetReader.parseChangeset(
       new ByteArrayInputStream(os.toByteArray()), listener);
 
     Assert.assertEquals("Should have no set items",
@@ -49,10 +49,10 @@ public class ChangesetExtractorTest
     final Date start = format.parse("2010-02-01-00.00.00.0000");
     final Date end = format.parse("2010-02-01-00.00.03.0000");
 
-    dateRangeExtractor.getChangesetForRange(os, start, end);
+    dateRangeExtractor.getChangeset(os, "delta", start, end);
 
     final CountingChangesetListener listener = new CountingChangesetListener();
-    ChangesetStaxUtil.parseChangeset(
+    ChangesetReader.parseChangeset(
       new ByteArrayInputStream(os.toByteArray()), listener);
 
     Assert.assertEquals("Should have set items",
@@ -64,5 +64,6 @@ public class ChangesetExtractorTest
   @Test
   public void testLargeChangeset()
   {
+    Assert.fail("Not yet implemented");
   }
 }
