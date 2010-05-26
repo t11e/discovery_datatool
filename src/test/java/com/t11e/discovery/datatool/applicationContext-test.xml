@@ -17,6 +17,25 @@
   <context:annotation-config/>
   <context:component-scan base-package="com.t11e"/>
 
+  <bean class="com.t11e.discovery.datatool.ChangesetPublisherManager">
+    <property name="publishers">
+      <map>
+        <entry key="dateRange">
+          <bean class="com.t11e.discovery.datatool.ChangesetPublisher">
+            <property name="name" value="dateRange"/>
+            <property name="changesetExtractor" ref="dateRange"/>
+          </bean>
+        </entry>
+        <entry key="emptyTable">
+          <bean class="com.t11e.discovery.datatool.ChangesetPublisher">
+            <property name="name" value="emptyTable"/>
+            <property name="changesetExtractor" ref="emptyTable"/>
+          </bean>
+        </entry>
+      </map>
+    </property>
+  </bean>
+
   <bean name="dateRange" class="com.t11e.discovery.datatool.ChangesetExtractor">
     <property name="sqlTemplates">
       <list>
