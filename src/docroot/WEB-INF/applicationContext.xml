@@ -33,8 +33,8 @@
               <property name="actions">
                 <list>
                   <bean class="com.t11e.discovery.datatool.SqlAction">
-                    <property name="filter" value="delta"/>
                     <property name="action" value="create"/>
+                    <property name="filter" value="delta"/>
                     <property name="query">
                       <value>
                         <![CDATA[
@@ -45,15 +45,13 @@
                       </value>
                     </property>
                     <property name="idColumn" value="id"/>
-                    <property name="useLowerCaseColumnNames" value="true"/>
                     <property name="jsonColumnNames" value="jsonColumn"/>
                   </bean>
                   <bean class="com.t11e.discovery.datatool.SqlAction">
-                    <property name="filter" value="snapshot"/>
                     <property name="action" value="create"/>
+                    <property name="filter" value="snapshot"/>
                     <property name="query" value="select * from Content"/>
                     <property name="idColumn" value="id"/>
-                    <property name="useLowerCaseColumnNames" value="true"/>
                     <property name="jsonColumnNames" value="data"/>
                   </bean>
                 </list>

@@ -17,7 +17,7 @@ public class SqlAction
   private String idPrefix;
   private String idSuffix;
   private Set<String> jsonColumnNames = Collections.emptySet();
-  private boolean useLowerCaseColumnNames;
+  private boolean useLowerCaseColumnNames = true;
 
   public Set<String> getFilter()
   {
