@@ -32,11 +32,11 @@
     </property>
   </bean>
 
-  <bean name="dateRange" class="com.t11e.discovery.datatool.ChangesetExtractor">
+  <bean name="dateRange" class="com.t11e.discovery.datatool.SqlChangesetExtractor">
     <property name="dataSource" ref="dataSource"/>
-    <property name="sqlTemplates">
+    <property name="actions">
       <list>
-        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+        <bean class="com.t11e.discovery.datatool.SqlAction">
           <property name="filter" value="delta"/>
           <property name="action" value="create"/>
           <property name="query">
@@ -56,11 +56,11 @@
     </property>
   </bean>
 
-  <bean name="emptyTable" class="com.t11e.discovery.datatool.ChangesetExtractor">
+  <bean name="emptyTable" class="com.t11e.discovery.datatool.SqlChangesetExtractor">
     <property name="dataSource" ref="dataSource"/>
-    <property name="sqlTemplates">
+    <property name="actions">
       <list>
-        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+        <bean class="com.t11e.discovery.datatool.SqlAction">
           <property name="filter" value="delta"/>
           <property name="action" value="create"/>
           <property name="query">
@@ -76,7 +76,7 @@
           <property name="useLowerCaseColumnNames" value="true"/>
           <property name="jsonColumnNames" value="jsonColumn"/>
         </bean>
-        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+        <bean class="com.t11e.discovery.datatool.SqlAction">
           <property name="filter" value="snapshot"/>
           <property name="action" value="create"/>
           <property name="query">
@@ -92,7 +92,7 @@
           <property name="useLowerCaseColumnNames" value="true"/>
           <property name="jsonColumnNames" value="jsonColumn"/>
         </bean>
-        <bean class="com.t11e.discovery.datatool.SqlTemplate">
+        <bean class="com.t11e.discovery.datatool.SqlAction">
           <property name="filter" value="delta,snapshot"/>
           <property name="action" value="create"/>
           <property name="query">

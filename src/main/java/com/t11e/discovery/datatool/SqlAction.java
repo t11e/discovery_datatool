@@ -6,16 +6,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Required;
 
-public class SqlTemplate
+public class SqlAction
 {
-  private Set<String> filter;
+  private Set<String> filter = Collections.singleton("any");
   private String action;
   private String query;
   private String idColumn;
   private String idPrefix;
   private String idSuffix;
-  private Set<String> jsonColumnNames;
+  private Set<String> jsonColumnNames = Collections.emptySet();
   private boolean useLowerCaseColumnNames;
 
   public Set<String> getFilter()
@@ -42,6 +43,7 @@ public class SqlTemplate
   {
     return action;
   }
+  @Required
   public void setAction(final String action)
   {
     this.action = action;
@@ -50,10 +52,12 @@ public class SqlTemplate
   {
     return query;
   }
+  @Required
   public void setQuery(final String query)
   {
     this.query = query;
   }
+  @Required
   public void setIdColumn(final String idColumn)
   {
     this.idColumn = idColumn;
