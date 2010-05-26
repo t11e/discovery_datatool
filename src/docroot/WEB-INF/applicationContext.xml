@@ -48,6 +48,14 @@
                       <property name="useLowerCaseColumnNames" value="true"/>
                       <property name="jsonColumnNames" value="jsonColumn"/>
                     </bean>
+                    <bean class="com.t11e.discovery.datatool.SqlTemplate">
+                      <property name="filter" value="snapshot"/>
+                      <property name="action" value="create"/>
+                      <property name="query" value="select * from Content"/>
+                      <property name="idColumn" value="id"/>
+                      <property name="useLowerCaseColumnNames" value="true"/>
+                      <property name="jsonColumnNames" value="data"/>
+                    </bean>
                   </list>
                 </property>
               </bean>
