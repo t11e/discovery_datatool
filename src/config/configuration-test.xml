@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+  <context:annotation-config/>
+  <context:component-scan base-package="com.t11e.discovery.datatool"/>
+
+  <bean id="mysqlTest" class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource">
+    <property name="url" value="jdbc:mysql://localhost/test"/>
+    <property name="user" value="test"/>
+    <property name="password" value="test"/>
+  </bean>
+
+  <bean class="com.t11e.discovery.datatool.ChangesetPublisherManager">
+    <property name="publishers">
+      <list>
+        <bean class="com.t11e.discovery.datatool.ChangesetPublisher">
+          <property name="name" value="test"/>
+          <property name="changesetExtractor">
+            <bean class="com.t11e.discovery.datatool.SqlChangesetExtractor">
+              <property name="dataSource" ref="mysqlTest"/>
+              <property name="actions">
+                <list>
+                  <bean class="com.t11e.discovery.datatool.SqlAction">
+                    <property name="action" value="create"/>
+                    <property name="filter" value="delta"/>
+                    <property name="query">
+                      <value>
+                        <![CDATA[
+                        SELECT *
+                        FROM test_table
+                        WHERE last_updated >= :start and last_updated < :end
+                        ]]>
+                      </value>
+                    </property>
+                    <property name="idColumn" value="id"/>
+                    <property name="jsonColumnNames" value="jsonColumn"/>
+                  </bean>
+                  <bean class="com.t11e.discovery.datatool.SqlAction">
+                    <property name="action" value="create"/>
+                    <property name="filter" value="snapshot"/>
+                    <property name="query" value="select * from Content"/>
+                    <property name="idColumn" value="id"/>
+                    <property name="jsonColumnNames" value="data"/>
+                  </bean>
+                </list>
+              </property>
+            </bean>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>

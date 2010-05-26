@@ -3,12 +3,9 @@ package com.t11e.discovery.datatool;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,19 +13,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class ConfigurationController
 {
-  private ConfigurableApplicationContext currentContext;
+  @Autowired
+  private ConfigurationManager configurationManager;
+
   @RequestMapping(value="/ws/configuration", method=RequestMethod.POST)
-  public void setConfiguration(final HttpServletRequest request) throws IOException
+  public void setConfiguration(
+    final HttpServletRequest request,
+    final HttpServletResponse response)
+  throws IOException
   {
-    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    IOUtils.copy(request.getInputStream(), bos);
-    final GenericXmlApplicationContext newContext =
-      new GenericXmlApplicationContext(new ByteArrayResource(bos.toByteArray()));
-    if (currentContext != null)
-    {
-      currentContext.close();
-      currentContext = null;
-    }
-    currentContext = newContext;
+    configurationManager.loadConfiguration(request.getInputStream());
+    response.setStatus(HttpServletResponse.SC_OK);
   }
 }

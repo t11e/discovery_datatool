@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ChangesetController
 {
   @Autowired
-  private ChangesetPublisherManager changesetPublisherManager;
+  private ConfigurationManager configurationManager;
 
   private static Format HTTP_DATE_FORMAT = FastDateFormat.getInstance(
     "EEE, dd MMM yyyy HH:mm:ss zzz",
@@ -54,7 +54,7 @@ public class ChangesetController
     throws XMLStreamException, IOException
   {
     final ChangesetPublisher changesetPublisher =
-      changesetPublisherManager.getChangesetPublisher(publisherName);
+      configurationManager.getChangesetPublisher(publisherName);
     if (changesetPublisher == null)
     {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
