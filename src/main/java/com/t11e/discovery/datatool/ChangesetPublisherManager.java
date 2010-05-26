@@ -1,5 +1,7 @@
 package com.t11e.discovery.datatool;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ChangesetPublisherManager
@@ -11,8 +13,17 @@ public class ChangesetPublisherManager
     return publishers.get(publisherName);
   }
 
-  public void setPublishers(final Map<String, ChangesetPublisher> publishers)
+  public void setPublishers(final Collection<ChangesetPublisher> publishers)
   {
-    this.publishers = publishers;
+    this.publishers = new HashMap<String, ChangesetPublisher>(publishers.size());
+    for (final ChangesetPublisher publisher : publishers)
+    {
+      final String name = publisher.getName();
+      if (this.publishers.containsKey(name))
+      {
+        throw new IllegalArgumentException("More than one publisher has the name: " + name);
+      }
+      this.publishers.put(name, publisher);
+    }
   }
 }
