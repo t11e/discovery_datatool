@@ -220,6 +220,10 @@ public class ChangesetReader
     {
       output = NumberUtils.createInteger(reader.getElementText());
     }
+    else if (localName.equals("long"))
+    {
+      output = NumberUtils.createLong(reader.getElementText());
+    }
     else if (localName.equals("real"))
     {
       output = NumberUtils.createDouble(reader.getElementText());

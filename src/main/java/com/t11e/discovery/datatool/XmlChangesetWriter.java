@@ -135,6 +135,13 @@ public class XmlChangesetWriter
       writer.writeCharacters(value.toString());
       writer.writeEndElement();
     }
+    else if (object instanceof Long)
+    {
+      final Long value = (Long) object;
+      writer.writeStartElement("long");
+      writer.writeCharacters(value.toString());
+      writer.writeEndElement();
+    }
     else if (object instanceof Double)
     {
       final Double value = (Double) object;
