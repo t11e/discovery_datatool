@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -14,7 +13,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class ChangesetExtractor
 {
-  @Autowired
   private DataSource dataSource;
   private List<SqlTemplate> sqlTemplates;
   // Locally created
@@ -76,6 +74,11 @@ public class ChangesetExtractor
     jdbcTemplate.query(sqlTemplate.getQuery(), params, callbackHandler);
   }
 
+  @Required
+  public void setDataSource(final DataSource dataSource)
+  {
+    this.dataSource = dataSource;
+  }
   @Required
   public void setSqlTemplates(final List<SqlTemplate> selectTemplates)
   {

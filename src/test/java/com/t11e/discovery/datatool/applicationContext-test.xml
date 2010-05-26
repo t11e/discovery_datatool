@@ -33,6 +33,7 @@
   </bean>
 
   <bean name="dateRange" class="com.t11e.discovery.datatool.ChangesetExtractor">
+    <property name="dataSource" ref="dataSource"/>
     <property name="sqlTemplates">
       <list>
         <bean class="com.t11e.discovery.datatool.SqlTemplate">
@@ -56,6 +57,7 @@
   </bean>
 
   <bean name="emptyTable" class="com.t11e.discovery.datatool.ChangesetExtractor">
+    <property name="dataSource" ref="dataSource"/>
     <property name="sqlTemplates">
       <list>
         <bean class="com.t11e.discovery.datatool.SqlTemplate">

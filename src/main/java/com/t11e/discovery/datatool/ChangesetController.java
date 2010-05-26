@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ChangesetController
 {
   @Autowired
-  ChangesetPublisherManager changesetPublisherManager;
+  private ChangesetPublisherManager changesetPublisherManager;
 
   private static Format HTTP_DATE_FORMAT = FastDateFormat.getInstance(
     "EEE, dd MMM yyyy HH:mm:ss zzz",
