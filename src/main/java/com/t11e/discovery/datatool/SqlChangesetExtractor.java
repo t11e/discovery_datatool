@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Required;
@@ -14,16 +13,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class SqlChangesetExtractor implements ChangesetExtractor
 {
-  private DataSource dataSource;
   private List<SqlAction> sqlActions;
   // Locally created
   private NamedParameterJdbcTemplate jdbcTemplate;
-
-  @PostConstruct
-  public void initialize()
-  {
-    jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-  }
 
   public void writeChangeset(
     final ChangesetWriter writer,
@@ -79,7 +71,7 @@ public class SqlChangesetExtractor implements ChangesetExtractor
   @Required
   public void setDataSource(final DataSource dataSource)
   {
-    this.dataSource = dataSource;
+    jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
   @Required
   public void setActions(final List<SqlAction> actions)
