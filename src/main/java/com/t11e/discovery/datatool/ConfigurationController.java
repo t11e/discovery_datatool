@@ -22,7 +22,7 @@ public class ConfigurationController
     final HttpServletResponse response)
   throws IOException
   {
-    configurationManager.loadConfiguration(request.getInputStream());
+    configurationManager.loadConfiguration(request.getInputStream(), true);
     response.setStatus(HttpServletResponse.SC_OK);
   }
 }

@@ -1,9 +1,19 @@
 package com.t11e.discovery.datatool;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -19,15 +29,49 @@ import org.springframework.stereotype.Component;
 public class ConfigurationManager
 {
   private ConfigurableApplicationContext currentContext;
+  @Resource(name="configurationDirectory")
+  private String configurationDirectory;
+
+  @PostConstruct
+  public void onPostConstruct()
+  {
+    final File configFile = new File(new File(configurationDirectory), "config.xml");
+    if (configFile.exists())
+    {
+      try
+      {
+        loadConfiguration(new FileInputStream(configFile), false);
+      }
+      catch (final FileNotFoundException e)
+      {
+        throw new RuntimeException(e);
+      }
+    }
+  }
 
   public void loadConfiguration(
-    final InputStream is)
+    final InputStream is,
+    final boolean persist)
   {
-    final GenericApplicationContext newContext = createApplicationContext(is);
+    byte[] config;
+    try
+    {
+      config = IOUtils.toByteArray(is);
+    }
+    catch (final IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+    IOUtils.closeQuietly(is);
+    final GenericApplicationContext newContext = createApplicationContext(new ByteArrayInputStream(config));
     newContext.start();
 
     synchronized(this)
     {
+      if (persist)
+      {
+        swapConfigFiles(config);
+      }
       if (currentContext != null)
       {
         currentContext.stop();
@@ -35,6 +79,25 @@ public class ConfigurationManager
         currentContext = null;
       }
       currentContext = newContext;
+    }
+  }
+
+  private void swapConfigFiles(final byte[] config)
+  {
+    try
+    {
+      final File newConfig = File.createTempFile("config", ".xml", new File(configurationDirectory));
+      FileUtils.writeByteArrayToFile(newConfig, config);
+      final File configFile = new File(new File(configurationDirectory), "config.xml");
+      if (configFile.exists())
+      {
+        FileUtils.moveFile(configFile, new File(new File(configurationDirectory), "config.xml.bak"));
+      }
+      FileUtils.moveFile(newConfig, configFile);
+    }
+    catch (final IOException e)
+    {
+      throw new RuntimeException(e);
     }
   }
 

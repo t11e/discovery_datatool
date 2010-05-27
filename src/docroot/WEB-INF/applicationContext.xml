@@ -15,4 +15,7 @@
   <context:annotation-config/>
   <context:component-scan base-package="com.t11e.discovery.datatool"/>
   <mvc:annotation-driven/>
+  <bean name="configurationDirectory" class="java.lang.String">
+    <constructor-arg value="config"/>
+  </bean>
 </beans>
