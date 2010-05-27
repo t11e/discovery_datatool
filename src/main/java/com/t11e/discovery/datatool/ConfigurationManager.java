@@ -36,7 +36,7 @@ public class ConfigurationManager
   public void onPostConstruct()
   {
     final File configFile = new File(new File(configurationDirectory), "config.xml");
-    if (configFile.exists())
+    if (configFile.canRead())
     {
       try
       {
@@ -86,19 +86,46 @@ public class ConfigurationManager
   {
     try
     {
-      final File newConfig = File.createTempFile("config", ".xml", new File(configurationDirectory));
-      FileUtils.writeByteArrayToFile(newConfig, config);
       final File configFile = new File(new File(configurationDirectory), "config.xml");
-      if (configFile.exists())
+      if (contentsDiffer(config, configFile))
       {
-        FileUtils.moveFile(configFile, new File(new File(configurationDirectory), "config.xml.bak"));
-      }
-      FileUtils.moveFile(newConfig, configFile);
+        final File newConfig = File.createTempFile("config", ".xml", new File(configurationDirectory));
+        FileUtils.writeByteArrayToFile(newConfig, config);
+        if (configFile.exists())
+        {
+          final File backupFile = new File(new File(configurationDirectory), "config.xml.bak");
+          FileUtils.forceDelete(backupFile);
+          FileUtils.moveFile(configFile, backupFile);
+        }
+        FileUtils.moveFile(newConfig, configFile);
+        }
     }
     catch (final IOException e)
     {
       throw new RuntimeException(e);
     }
+  }
+
+  private boolean contentsDiffer(final byte[] config, final File configFile)
+    throws FileNotFoundException, IOException
+  {
+    boolean changed = true;
+    if (configFile.canRead())
+    {
+      final FileInputStream fis = new FileInputStream(configFile);
+      try
+      {
+        if (IOUtils.contentEquals(new ByteArrayInputStream(config), fis))
+        {
+          changed = false;
+        }
+      }
+      finally
+      {
+        IOUtils.closeQuietly(fis);
+      }
+    }
+    return changed;
   }
 
   public ChangesetPublisher getChangesetPublisher(final String name)
