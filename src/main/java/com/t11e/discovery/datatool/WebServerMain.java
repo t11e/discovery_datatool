@@ -63,7 +63,6 @@ public class WebServerMain
     final WebAppContext webapp = new WebAppContext();
     webapp.setWar(warPath);
     webapp.setContextPath("/");
-    webapp.setExtractWAR(false);
     contexts.addHandler(webapp);
 
     server.start();
