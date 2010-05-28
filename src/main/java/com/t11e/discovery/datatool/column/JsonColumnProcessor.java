@@ -3,7 +3,7 @@ package com.t11e.discovery.datatool.column;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.json.simple.JSONValue;
+import com.t11e.discovery.datatool.JsonUtil;
 
 public class JsonColumnProcessor
   implements IColumnProcessor
@@ -19,7 +19,7 @@ public class JsonColumnProcessor
     {
       try
       {
-        result = JSONValue.parse(value);
+        result = JsonUtil.decode(value);
       }
       catch (final Exception e)
       {
