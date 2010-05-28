@@ -12,18 +12,30 @@ public class WebServerMain
 {
   public static void main(final String[] args)
   {
-    final String resourceName = WebServerMain.class.getName().replace('.', '/') + ".class";
-    final URL url = WebServerMain.class.getClassLoader().getResource(resourceName);
-    final String jarPath = url.getPath().replaceFirst("^file:", "").replaceFirst("!.*$", "");
+    if (args.length != 1)
+    {
+      System.err.println("Usage: " + WebServerMain.class.getName() + " [address:]port");
+      System.exit(1);
+    }
+    final String address = args[0];
+    final String jarPath = getJarPath();
     try
     {
-      start("8080", jarPath);
+      start(address, jarPath);
     }
     catch (final Exception e)
     {
       System.err.println(e.getMessage());
       System.exit(1);
     }
+  }
+
+  private static String getJarPath()
+  {
+    final String resourceName = WebServerMain.class.getName().replace('.', '/') + ".class";
+    final URL url = WebServerMain.class.getClassLoader().getResource(resourceName);
+    final String jarPath = url.getPath().replaceFirst("^file:", "").replaceFirst("!.*$", "");
+    return jarPath;
   }
 
   public static void start(final String address, final String warPath)
