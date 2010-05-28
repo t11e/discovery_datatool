@@ -175,6 +175,7 @@
     </target>
 
     <target name="jetty-standalone">
+        <delete file="build.ant/jetty-6.1.22.standalone.jar"/>
         <jar destfile="build.ant/jetty-6.1.22.standalone.jar">
             <zipgroupfileset dir="lib">
                 <include name="jetty/jetty-6.1.22.jar"/>
@@ -187,8 +188,9 @@
         </jar>
     </target>
 
-    <target name="standalone-war" depends="war">
-        <jar destfile="build.ant/discovery_datatool_standalone.war">
+    <target name="standalone-jar" depends="war">
+        <delete file="build.ant/discovery_datatool_standalone.jar"/>
+        <jar destfile="build.ant/discovery_datatool_standalone.jar">
             <fileset dir="build.ant/main" includes="com/t11e/discovery/datatool/WebServerMain.class"/>
             <zipgroupfileset dir="lib">
                 <include name="jetty/jetty-6.1.22.jar"/>

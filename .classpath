@@ -26,7 +26,7 @@
 	<classpathentry kind="lib" path="lib/javax/servlet-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/javax/validation-api-1.0.0.GA.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-6.1.22-sources.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-6.1.22.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-6.1.22.jar" sourcepath="lib/jetty/jetty-6.1.22-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-naming-6.1.22-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-naming-6.1.22.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-plus-6.1.22-sources.jar"/>
