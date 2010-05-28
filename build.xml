@@ -191,11 +191,17 @@
     <target name="standalone-jar" depends="war">
         <delete file="build.ant/discovery_datatool_standalone.jar"/>
         <jar destfile="build.ant/discovery_datatool_standalone.jar">
-            <fileset dir="build.ant/main" includes="com/t11e/discovery/datatool/WebServerMain.class"/>
+            <fileset dir="build.ant/main">
+              <include name="com/t11e/discovery/datatool/WebServerMain.class"/>
+              <include name="com/t11e/discovery/datatool/CustomLogFormatter.class"/>
+            </fileset>
             <zipgroupfileset dir="lib">
                 <include name="jetty/jetty-6.1.22.jar"/>
                 <include name="jetty/jetty-util-6.1.22.jar"/>
                 <include name="javax/servlet-2.5.jar"/>
+                <include name="deps/slf4j-api-1.5.10.jar"/>
+                <include name="deps/slf4j-jdk14-1.5.10.jar"/>
+                <include name="jakarta/commons-lang-2.4.jar"/>
             </zipgroupfileset>
             <zipgroupfileset file="build.ant/discovery_datatool.war"/>
             <manifest>
