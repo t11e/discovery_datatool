@@ -25,7 +25,7 @@ public class SqlChangesetExtractor implements ChangesetExtractor
     for (final SqlAction sqlAction : sqlActions)
     {
       final Set<String> filters = sqlAction.getFilter();
-      if (filters.contains("all") || filters.contains(changesetType))
+      if (filters.contains("any") || filters.contains(changesetType))
       {
         process(writer, sqlAction, changesetType, start, end);
       }
