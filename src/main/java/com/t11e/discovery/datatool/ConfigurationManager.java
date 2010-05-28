@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -26,27 +25,42 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("ConfigurationManager")
 public class ConfigurationManager
 {
+  private String configurationDirectory = ".";
+  private boolean exitOnInvalidConfigAtStartup;
   private ConfigurableApplicationContext currentContext;
-  @Resource(name="configurationDirectory")
-  private String configurationDirectory;
 
   @PostConstruct
   public void onPostConstruct()
   {
     final File configFile = new File(new File(configurationDirectory), "config.xml");
-    if (configFile.canRead())
+    try
     {
-      try
-      {
-        loadConfiguration(new FileInputStream(configFile), false);
-      }
-      catch (final FileNotFoundException e)
-      {
-        throw new RuntimeException(e);
-      }
+      loadConfiguration(new FileInputStream(configFile), false);
+    }
+    catch (final RuntimeException e)
+    {
+      exitOnStartupIfConfigured(e);
+      throw e;
+    }
+    catch (final FileNotFoundException e)
+    {
+      exitOnStartupIfConfigured(e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  // TODO This is a hack so we don't need to dive into the Jetty/Spring
+  // lifecycle stuff. It allows us to terminate the tool when running it from
+  // a standalone jar if the config is missing or invalid.
+  private void exitOnStartupIfConfigured(final Throwable e)
+  {
+    if (exitOnInvalidConfigAtStartup)
+    {
+      System.err.println(e.getMessage());
+      System.exit(1);
     }
   }
 
@@ -228,5 +242,15 @@ public class ConfigurationManager
     }
     applicationContext.refresh();
     return applicationContext;
+  }
+
+  public void setExitOnInvalidConfigAtStartup(
+    final boolean exitOnInvalidConfigAtStartup)
+  {
+    this.exitOnInvalidConfigAtStartup = exitOnInvalidConfigAtStartup;
+  }
+  public void setConfigurationDirectory(final String configurationDirectory)
+  {
+    this.configurationDirectory = configurationDirectory;
   }
 }
