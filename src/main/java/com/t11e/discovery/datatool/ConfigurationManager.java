@@ -28,17 +28,16 @@ import org.springframework.stereotype.Component;
 @Component("ConfigurationManager")
 public class ConfigurationManager
 {
-  private String configurationDirectory = ".";
+  private File configurationFile = new File("discovery_datatool.xml");
   private boolean exitOnInvalidConfigAtStartup;
   private ConfigurableApplicationContext currentContext;
 
   @PostConstruct
   public void onPostConstruct()
   {
-    final File configFile = new File(new File(configurationDirectory), "config.xml");
     try
     {
-      loadConfiguration(new FileInputStream(configFile), false);
+      loadConfiguration(new FileInputStream(configurationFile), false);
     }
     catch (final RuntimeException e)
     {
@@ -48,7 +47,7 @@ public class ConfigurationManager
     catch (final FileNotFoundException e)
     {
       exitOnStartupIfConfigured(e);
-      throw new RuntimeException(e);
+      // Otherwise ignore this error
     }
   }
 
@@ -101,14 +100,15 @@ public class ConfigurationManager
   {
     try
     {
-      final File configFile = new File(new File(configurationDirectory), "config.xml");
-      if (contentsDiffer(config, configFile))
+      if (contentsDiffer(config, configurationFile))
       {
-        final File newConfig = File.createTempFile("config", ".xml", new File(configurationDirectory));
+        final File newConfig =
+          File.createTempFile(configurationFile.getName(), ".tmp",
+            configurationFile.getCanonicalFile().getParentFile());
         FileUtils.writeByteArrayToFile(newConfig, config);
-        if (configFile.exists())
+        if (configurationFile.exists())
         {
-          final File backupFile = new File(new File(configurationDirectory), "config.xml.bak");
+          final File backupFile = new File(configurationFile + ".bak");
           try
           {
             FileUtils.forceDelete(backupFile);
@@ -117,9 +117,9 @@ public class ConfigurationManager
           {
             // Ignore
           }
-          FileUtils.moveFile(configFile, backupFile);
+          FileUtils.moveFile(configurationFile, backupFile);
         }
-        FileUtils.moveFile(newConfig, configFile);
+        FileUtils.moveFile(newConfig, configurationFile);
       }
     }
     catch (final IOException e)
@@ -249,8 +249,8 @@ public class ConfigurationManager
   {
     this.exitOnInvalidConfigAtStartup = exitOnInvalidConfigAtStartup;
   }
-  public void setConfigurationDirectory(final String configurationDirectory)
+  public void setConfigurationFile(final String configurationFile)
   {
-    this.configurationDirectory = configurationDirectory;
+    this.configurationFile = new File(configurationFile);
   }
 }
