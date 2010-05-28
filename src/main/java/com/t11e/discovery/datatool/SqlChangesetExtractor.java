@@ -14,7 +14,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 public class SqlChangesetExtractor implements ChangesetExtractor
 {
   private List<SqlAction> sqlActions;
-  // Locally created
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   public void writeChangeset(

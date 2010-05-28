@@ -19,6 +19,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -94,11 +95,18 @@ public class ConfigurationManager
         if (configFile.exists())
         {
           final File backupFile = new File(new File(configurationDirectory), "config.xml.bak");
-          FileUtils.forceDelete(backupFile);
+          try
+          {
+            FileUtils.forceDelete(backupFile);
+          }
+          catch (final FileNotFoundException e)
+          {
+            // Ignore
+          }
           FileUtils.moveFile(configFile, backupFile);
         }
         FileUtils.moveFile(newConfig, configFile);
-        }
+      }
     }
     catch (final IOException e)
     {
@@ -128,18 +136,14 @@ public class ConfigurationManager
     return changed;
   }
 
-  public ChangesetPublisher getChangesetPublisher(final String name)
+
+  public <T> T getBean(final Class<T> klass)
+    throws BeansException
   {
-    ChangesetPublisher result = null;
-    synchronized(this)
+    synchronized (this)
     {
-      if (currentContext != null)
-      {
-        final ChangesetPublisherManager mgr = currentContext.getBean(ChangesetPublisherManager.class);
-        result = mgr.getChangesetPublisher(name);
-      }
+      return currentContext.getBean(klass);
     }
-    return result;
   }
 
   @SuppressWarnings("unchecked")
@@ -172,6 +176,16 @@ public class ConfigurationManager
       }
     }
     {
+      for (final Node node : (List<Node>) document.selectNodes("/config/profiles/sqlProfile"))
+      {
+        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
+        builder.addPropertyValue("tableName", node.valueOf("@tableName"));
+        builder.addPropertyValue("nameColumn", node.valueOf("@nameColumn"));
+        builder.addPropertyValue("lastRunColumn", node.valueOf("@lastRunColumn"));
+        applicationContext.registerBeanDefinition("profile-" + node.valueOf("@name"), builder.getBeanDefinition());
+      }
+    }
+    {
       final List<ChangesetPublisher> publishers = new ArrayList<ChangesetPublisher>();
       for (final Node node : (List<Node>) document.selectNodes("/config/publishers/sqlPublisher"))
       {
@@ -199,6 +213,7 @@ public class ConfigurationManager
           final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ChangesetPublisher.class);
           final String name = node.valueOf("@name");
           builder.addPropertyValue("name", name);
+          builder.addPropertyReference("changesetProfileService", "profile-" + node.valueOf("@profile"));
           builder.addPropertyValue("changesetExtractor", sqlChangesetExtractor);
           final String beanName = "Publisher-" + name;
           applicationContext.registerBeanDefinition(beanName, builder.getBeanDefinition());

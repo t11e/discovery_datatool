@@ -18,7 +18,7 @@
   <context:component-scan base-package="com.t11e"/>
 
   <bean name="configurationDirectory" class="java.lang.String">
-    <constructor-arg value="config"/>
+    <constructor-arg value="."/>
   </bean>
 
   <bean class="com.t11e.discovery.datatool.ChangesetPublisherManager">
@@ -26,14 +26,23 @@
       <list>
         <bean class="com.t11e.discovery.datatool.ChangesetPublisher">
           <property name="name" value="dateRange"/>
+          <property name="changesetProfileService" ref="profile"/>
           <property name="changesetExtractor" ref="dateRange"/>
         </bean>
         <bean class="com.t11e.discovery.datatool.ChangesetPublisher">
           <property name="name" value="emptyTable"/>
+          <property name="changesetProfileService" ref="profile"/>
           <property name="changesetExtractor" ref="emptyTable"/>
         </bean>
       </list>
     </property>
+  </bean>
+
+  <bean name="profile" class="com.t11e.discovery.datatool.SqlChangesetProfileService">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="tableName" value="ChangesetProfile"/>
+    <property name="nameColumn" value="name"/>
+    <property name="lastRunColumn" value="lastRun"/>
   </bean>
 
   <bean name="dateRange" class="com.t11e.discovery.datatool.SqlChangesetExtractor">

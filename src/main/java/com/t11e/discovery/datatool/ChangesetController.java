@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ChangesetController
 {
   @Autowired
-  private ConfigurationManager configurationManager;
+  private ChangesetService changesetService;
 
   private static Format HTTP_DATE_FORMAT = FastDateFormat.getInstance(
     "EEE, dd MMM yyyy HH:mm:ss zzz",
@@ -54,7 +54,9 @@ public class ChangesetController
     throws XMLStreamException, IOException
   {
     final ChangesetPublisher changesetPublisher =
-      configurationManager.getChangesetPublisher(publisherName);
+      changesetService.getChangesetPublisher(publisherName);
+    final ChangesetProfileService changesetProfileService =
+      changesetPublisher.getChangesetProfileService();
     if (changesetPublisher == null)
     {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -69,12 +71,23 @@ public class ChangesetController
     }
     else
     {
-      // TODO Get the profile from the publisher
-      start = null;
-      end = null;
+      try
+      {
+        final Date[] range = changesetProfileService.getChangesetProfileDateRange(profile);
+        start = range[0];
+        end = range[1];
+      }
+      catch (final NoSuchProfileException e)
+      {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        return;
+      }
     }
     publishImpl(response, changesetPublisher.getChangesetExtractor(), start, end);
-    // TODO if we have a profile and this wasn't a dryRun, persist the state
+    if (!dryRun)
+    {
+      changesetProfileService.saveChangesetProfileLastRun(profile, end);
+    }
   }
 
   public void publishImpl(

@@ -7,8 +7,13 @@
     </dataSource>
   </dataSources>
 
+  <profiles>
+    <sqlProfile name="sqlProfile" dataSource="mysqlTest"
+                tableName="ChangesetProfile" nameColumn="name" lastRunColumn="lastRun"/>
+  </profiles>
+
   <publishers>
-    <sqlPublisher name="test" dataSource="mysqlTest">
+    <sqlPublisher name="test" dataSource="mysqlTest" profile="sqlProfile">
       <action type="create" filter="delta"
               idColumn="id" jsonColumnNames="jsonColumn">
         <query><![CDATA[
