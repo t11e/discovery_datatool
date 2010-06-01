@@ -84,8 +84,6 @@
 	<classpathentry kind="lib" path="lib/spring/spring-security-web-3.0.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.8.1-src.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/stax-api-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/wstx-asl-3.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/jmock-junit4-2.5.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/discovery_datatool/lib/test/jmock-2.5.1-javadoc.zip!/jmock-2.5.1/doc"/>
@@ -105,5 +103,7 @@
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1/jaxen-1.1-beta-6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/test/derby-10.5.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/stax2-api-3.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/woodstox-core-asl-4.0.8.jar"/>
 	<classpathentry kind="output" path="build.eclipse"/>
 </classpath>
