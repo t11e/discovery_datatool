@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+    targetNamespace="http://transparensee.com/schema/datatool-config-1" 
+    xmlns:tns="http://transparensee.com/schema/datatool-config-1" 
+    elementFormDefault="qualified"
+    >
+
+    <element name="config" type="tns:ConfigType"/>
+
+    <complexType name="ConfigType">
+      <sequence>
+        <element name="dataSources" type="tns:DataSourcesType"/>
+        <element name="profiles" type="tns:ProfilesType"/>
+        <element name="publishers" type="tns:PublishersType"/>
+      </sequence>
+    </complexType>
+
+    <complexType name="DataSourcesType">
+      <sequence minOccurs="1" maxOccurs="unbounded">
+        <element name="dataSource" type="tns:DataSourceType"/>
+      </sequence>
+    </complexType>
+
+    <complexType name="DataSourceType">
+      <sequence minOccurs="0" maxOccurs="unbounded">
+        <any processContents="lax"/>
+      </sequence>
+      <attribute name="name" type="string" use="required"/>
+      <attribute name="jar" type="string" use="optional"/>
+      <attribute name="class" type="string" use="required"/>
+    </complexType>
+
+    <complexType name="ProfilesType">
+      <sequence minOccurs="1" maxOccurs="unbounded">
+        <element name="sqlProfile" type="tns:SqlProfileType"/>
+      </sequence>
+    </complexType>
+
+    <complexType name="PublishersType">
+      <sequence minOccurs="1" maxOccurs="unbounded">
+        <element name="sqlPublisher" type="tns:SqlPublisherType"/>
+      </sequence>
+    </complexType>
+
+    <complexType name="SqlProfileType">
+      <attribute name="name" type="string" use="required"/>
+      <attribute name="dataSource" type="string" use="required"/>
+      <attribute name="tableName" type="string" use="required"/>
+      <attribute name="nameColumn" type="string" use="required"/>
+      <attribute name="lastRunColumn" type="string" use="required"/>
+    </complexType>
+
+    <complexType name="SqlPublisherType">
+      <sequence minOccurs="1" maxOccurs="unbounded">
+        <element name="action" type="tns:ActionType"/>
+      </sequence>
+      <attribute name="name" type="string" use="required"/>
+      <attribute name="dataSource" type="string" use="required"/>
+      <attribute name="profile" type="string" use="required"/>
+    </complexType>
+
+    <complexType name="ActionType">
+      <sequence>
+        <element name="query" type="string"/>
+      </sequence>
+      <attribute name="type" type="tns:ActionTypeType" use="required"/>
+      <attribute name="filter" type="tns:FilterActionType" use="optional"/>
+      <attribute name="idColumn" type="string" use="required"/>
+      <attribute name="jsonColumnNames" type="string"  use="optional"/>
+    </complexType>
+
+    <simpleType name="ActionTypeType">
+      <restriction base="string">
+        <enumeration value="create"/>
+        <enumeration value="delete"/>
+      </restriction>
+    </simpleType>
+
+    <simpleType name="FilterActionType">
+      <restriction base="string">
+        <enumeration value="delta"/>
+        <enumeration value="snapshot"/>
+      </restriction>
+    </simpleType>
+</schema>

@@ -38,8 +38,7 @@
           printsummary="true">
             <classpath>
                 <path refid="build.classpath"/>
-                <path path="src/docroot"/>
-                <path path="src/main/java"/>
+                <path path="src/docroot/WEB-INF/classes"/>
                 <path path="src/test/java"/>
                 <path path="build.ant/main"/>
                 <path path="build.ant/test"/>
@@ -119,7 +118,8 @@
               <exclude name="**/*-sources.jar"/>
               <exclude name="**/*-src.jar"/>
           </fileset>
-          <path path="build.ant/main"/>
+        <path path="build.ant/main"/>
+        <path path="src/docroot/WEB-INF/classes"/>
       </path>
       <antcall target="jetty">
           <param name="argline"

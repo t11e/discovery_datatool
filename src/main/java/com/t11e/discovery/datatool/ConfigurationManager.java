@@ -11,7 +11,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
@@ -20,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.DocumentFactory;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.springframework.beans.BeansException;
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
 @Component("ConfigurationManager")
 public class ConfigurationManager
@@ -169,18 +170,33 @@ public class ConfigurationManager
   {
     final GenericApplicationContext applicationContext = new GenericApplicationContext();
 
-    final SAXReader xmlReader = new SAXReader();
+    final SAXReader saxReader = new SAXReader(true);
+    try
+    {
+      saxReader.setFeature("http://apache.org/xml/features/validation/schema", true);
+    }
+    catch (final SAXException e)
+    {
+      throw new RuntimeException(e);
+    }
+    saxReader.setEntityResolver(new DataToolEntityResolver());
+    {
+      final DocumentFactory factory = new DocumentFactory();
+      factory.setXPathNamespaceURIs(CollectionsFactory.makeMap(
+        "c", "http://transparensee.com/schema/datatool-config-1"));
+      saxReader.setDocumentFactory(factory);
+    }
     final Document document;
     try
     {
-      document = xmlReader.read(is);
+      document = saxReader.read(is);
     }
     catch (final DocumentException e)
     {
       throw new RuntimeException(e);
     }
     {
-      for (final Node node : (List<Node>) document.selectNodes("/config/dataSources/dataSource"))
+      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:dataSource"))
       {
         final String name = node.valueOf("@name");
         final Class<DataSource> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
@@ -194,7 +210,7 @@ public class ConfigurationManager
       }
     }
     {
-      for (final Node node : (List<Node>) document.selectNodes("/config/profiles/sqlProfile"))
+      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:profiles/c:sqlProfile"))
       {
         final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
         builder.addPropertyValue("tableName", node.valueOf("@tableName"));
@@ -205,15 +221,15 @@ public class ConfigurationManager
     }
     {
       final List<ChangesetPublisher> publishers = new ArrayList<ChangesetPublisher>();
-      for (final Node node : (List<Node>) document.selectNodes("/config/publishers/sqlPublisher"))
+      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher"))
       {
         final List<SqlAction> actions = new ArrayList<SqlAction>();
-        for (final Node action : (List<Node>) node.selectNodes("action"))
+        for (final Node action : (List<Node>) node.selectNodes("c:action"))
         {
           final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlAction.class);
           builder.addPropertyValue("action", action.valueOf("@type"));
           builder.addPropertyValue("filter", action.valueOf("@filter"));
-          builder.addPropertyValue("query", StringUtils.trimToEmpty(action.valueOf("query/text()")));
+          builder.addPropertyValue("query", StringUtils.trimToEmpty(action.valueOf("c:query/text()")));
           builder.addPropertyValue("idColumn", action.valueOf("@idColumn"));
           builder.addPropertyValue("jsonColumnNames", action.valueOf("@jsonColumnNames"));
           final String beanName = "SqlAction-" + System.identityHashCode(builder);
