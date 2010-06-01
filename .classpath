@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="lib" path="lib/c3p0-0.9.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/deps/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/deps/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/deps/asm-3.2.jar"/>
@@ -10,7 +9,6 @@
 	<classpathentry kind="lib" path="lib/deps/javassist-3.9.0.GA.jar"/>
 	<classpathentry kind="lib" path="lib/deps/slf4j-api-1.5.10.jar"/>
 	<classpathentry kind="lib" path="lib/deps/slf4j-jdk14-1.5.10.jar"/>
-	<classpathentry kind="lib" path="lib/derby-10.5.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta/commons-collections-3.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta/commons-collections-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta/commons-io-1.4-sources.jar"/>
@@ -34,14 +32,13 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-util-6.1.22-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-util-6.1.22.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp-api-2.1-glassfish-9.1.1.B60.25.p2.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.aop-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.aop-sources-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.asm-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.asm-sources-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.aspects-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.aspects-sources-3.0.0.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/spring/org.springframework.beans-3.0.0.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring/org.springframework.beans-3.0.0.RELEASE.jar" sourcepath="lib/spring/org.springframework.beans-sources-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.beans-sources-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.context-3.0.0.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/spring/org.springframework.context-sources-3.0.0.RELEASE.jar"/>
@@ -107,5 +104,6 @@
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1/dom4j-1.6.1.jar" sourcepath="lib/dom4j-1.6.1/dom4j-1.6.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1/jaxen-1.1-beta-6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="lib/test/derby-10.5.3.0.jar"/>
 	<classpathentry kind="output" path="build.eclipse"/>
 </classpath>

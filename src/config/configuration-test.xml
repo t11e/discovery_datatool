@@ -1,6 +1,8 @@
 <config>
   <dataSources>
-    <dataSource name="mysqlTest" class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource">
+    <dataSource name="mysqlTest"
+      jar="stage/mysql-connector-java-5.1.10-bin.jar"
+      class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource">
       <url>jdbc:mysql://localhost/test</url>
       <user>test<span>hello</span></user>
       <password>test</password>

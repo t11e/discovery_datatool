@@ -6,10 +6,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -179,7 +183,7 @@ public class ConfigurationManager
       for (final Node node : (List<Node>) document.selectNodes("/config/dataSources/dataSource"))
       {
         final String name = node.valueOf("@name");
-        final String clazz = node.valueOf("@class");
+        final Class<DataSource> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
         final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
         for (final Node child : (List<Node>) node.selectNodes("*"))
         {
@@ -242,6 +246,50 @@ public class ConfigurationManager
     }
     applicationContext.refresh();
     return applicationContext;
+  }
+
+  private static Class<DataSource> loadDataSource(
+    final String dataSourceClassName,
+    final String jarPath)
+  {
+    try
+    {
+      final URL jarUrl = new File(jarPath).toURI().toURL();
+      return loadDataSource(dataSourceClassName, jarUrl);
+    }
+    catch (final MalformedURLException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+
+    @SuppressWarnings("unchecked")
+  private static Class<DataSource> loadDataSource(
+    final String dataSourceClassName,
+    final URL jarUrl)
+  {
+    Class<DataSource> driverClass;
+    try
+    {
+      if (jarUrl == null)
+      {
+        driverClass = (Class<DataSource>) Class.forName(dataSourceClassName);
+      }
+      else
+      {
+        final URLClassLoader classLoader = new URLClassLoader(new URL[] {jarUrl});
+        driverClass = (Class<DataSource>) classLoader.loadClass(dataSourceClassName);
+      }
+    }
+    catch (final ClassCastException e)
+    {
+      throw new RuntimeException(dataSourceClassName + " is not a DataSource, from " + jarUrl, e);
+    }
+    catch (final ClassNotFoundException e)
+    {
+      throw new RuntimeException("Could not find the DataSource: " + dataSourceClassName + " from " + jarUrl, e);
+    }
+    return driverClass;
   }
 
   public void setExitOnInvalidConfigAtStartup(
