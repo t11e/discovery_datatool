@@ -1,13 +1,16 @@
 package com.t11e.discovery.datatool;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.zip.GZIPOutputStream;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -46,6 +49,7 @@ public class ChangesetController
 
   @RequestMapping("/ws/publisher/{publisherName}")
   public void publish(
+    final HttpServletRequest request,
     final HttpServletResponse response,
     @PathVariable("publisherName") final String publisherName,
     @RequestParam(value="startDate", defaultValue="", required=false) final Date startParam,
@@ -84,7 +88,7 @@ public class ChangesetController
         return;
       }
     }
-    publishImpl(response, changesetPublisher.getChangesetExtractor(), start, end);
+    publishImpl(request, response, changesetPublisher.getChangesetExtractor(), start, end);
     if (StringUtils.isNotBlank(profile) && !dryRun)
     {
       changesetProfileService.saveChangesetProfileLastRun(profile, end);
@@ -92,6 +96,7 @@ public class ChangesetController
   }
 
   public void publishImpl(
+    final HttpServletRequest request,
     final HttpServletResponse response,
     final ChangesetExtractor changesetExtractor,
     final Date start,
@@ -103,17 +108,25 @@ public class ChangesetController
     response.setHeader("Date",
       HTTP_DATE_FORMAT.format(end != null ? end : new Date()));
     response.setHeader("X-t11e-type", changesetType);
-    final XMLStreamWriter xml =
-      StaxUtil.newOutputFactory().createXMLStreamWriter(response.getOutputStream());
-    xml.writeStartDocument();
-    xml.writeCharacters("\n");
-    xml.writeStartElement("changeset");
-    xml.writeCharacters("\n");
-    changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
-      changesetType, start, end );
-    xml.writeEndElement();
-    xml.writeCharacters("\n");
-    xml.writeEndDocument();
-    xml.flush();
+    final OutputStream os = HttpUtil.getCompressedResponseStream(request, response);
+    {
+      final XMLStreamWriter xml =
+        StaxUtil.newOutputFactory().createXMLStreamWriter(os);
+      xml.writeStartDocument();
+      xml.writeCharacters("\n");
+      xml.writeStartElement("changeset");
+      xml.writeCharacters("\n");
+      changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
+        changesetType, start, end );
+      xml.writeEndElement();
+      xml.writeCharacters("\n");
+      xml.writeEndDocument();
+      xml.flush();
+    }
+    if (os instanceof GZIPOutputStream)
+    {
+      final GZIPOutputStream gos = (GZIPOutputStream) os;
+      gos.finish();
+    }
   }
 }
