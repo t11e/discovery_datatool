@@ -27,6 +27,7 @@ public class XmlChangesetWriter
     writeValue(id, properties, false);
     writer.writeEndElement();
     writer.writeEndElement();
+    writer.writeCharacters("\n");
   }
 
   public void addToItem(
@@ -40,6 +41,7 @@ public class XmlChangesetWriter
     writeValue(id, properties, false);
     writer.writeEndElement();
     writer.writeEndElement();
+    writer.writeCharacters("\n");
   }
 
   public void removeFromItem(
@@ -53,6 +55,7 @@ public class XmlChangesetWriter
     writeValue(id, properties, true);
     writer.writeEndElement();
     writer.writeEndElement();
+    writer.writeCharacters("\n");
   }
 
   public void removeAllFromItem(
@@ -63,6 +66,7 @@ public class XmlChangesetWriter
     writer.writeAttribute("id", id);
     writer.writeEmptyElement("all");
     writer.writeEndElement();
+    writer.writeCharacters("\n");
   }
 
   public void addItem(
@@ -72,6 +76,7 @@ public class XmlChangesetWriter
     writer.writeStartElement("add-item");
     writer.writeAttribute("id", id);
     writer.writeEndElement();
+    writer.writeCharacters("\n");
   }
 
   public void removeItem(
@@ -81,6 +86,7 @@ public class XmlChangesetWriter
     writer.writeStartElement("remove-item");
     writer.writeAttribute("id", id);
     writer.writeEndElement();
+    writer.writeCharacters("\n");
   }
 
   @SuppressWarnings("unchecked") void writeValue(
