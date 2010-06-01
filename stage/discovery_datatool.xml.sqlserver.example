@@ -1,9 +1,12 @@
 <config>
   <dataSources>
     <dataSource name="dataSource"
-      jar="mysql-connector-java-5.1.10-bin.jar"
-      class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource">
-      <url>jdbc:mysql://localhost/test</url>
+      jar="drivers/jtds-1.2.5.jar"
+      class="net.sourceforge.jtds.jdbcx.JtdsDataSource">
+      <!-- 1: sqlserver, 2: sybase -->
+      <serverType>1</serverType> 
+      <serverName>localhost</serverName>
+      <databaseName>test</databaseName>
       <user>test</user>
       <password>test</password>
     </dataSource>

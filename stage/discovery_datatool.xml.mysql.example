@@ -1,0 +1,33 @@
+<config>
+  <dataSources>
+    <dataSource name="dataSource"
+      jar="drivers/mysql-connector-java-5.1.10-bin.jar"
+      class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource">
+      <url>jdbc:mysql://localhost/test</url>
+      <user>test</user>
+      <password>test</password>
+    </dataSource>
+  </dataSources>
+
+  <profiles>
+    <sqlProfile name="sqlProfile" dataSource="dataSource"
+                tableName="ChangesetProfile" nameColumn="name" lastRunColumn="lastRun"/>
+  </profiles>
+
+  <publishers>
+    <sqlPublisher name="test" dataSource="dataSource" profile="sqlProfile">
+      <action type="create" filter="delta" idColumn="id">
+        <query><![CDATA[
+          select * from test_table
+          where last_updated >= :start and last_updated < :end
+        ]]></query>
+      </action>
+      <action type="create" filter="snapshot" idColumn="id">
+        <query><![CDATA[
+          select * from test_table
+          where last_updated < :end
+        ]]></query>
+      </action>
+    </sqlPublisher>
+  </publishers>
+</config>
