@@ -131,7 +131,7 @@ public class XmlChangesetWriter
     {
       final String value = (String) object;
       writer.writeStartElement("string");
-      writer.writeCharacters(value);
+      StaxUtil.writeFilteredCharacters(writer, value);
       writer.writeEndElement();
     }
     else if (object instanceof Integer)
