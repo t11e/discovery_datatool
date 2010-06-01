@@ -1,0 +1,36 @@
+<!ELEMENT config (dataSources, profiles, publishers)>
+
+<!ELEMENT dataSources (dataSource)+>
+
+<!ELEMENT dataSource ANY>
+<!ATTLIST dataSource
+    name CDATA #REQUIRED
+    jar CDATA #REQUIRED
+    class CDATA #REQUIRED>
+
+<!ELEMENT profiles (sqlProfile)+>
+
+<!ELEMENT sqlProfile EMPTY>
+<!ATTLIST sqlProfile
+    name CDATA #REQUIRED
+    dataSource CDATA #REQUIRED
+    tableName CDATA #REQUIRED
+    nameColumn CDATA #REQUIRED
+    lastRunColumn CDATA #REQUIRED>
+
+<!ELEMENT publishers (sqlPublisher)+>
+
+<!ELEMENT sqlPublisher (action)+>
+<!ATTLIST sqlPublisher
+    name CDATA #REQUIRED
+    dataSource CDATA #REQUIRED
+    profile CDATA #REQUIRED>
+
+<!ELEMENT action (query)>
+<!ATTLIST action
+    type (create|delete) #REQUIRED
+    filter (delta|snapshot) #REQUIRED
+    idColumn CDATA #REQUIRED
+    jsonColumnNames CDATA #IMPLIED>
+
+<!ELEMENT query (#PCDATA)>

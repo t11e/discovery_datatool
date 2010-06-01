@@ -11,9 +11,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -25,13 +29,21 @@ import org.dom4j.io.SAXReader;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.PluggableSchemaResolver;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 @Component("ConfigurationManager")
 public class ConfigurationManager
 {
+  private static final Logger logger =
+    Logger.getLogger(ConfigurationManager.class.getName());
+
   private File configurationFile = new File("discovery_datatool.xml");
   private boolean exitOnInvalidConfigAtStartup;
   private ConfigurableApplicationContext currentContext;
@@ -169,11 +181,63 @@ public class ConfigurationManager
   {
     final GenericApplicationContext applicationContext = new GenericApplicationContext();
 
-    final SAXReader xmlReader = new SAXReader();
+    final SAXReader saxReader;
+    if (false)
+    {
+      logger.log(Level.SEVERE, "Complex setup");
+      saxReader = new SAXReader();
+      try
+      {
+        final SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(false);
+        final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
+        saxReader.setXMLReader(xmlReader);
+        //saxReader.setFeature("http://xml.org/sax/features/namespaces", false);
+        saxReader.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+        saxReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        //saxReader.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace", false);
+        saxReader.setValidation(true);
+        saxReader.setEntityResolver(new PluggableSchemaResolver(null));
+        //saxReader.setDocumentFactory( df() );
+        saxReader.setStripWhitespaceText(true);
+      }
+      catch (final SAXException e1)
+      {
+        throw new RuntimeException(e1);
+      }
+      catch (final ParserConfigurationException e1)
+      {
+        throw new RuntimeException(e1);
+      }
+    }
+    else
+    {
+      logger.log(Level.SEVERE, "Simple setup");
+      saxReader = new SAXReader(false);
+      saxReader.setIncludeExternalDTDDeclarations(false);
+      saxReader.setIncludeInternalDTDDeclarations(true);
+      saxReader.setEntityResolver(new EntityResolver()
+      {
+        public InputSource resolveEntity(final String publicId, final String systemId)
+          throws SAXException, IOException
+        {
+          logger.log(Level.SEVERE, "resolveEntity " + publicId + " " + systemId);
+          InputSource result = null;
+          if ("YYY".equals(publicId))
+          {
+            final InputStream is = ConfigurationManager.class.getClassLoader().getResourceAsStream("discovery_datatool_config.dtd");
+            logger.log(Level.SEVERE, "is: " + is);
+            result = new InputSource();
+          }
+          return result;
+        }
+      });
+      //saxReader.setEntityResolver(new PluggableSchemaResolver(null));
+    }
     final Document document;
     try
     {
-      document = xmlReader.read(is);
+      document = saxReader.read(is);
     }
     catch (final DocumentException e)
     {
