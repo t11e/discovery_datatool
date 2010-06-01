@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -55,13 +56,13 @@ public class ChangesetController
   {
     final ChangesetPublisher changesetPublisher =
       changesetService.getChangesetPublisher(publisherName);
-    final ChangesetProfileService changesetProfileService =
-      changesetPublisher.getChangesetProfileService();
     if (changesetPublisher == null)
     {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
+    final ChangesetProfileService changesetProfileService =
+      changesetPublisher.getChangesetProfileService();
     final Date start;
     final Date end;
     if (profile == null)
@@ -84,7 +85,7 @@ public class ChangesetController
       }
     }
     publishImpl(response, changesetPublisher.getChangesetExtractor(), start, end);
-    if (!dryRun)
+    if (StringUtils.isNotBlank(profile) && !dryRun)
     {
       changesetProfileService.saveChangesetProfileLastRun(profile, end);
     }
