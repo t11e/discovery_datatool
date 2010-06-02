@@ -9,7 +9,6 @@
            http://www.springframework.org/schema/context/spring-context-3.0.xsd
            http://www.springframework.org/schema/jdbc
            http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
-
   <jdbc:embedded-database id="dataSource" type="DERBY">
     <jdbc:script location="com/t11e/discovery/datatool/SqlChangesetExtractorTest.sql"/>
     <jdbc:script location="com/t11e/discovery/datatool/SqlChangesetProfileServiceTest.sql"/>
@@ -17,4 +16,9 @@
 
   <context:annotation-config/>
   <context:component-scan base-package="com.t11e"/>
+
+  <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
+    <property name="configurationFile" value="src/test/java/com/t11e/discovery/datatool/IntegrationTest.xml"/>
+    <property name="exitOnInvalidConfigAtStartup" value="true"/>
+  </bean>
 </beans>
