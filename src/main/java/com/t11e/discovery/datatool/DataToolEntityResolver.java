@@ -1,11 +1,9 @@
-/**
- *
- */
 package com.t11e.discovery.datatool;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -17,13 +15,19 @@ public final class DataToolEntityResolver
     throws SAXException, IOException
   {
     InputSource result = null;
-    if ("datatool-config-1".equals(publicId))
+    if (publicId == null && systemId != null &&
+      systemId.startsWith("http://transparensee.com/schema/"))
     {
-      final InputStream is = ConfigurationManager.class
-        .getResourceAsStream("/datatool-config-1.dtd");
+      final String resourceName =
+        StringUtils.removeStart(systemId, "http://transparensee.com/schema/");
+      if (resourceName.contains("/"))
+      {
+        throw new RuntimeException("Unsupported XML entity " + publicId + " " + systemId);
+      }
+      final InputStream is = getClass().getResourceAsStream("/" + resourceName);
       if (is == null)
       {
-        throw new RuntimeException("Unable to find discovery_datatool_config.dtd");
+        throw new RuntimeException("Unable to find resource /" + resourceName);
       }
       result = new InputSource(is);
     }
