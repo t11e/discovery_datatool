@@ -68,10 +68,11 @@ public class ConfigurationManager
     }
   }
 
-  public void loadConfiguration(
+  public boolean loadConfiguration(
     final InputStream is,
     final boolean persist)
   {
+    boolean persisted = false;
     byte[] config;
     try
     {
@@ -89,7 +90,7 @@ public class ConfigurationManager
     {
       if (persist)
       {
-        swapConfigFiles(config);
+        persisted = swapConfigFiles(config);
       }
       if (currentContext != null)
       {
@@ -99,62 +100,41 @@ public class ConfigurationManager
       }
       currentContext = newContext;
     }
+    return persisted;
   }
 
-  private void swapConfigFiles(final byte[] config)
+  private boolean swapConfigFiles(final byte[] config)
   {
+    boolean changed = false;
     try
     {
-      if (contentsDiffer(config, configurationFile))
+      final File newConfig =
+        File.createTempFile(configurationFile.getName(), ".tmp",
+          configurationFile.getCanonicalFile().getParentFile());
+      FileUtils.writeByteArrayToFile(newConfig, config);
+      final File backupFile = new File(configurationFile + ".bak");
+      if (configurationFile.exists())
       {
-        final File newConfig =
-          File.createTempFile(configurationFile.getName(), ".tmp",
-            configurationFile.getCanonicalFile().getParentFile());
-        FileUtils.writeByteArrayToFile(newConfig, config);
-        if (configurationFile.exists())
+        try
         {
-          final File backupFile = new File(configurationFile + ".bak");
-          try
-          {
-            FileUtils.forceDelete(backupFile);
-          }
-          catch (final FileNotFoundException e)
-          {
-            // Ignore
-          }
-          FileUtils.moveFile(configurationFile, backupFile);
+          FileUtils.forceDelete(backupFile);
         }
-        FileUtils.moveFile(newConfig, configurationFile);
+        catch (final FileNotFoundException e)
+        {
+          // Ignore
+        }
+        FileUtils.moveFile(configurationFile, backupFile);
       }
+      FileUtils.moveFile(newConfig, configurationFile);
+      FileUtils.deleteQuietly(backupFile);
+      changed = true;
     }
     catch (final IOException e)
     {
       throw new RuntimeException(e);
     }
-  }
-
-  private boolean contentsDiffer(final byte[] config, final File configFile)
-    throws FileNotFoundException, IOException
-  {
-    boolean changed = true;
-    if (configFile.canRead())
-    {
-      final FileInputStream fis = new FileInputStream(configFile);
-      try
-      {
-        if (IOUtils.contentEquals(new ByteArrayInputStream(config), fis))
-        {
-          changed = false;
-        }
-      }
-      finally
-      {
-        IOUtils.closeQuietly(fis);
-      }
-    }
     return changed;
   }
-
 
   public <T> T getBean(final Class<T> klass)
     throws BeansException
