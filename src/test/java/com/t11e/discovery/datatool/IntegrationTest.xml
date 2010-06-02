@@ -1,0 +1,45 @@
+<config
+  xmlns="http://transparensee.com/schema/datatool-config-1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+    "http://transparensee.com/schema/datatool-config-1
+     http://transparensee.com/schema/datatool-config-1.xsd">
+  <dataSources>
+    <dataSource name="dataSource"
+      class="org.apache.derby.jdbc.EmbeddedDataSource">
+      <databaseName>test</databaseName>
+    </dataSource>
+  </dataSources>
+
+  <profiles>
+    <sqlProfile name="sqlProfile" dataSource="dataSource">
+      <retrieveSql startColumn="startTime" endColumn="endTime">
+        select lastRun as startTime, CURRENT_TIMESTAMP as endTime
+        from IntegrationProfile
+        where name = :name
+      </retrieveSql>
+      <updateSql>
+        update IntegrationProfile
+        set lastRun = :lastRun
+        where name = :name
+      </updateSql>
+    </sqlProfile>
+  </profiles>
+
+  <publishers>
+    <sqlPublisher name="test" dataSource="dataSource" profile="sqlProfile">
+      <action type="create" filter="delta" idColumn="id">
+        <query><![CDATA[
+          select * from IntegrationContent
+          where lastUpdated >= :start and lastUpdated < :end
+        ]]></query>
+      </action>
+      <action type="create" filter="snapshot" idColumn="id">
+        <query><![CDATA[
+          select * from IntegrationContent
+          where lastUpdated < :end
+        ]]></query>
+      </action>
+    </sqlPublisher>
+  </publishers>
+</config>
