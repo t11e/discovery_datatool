@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
   locations={"applicationContext-test.xml"})
-public class ChangesetExtractorTest
+public class SqlChangesetExtractorTest
 {
   @Autowired
   private DataSource dataSource;

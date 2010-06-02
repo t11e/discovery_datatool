@@ -11,7 +11,8 @@
            http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
 
   <jdbc:embedded-database id="dataSource" type="DERBY">
-    <jdbc:script location="com/t11e/discovery/datatool/ChangesetExtractorTest.sql"/>
+    <jdbc:script location="com/t11e/discovery/datatool/SqlChangesetExtractorTest.sql"/>
+    <jdbc:script location="com/t11e/discovery/datatool/SqlChangesetProfileServiceTest.sql"/>
   </jdbc:embedded-database>
 
   <context:annotation-config/>

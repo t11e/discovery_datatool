@@ -18,8 +18,18 @@
   </dataSources>
 
   <profiles>
-    <sqlProfile name="sqlProfile" dataSource="dataSource"
-                tableName="ChangesetProfile" nameColumn="name" lastRunColumn="lastRun"/>
+    <sqlProfile name="sqlProfile" dataSource="dataSource">
+      <retrieveSql startColumn="start" endColumn="end">
+        select lastRun as start, CURRENT_TIMESTAMP as end
+        from ChangesetProfile
+        where name = :name
+      </retrieveSql>
+      <updateSql>
+        update ChangesetProfile
+        set last_run = :lastRun
+        where name = :name
+      </updateSql>
+    </sqlProfile>
   </profiles>
 
   <publishers>

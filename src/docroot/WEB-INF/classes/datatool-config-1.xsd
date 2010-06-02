@@ -43,11 +43,17 @@
     </complexType>
 
     <complexType name="SqlProfileType">
+      <sequence>
+        <element name="retrieveSql" type="tns:retrieveSql"/>
+        <element name="updateSql" type="string"/>
+      </sequence>
       <attribute name="name" type="string" use="required"/>
       <attribute name="dataSource" type="string" use="required"/>
-      <attribute name="tableName" type="string" use="required"/>
-      <attribute name="nameColumn" type="string" use="required"/>
-      <attribute name="lastRunColumn" type="string" use="required"/>
+    </complexType>
+
+    <complexType name="retrieveSql" mixed="true">
+      <attribute name="startColumn" use="required"/>
+      <attribute name="endColumn" use="required"/>
     </complexType>
 
     <complexType name="SqlPublisherType">
