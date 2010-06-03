@@ -17,13 +17,34 @@
 
     <complexType name="DataSourcesType">
       <sequence minOccurs="1" maxOccurs="unbounded">
-        <element name="dataSource" type="tns:DataSourceType"/>
+        <choice>
+          <element name="dataSource" type="tns:DataSourceType"/>
+          <element name="driver" type="tns:DriverType"/>
+        </choice>
       </sequence>
     </complexType>
 
     <complexType name="DataSourceType">
       <sequence minOccurs="0" maxOccurs="unbounded">
         <any processContents="lax"/>
+      </sequence>
+      <attribute name="name" type="string" use="required"/>
+      <attribute name="jar" type="string" use="optional"/>
+      <attribute name="class" type="string" use="required"/>
+    </complexType>
+
+    <complexType name="DriverType">
+      <sequence>
+        <element name="url"/>
+        <element name="username" minOccurs="0"/>
+        <element name="password" minOccurs="0"/>
+        <element name="properties" minOccurs="0">
+          <complexType>
+            <sequence minOccurs="0" maxOccurs="unbounded">
+              <any processContents="lax"/>
+            </sequence>
+          </complexType>
+        </element>
       </sequence>
       <attribute name="name" type="string" use="required"/>
       <attribute name="jar" type="string" use="optional"/>

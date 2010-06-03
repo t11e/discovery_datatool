@@ -5,10 +5,10 @@
     "http://transparensee.com/schema/datatool-config-1
      http://transparensee.com/schema/datatool-config-1.xsd">
   <dataSources>
-    <dataSource name="dataSource"
-      class="org.apache.derby.jdbc.EmbeddedDataSource">
-      <databaseName>test</databaseName>
-    </dataSource>
+    <driver name="dataSource"
+      class="org.apache.derby.jdbc.EmbeddedDriver">
+      <url>jdbc:derby:memory:test;create=true</url>
+    </driver>
   </dataSources>
 
   <profiles>

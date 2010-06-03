@@ -9,8 +9,12 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.Driver;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
@@ -27,6 +31,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
@@ -175,32 +180,54 @@ public class ConfigurationManager
     {
       throw new RuntimeException(e);
     }
+
+    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:dataSource"))
     {
-      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:dataSource"))
+      final String name = node.valueOf("@name");
+      final Class<DataSource> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
+      final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
+      for (final Node child : (List<Node>) node.selectNodes("*"))
       {
-        final String name = node.valueOf("@name");
-        final Class<DataSource> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
-        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
-        for (final Node child : (List<Node>) node.selectNodes("*"))
+        builder.addPropertyValue(
+          child.getName(), StringUtils.trimToEmpty(child.getText()));
+      }
+      applicationContext.registerBeanDefinition("dataSource-" + name, builder.getBeanDefinition());
+    }
+
+    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:driver"))
+    {
+      final String name = node.valueOf("@name");
+      final Class<Driver> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
+      final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SimpleDriverDataSource.class);
+      builder.addPropertyValue("driverClass", clazz);
+      builder.addPropertyValue("url", node.valueOf("c:url/text()"));
+      addPropertyIfExists(builder, "username", node, "c:username/text()");
+      addPropertyIfExists(builder, "password", node, "c:password/text()");
+      {
+        final Map<String, String> properties = new HashMap<String, String>();
+        for (final Node child : (List<Node>) node.selectNodes("c:properties/*"))
         {
-          builder.addPropertyValue(
-            child.getName(), StringUtils.trimToEmpty(child.getText()));
+          properties.put(child.getName(), StringUtils.trimToEmpty(child.getText()));
         }
-        applicationContext.registerBeanDefinition("dataSource-" + name, builder.getBeanDefinition());
+        if (!properties.isEmpty())
+        {
+          builder.addPropertyValue("connectionProperties", "");
+        }
       }
+      applicationContext.registerBeanDefinition("dataSource-" + name, builder.getBeanDefinition());
     }
+
+    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:profiles/c:sqlProfile"))
     {
-      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:profiles/c:sqlProfile"))
-      {
-        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
-        builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
-        builder.addPropertyValue("retrieveStartColumn", node.valueOf("c:retrieveSql/@startColumn"));
-        builder.addPropertyValue("retrieveEndColumn", node.valueOf("c:retrieveSql/@endColumn"));
-        builder.addPropertyValue("retrieveSql", node.valueOf("c:retrieveSql/text()"));
-        builder.addPropertyValue("updateSql", node.valueOf("c:updateSql/text()"));
-        applicationContext.registerBeanDefinition("profile-" + node.valueOf("@name"), builder.getBeanDefinition());
-      }
+      final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
+      builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
+      builder.addPropertyValue("retrieveStartColumn", node.valueOf("c:retrieveSql/@startColumn"));
+      builder.addPropertyValue("retrieveEndColumn", node.valueOf("c:retrieveSql/@endColumn"));
+      builder.addPropertyValue("retrieveSql", node.valueOf("c:retrieveSql/text()"));
+      builder.addPropertyValue("updateSql", node.valueOf("c:updateSql/text()"));
+      applicationContext.registerBeanDefinition("profile-" + node.valueOf("@name"), builder.getBeanDefinition());
     }
+
     {
       final List<ChangesetPublisher> publishers = new ArrayList<ChangesetPublisher>();
       for (final Node node : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher"))
@@ -246,7 +273,20 @@ public class ConfigurationManager
     return applicationContext;
   }
 
-  private static Class<DataSource> loadDataSource(
+  private static void addPropertyIfExists(
+    final BeanDefinitionBuilder builder,
+    final String name,
+    final Node node,
+    final String xpath)
+  {
+    final String value = StringUtils.trimToEmpty(node.valueOf(xpath));
+    if (StringUtils.isNotBlank(value))
+    {
+      builder.addPropertyValue(name, value);
+    }
+  }
+
+  private static <T> Class<T> loadDataSource(
     final String dataSourceClassName,
     final String jarPath)
   {
@@ -262,30 +302,30 @@ public class ConfigurationManager
   }
 
     @SuppressWarnings("unchecked")
-  private static Class<DataSource> loadDataSource(
+  private static <T> Class<T> loadDataSource(
     final String dataSourceClassName,
     final URL jarUrl)
   {
-    Class<DataSource> driverClass;
+    Class<T> driverClass;
     try
     {
       if (jarUrl == null)
       {
-        driverClass = (Class<DataSource>) Class.forName(dataSourceClassName);
+        driverClass = (Class<T>) Class.forName(dataSourceClassName);
       }
       else
       {
         final URLClassLoader classLoader = new URLClassLoader(new URL[] {jarUrl});
-        driverClass = (Class<DataSource>) classLoader.loadClass(dataSourceClassName);
+        driverClass = (Class<T>) classLoader.loadClass(dataSourceClassName);
       }
     }
     catch (final ClassCastException e)
     {
-      throw new RuntimeException(dataSourceClassName + " is not a DataSource, from " + jarUrl, e);
+      throw new RuntimeException(dataSourceClassName + " is not a DataSource or Driver, from " + jarUrl, e);
     }
     catch (final ClassNotFoundException e)
     {
-      throw new RuntimeException("Could not find the DataSource: " + dataSourceClassName + " from " + jarUrl, e);
+      throw new RuntimeException("Could not find the DataSource or Driver: " + dataSourceClassName + " from " + jarUrl, e);
     }
     return driverClass;
   }
