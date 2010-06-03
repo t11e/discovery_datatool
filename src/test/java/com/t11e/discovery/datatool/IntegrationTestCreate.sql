@@ -3,14 +3,22 @@ create table IntegrationContent (
   lastUpdated timestamp
 );
 
-insert into IntegrationContent (lastUpdated) values
-  ('2010-01-01-00.00.00.000000'),
-  ('2010-01-01-00.00.00.000000'),
-  ('2010-01-01-00.00.00.000000');
+insert into IntegrationContent (id, lastUpdated) values
+  (1, '2010-01-01-00.00.00.000000'),
+  (2, '2010-01-01-00.00.00.000000'),
+  (3, '2010-01-01-00.00.00.000000');
 
 create table IntegrationProfile (
-  name varchar(20) not null,
+  name varchar(20) not null unique,
   lastRun timestamp
 );
 insert into IntegrationProfile (name, lastRun) values
   ('test', NULL);
+
+create table IntegrationDeleted (
+  id bigint primary key,
+  lastUpdated timestamp
+);
+insert into IntegrationDeleted (id, lastUpdated) values
+  (4, '2010-01-01-00.00.00.000000'),
+  (5, '2010-01-01-00.00.00.000000');

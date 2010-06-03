@@ -59,23 +59,26 @@ public class IntegrationTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testNoProfileNoRange()
     throws XMLStreamException, IOException, DocumentException
   {
-    assertChangeset("test-all", "",
-      "snapshot", CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
+    assertChangeset("test-all", "", "snapshot",
+      CollectionsFactory.makeList("1", "2", "3"),
+      CollectionsFactory.makeList("4", "5"));
   }
 
   @Test
   @SuppressWarnings("unchecked")
-  public void testProfile()
+  public void testProfileWithModifiedRows()
     throws XMLStreamException, IOException, DocumentException
   {
     // Snapshot with no lastRun date
-    assertChangeset("test", "test",
-      "snapshot", CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
-    assertChangeset("test", "test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+    assertChangeset("test", "test", "snapshot",
+      CollectionsFactory.makeList("1", "2", "3"),
+      CollectionsFactory.makeList("4", "5"));
+    assertChangeset("test", "test", "delta",
+      Collections.EMPTY_LIST,
+      Collections.EMPTY_LIST);
     // Touch two rows and get another delta
     {
       final Date origLastRun = template.queryForObject(
@@ -96,9 +99,52 @@ public class IntegrationTest
           "ids", CollectionsFactory.makeList(1, 3)
         ));
     }
-    assertChangeset("test", "test",
-      "delta", CollectionsFactory.makeList("1", "3"), Collections.EMPTY_LIST);
-    assertChangeset("test", "test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+    assertChangeset("test", "test", "delta",
+      CollectionsFactory.makeList("1", "3"),
+      Collections.EMPTY_LIST);
+    assertChangeset("test", "test", "delta",
+      Collections.EMPTY_LIST,
+      Collections.EMPTY_LIST);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testProfileWithDeletedRows()
+    throws XMLStreamException, IOException, DocumentException
+  {
+    // Snapshot with no lastRun date
+    assertChangeset("test", "test", "snapshot",
+      CollectionsFactory.makeList("1", "2", "3"),
+      CollectionsFactory.makeList("4", "5"));
+    assertChangeset("test", "test", "delta",
+      Collections.EMPTY_LIST,
+      Collections.EMPTY_LIST);
+    // Delete two rows and get another delta
+    {
+      final Date origLastRun = template.queryForObject(
+        "select lastRun from IntegrationProfile where name = 'test'", (Map) null, Date.class);
+      final Date lastUpdated = new Date(origLastRun.getTime() - (60 * 1000));
+      template.update(
+        "update IntegrationProfile " +
+        "set lastRun = :lastRun " +
+        "where name = 'test'",
+        CollectionsFactory.makeMap(
+          "lastRun", lastUpdated));
+      template.update(
+        "insert into IntegrationDeleted " +
+        "(id, lastUpdated) " +
+        "values " +
+        "(1, :dateDeleted), " +
+        "(3, :dateDeleted)",
+        CollectionsFactory.makeMap(
+          "dateDeleted", lastUpdated));
+    }
+    assertChangeset("test", "test", "delta",
+      Collections.EMPTY_LIST,
+      CollectionsFactory.makeList("1", "3"));
+    assertChangeset("test", "test", "delta",
+      Collections.EMPTY_LIST,
+      Collections.EMPTY_LIST);
   }
 
   @SuppressWarnings("unchecked")
