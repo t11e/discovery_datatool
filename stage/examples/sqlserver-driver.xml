@@ -9,10 +9,8 @@
       jar="drivers/jtds-1.2.5.jar"
       class="net.sourceforge.jtds.jdbc.Driver">
       <url>jdbc:jtds:sqlserver://localhost/test</url>
-      <properties>
-        <user>test</user>
-        <password>test</password>
-      </properties>
+      <username>test</username>
+      <password>test</password>
     </driver>
   </dataSources>
 
