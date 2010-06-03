@@ -21,11 +21,11 @@ public class ExampleConfigurationTest
   @Before
   public void setup()
   {
-    configFiles = Arrays.asList(new File("stage").listFiles(new FilenameFilter()
+    configFiles = Arrays.asList(new File("stage/examples").listFiles(new FilenameFilter()
     {
       public boolean accept(final File dir, final String filename)
       {
-        return filename.endsWith(".example");
+        return filename.endsWith(".xml");
       }
     }));
     Assert.assertFalse(configFiles.isEmpty());
