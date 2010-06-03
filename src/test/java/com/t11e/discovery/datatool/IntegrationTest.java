@@ -63,8 +63,8 @@ public class IntegrationTest
   public void testNoProfileNoRange()
     throws XMLStreamException, IOException, DocumentException
   {
-    assertChangeset("", "snapshot",
-      CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
+    assertChangeset("test-all", "",
+      "snapshot", CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
   }
 
   @Test
@@ -73,9 +73,9 @@ public class IntegrationTest
     throws XMLStreamException, IOException, DocumentException
   {
     // Snapshot with no lastRun date
-    assertChangeset("test", "snapshot",
-      CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
-    assertChangeset("test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+    assertChangeset("test", "test",
+      "snapshot", CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
+    assertChangeset("test", "test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
     // Touch two rows and get another delta
     {
       final Date origLastRun = template.queryForObject(
@@ -96,23 +96,23 @@ public class IntegrationTest
           "ids", CollectionsFactory.makeList(1, 3)
         ));
     }
-    assertChangeset("test", "delta",
-      CollectionsFactory.makeList("1", "3"), Collections.EMPTY_LIST);
-    assertChangeset("test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+    assertChangeset("test", "test",
+      "delta", CollectionsFactory.makeList("1", "3"), Collections.EMPTY_LIST);
+    assertChangeset("test", "test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
   }
 
   @SuppressWarnings("unchecked")
   private void assertChangeset(
+    final String publisher,
     final String profile,
     final String expectedType,
-    final Collection<String> expectedSetItemIds,
-    final Collection<String> expectedRemoveItemIds)
+    final Collection<String> expectedSetItemIds, final Collection<String> expectedRemoveItemIds)
     throws XMLStreamException, IOException, DocumentException
   {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
     changesetController.publish(request, response,
-      "test", null, null, profile, false);
+      publisher, null, null, profile, false);
     Assert.assertEquals(200, response.getStatus());
     Assert.assertEquals("text/xml; charset=utf-8", response.getContentType());
     Assert.assertEquals(expectedType, response.getHeader("X-t11e-type"));

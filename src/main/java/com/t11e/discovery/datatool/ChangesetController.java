@@ -69,7 +69,7 @@ public class ChangesetController
       changesetPublisher.getChangesetProfileService();
     final Date start;
     final Date end;
-    if (profile == null)
+    if (StringUtils.isBlank(profile))
     {
       start = startParam;
       end = endParam;

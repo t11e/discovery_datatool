@@ -14,14 +14,10 @@
   <profiles>
     <sqlProfile name="sqlProfile" dataSource="dataSource">
       <retrieveSql startColumn="startTime" endColumn="endTime">
-        select lastRun as startTime, CURRENT_TIMESTAMP as endTime
-        from IntegrationProfile
-        where name = :name
+        select lastRun as startTime, CURRENT_TIMESTAMP as endTime from IntegrationProfile where name = :name
       </retrieveSql>
       <updateSql>
-        update IntegrationProfile
-        set lastRun = :lastRun
-        where name = :name
+        update IntegrationProfile set lastRun = :lastRun where name = :name
       </updateSql>
     </sqlProfile>
   </profiles>
@@ -30,15 +26,20 @@
     <sqlPublisher name="test" dataSource="dataSource" profile="sqlProfile">
       <action type="create" filter="delta" idColumn="id">
         <query><![CDATA[
-          select * from IntegrationContent
-          where lastUpdated >= :start and lastUpdated < :end
+          select * from IntegrationContent where lastUpdated >= :start and lastUpdated < :end
         ]]></query>
       </action>
       <action type="create" filter="snapshot" idColumn="id">
         <query><![CDATA[
-          select * from IntegrationContent
-          where lastUpdated < :end
+          select * from IntegrationContent where lastUpdated < :end
         ]]></query>
+      </action>
+    </sqlPublisher>
+    <sqlPublisher name="test-all" dataSource="dataSource" profile="sqlProfile">
+      <action type="create" filter="snapshot" idColumn="id">
+        <query>
+          select * from IntegrationContent
+        </query>
       </action>
     </sqlPublisher>
   </publishers>
