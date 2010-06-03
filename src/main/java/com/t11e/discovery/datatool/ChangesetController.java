@@ -129,4 +129,9 @@ public class ChangesetController
       gos.finish();
     }
   }
+
+  public void setChangesetService(final ChangesetService changesetService)
+  {
+    this.changesetService = changesetService;
+  }
 }

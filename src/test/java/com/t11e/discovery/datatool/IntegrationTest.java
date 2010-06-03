@@ -1,20 +1,36 @@
 package com.t11e.discovery.datatool;
 
-import java.io.File;
-import java.net.URISyntaxException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
+import javax.xml.stream.XMLStreamException;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -23,38 +39,130 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
   locations={"applicationContext-test.xml"})
 public class IntegrationTest
 {
+  @Autowired
+  private ChangesetController changesetController;
+  @Autowired
   private ConfigurationManager configurationManager;
-  private ChangesetPublisherManager publisherManager;
+  private NamedParameterJdbcTemplate template;
 
   @Before
   public void setup()
-    throws URISyntaxException, SQLException
   {
-    configurationManager = new ConfigurationManager();
-    configurationManager.setConfigurationFile(
-      new File(getClass().getResource("IntegrationTest.xml").toURI()).getPath());
-    configurationManager.onPostConstruct();
-    publisherManager = configurationManager.getBean(ChangesetPublisherManager.class);
-    Assert.assertNotNull(publisherManager);
+    template = new NamedParameterJdbcTemplate(configurationManager.getBean(DataSource.class));
+    executeSqlScripts("IntegrationTestCreate.sql");
+  }
+
+  @After
+  public void teardown()
+  {
+    executeSqlScripts("IntegrationTestDrop.sql");
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testNoProfileNoRange()
+    throws XMLStreamException, IOException, DocumentException
+  {
+    assertChangeset("", "snapshot",
+      CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testProfile()
+    throws XMLStreamException, IOException, DocumentException
+  {
+    // Snapshot with no lastRun date
+    assertChangeset("test", "snapshot",
+      CollectionsFactory.makeList("1", "2", "3"), Collections.EMPTY_LIST);
+    assertChangeset("test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+    // Touch two rows and get another delta
     {
-      final DataSource dataSource = configurationManager.getBean(DataSource.class);
-      final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-      populator.setScripts(new Resource[] {
-          new ClassPathResource("IntegrationTest.sql", getClass())
-      });
+      final Date origLastRun = template.queryForObject(
+        "select lastRun from IntegrationProfile where name = 'test'", (Map) null, Date.class);
+      final Date lastUpdated = new Date(origLastRun.getTime() - (60 * 1000));
+      template.update(
+        "update IntegrationProfile " +
+        "set lastRun = :lastRun " +
+        "where name = 'test'",
+        CollectionsFactory.makeMap(
+          "lastRun", lastUpdated));
+      template.update(
+        "update IntegrationContent " +
+        "set lastUpdated = :lastUpdated " +
+        "where id in (:ids)",
+        CollectionsFactory.makeMap(
+          "lastUpdated", lastUpdated,
+          "ids", CollectionsFactory.makeList(1, 3)
+        ));
+    }
+    assertChangeset("test", "delta",
+      CollectionsFactory.makeList("1", "3"), Collections.EMPTY_LIST);
+    assertChangeset("test", "delta", Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void assertChangeset(
+    final String profile,
+    final String expectedType,
+    final Collection<String> expectedSetItemIds,
+    final Collection<String> expectedRemoveItemIds)
+    throws XMLStreamException, IOException, DocumentException
+  {
+    final MockHttpServletRequest request = new MockHttpServletRequest();
+    final MockHttpServletResponse response = new MockHttpServletResponse();
+    changesetController.publish(request, response,
+      "test", null, null, profile, false);
+    Assert.assertEquals(200, response.getStatus());
+    Assert.assertEquals("text/xml; charset=utf-8", response.getContentType());
+    Assert.assertEquals(expectedType, response.getHeader("X-t11e-type"));
+    final Document doc = parseXmlResponse(response);
+    Assert.assertEquals(expectedSetItemIds.size(), doc.selectNodes("changeset/set-item").size());
+    Assert.assertEquals(
+      new HashSet(expectedSetItemIds),
+      new HashSet(nodesAsStrings(doc, "changeset/set-item/@id")));
+    Assert.assertEquals(expectedRemoveItemIds.size(), doc.selectNodes("changeset/remove-item").size());
+    Assert.assertEquals(
+      new HashSet(expectedRemoveItemIds),
+      new HashSet(nodesAsStrings(doc, "changeset/remove-item/@id")));
+  }
+
+  private List<String> nodesAsStrings(final Document doc, final String xpath)
+  {
+    final List<String> result = new ArrayList<String>();
+    for (final Object node : doc.selectNodes(xpath))
+    {
+      result.add(((Node) node).getText());
+    }
+    return result;
+  }
+
+  private Document parseXmlResponse(final MockHttpServletResponse response)
+    throws DocumentException
+  {
+    final SAXReader saxReader = new SAXReader();
+    return saxReader.read(new ByteArrayInputStream(response.getContentAsByteArray()));
+  }
+
+  private void executeSqlScripts(final String... scriptNames)
+  {
+    final DataSource dataSource = configurationManager.getBean(DataSource.class);
+    final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+    final Resource[] resources = new Resource[scriptNames.length];
+    for (int i = 0; i < scriptNames.length; i++)
+    {
+      resources[i] = new ClassPathResource(scriptNames[i], getClass());
+    }
+    populator.setScripts(resources);
+    try
+    {
       final Connection connection = dataSource.getConnection();
       populator.populate(connection);
       connection.close();
     }
-  }
-
-  @Test
-  public void test()
-  {
-    final ChangesetPublisher publisher = publisherManager.getChangesetPublisher("test");
-    Assert.assertNotNull(publisher);
-    final ChangesetProfileService profileService = publisher.getChangesetProfileService();
-    final Date[] range = profileService.getChangesetProfileDateRange("test");
-    Assert.assertNotNull(range);
+    catch (final SQLException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 }
