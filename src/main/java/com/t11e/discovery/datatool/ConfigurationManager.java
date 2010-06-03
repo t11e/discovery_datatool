@@ -39,6 +39,7 @@ import org.xml.sax.SAXException;
 public class ConfigurationManager
 {
   private File configurationFile = new File("discovery_datatool.xml");
+  private File workingDirectory;
   private boolean exitOnInvalidConfigAtStartup;
   private ConfigurableApplicationContext currentContext;
 
@@ -48,6 +49,10 @@ public class ConfigurationManager
     try
     {
       loadConfiguration(new FileInputStream(configurationFile), false);
+      if (workingDirectory == null)
+      {
+        workingDirectory = new File(".").getCanonicalFile();
+      }
     }
     catch (final RuntimeException e)
     {
@@ -57,7 +62,12 @@ public class ConfigurationManager
     catch (final FileNotFoundException e)
     {
       exitOnStartupIfConfigured(e);
-      // Otherwise ignore this error
+      throw new RuntimeException(e);
+    }
+    catch (final IOException e)
+    {
+      exitOnStartupIfConfigured(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -151,7 +161,7 @@ public class ConfigurationManager
   }
 
   @SuppressWarnings("unchecked")
-  private static GenericApplicationContext createApplicationContext(final InputStream is)
+  private GenericApplicationContext createApplicationContext(final InputStream is)
   {
     final GenericApplicationContext applicationContext = new GenericApplicationContext();
 
@@ -286,19 +296,28 @@ public class ConfigurationManager
     }
   }
 
-  private static <T> Class<T> loadDataSource(
+  private <T> Class<T> loadDataSource(
     final String dataSourceClassName,
     final String jarPath)
   {
+    URL jarUrl = null;
     try
     {
-      final URL jarUrl = new File(jarPath).toURI().toURL();
-      return loadDataSource(dataSourceClassName, jarUrl);
+      if (StringUtils.isNotBlank(jarPath))
+      {
+        File jarFile = new File(jarPath);
+        if (!jarFile.isAbsolute())
+        {
+          jarFile = new File(workingDirectory, jarPath);
+        }
+        jarUrl = jarFile.toURI().toURL();
+      }
     }
     catch (final MalformedURLException e)
     {
       throw new RuntimeException(e);
     }
+    return loadDataSource(dataSourceClassName, jarUrl);
   }
 
     @SuppressWarnings("unchecked")
@@ -338,5 +357,17 @@ public class ConfigurationManager
   public void setConfigurationFile(final String configurationFile)
   {
     this.configurationFile = new File(configurationFile);
+  }
+
+  public void setWorkingDirectory(final String workingDirectory)
+  {
+    try
+    {
+      this.workingDirectory = new File(workingDirectory).getCanonicalFile();
+    }
+    catch (final IOException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 }

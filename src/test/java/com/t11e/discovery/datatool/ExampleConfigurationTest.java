@@ -62,6 +62,7 @@ public class ExampleConfigurationTest
   public void testConfigOnBoot(final File configFile)
   {
     configurationManager = new ConfigurationManager();
+    configurationManager.setWorkingDirectory("stage");
     configurationManager.setConfigurationFile(configFile.getPath());
     configurationManager.onPostConstruct();
     Assert.assertNotNull(configurationManager.getBean(ChangesetPublisherManager.class));
