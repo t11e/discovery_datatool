@@ -18,7 +18,7 @@
   <context:component-scan base-package="com.t11e"/>
 
   <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
-    <property name="configurationFile" value="src/test/java/com/t11e/discovery/datatool/IntegrationTest.xml"/>
+    <property name="configurationFile" value="src/test/resources/com/t11e/discovery/datatool/IntegrationTest.xml"/>
     <property name="exitOnInvalidConfigAtStartup" value="false"/>
   </bean>
 </beans>
