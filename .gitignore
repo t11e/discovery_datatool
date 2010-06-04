@@ -1,2 +1,5 @@
 /build.eclipse/
 /build.ant/
+/target/
+/.project
+/.classpath

@@ -18,7 +18,7 @@ public class StaxUtil
    */
   public static XMLInputFactory newInputFactory()
   {
-    return new com.ctc.wstx.stax.WstxInputFactory();
+    return XMLInputFactory.newInstance();
   }
 
   /**
@@ -28,8 +28,7 @@ public class StaxUtil
    */
   public static XMLOutputFactory newOutputFactory()
   {
-    return new com.ctc.wstx.stax.WstxOutputFactory();
-
+    return XMLOutputFactory.newInstance();
   }
 
   public static String getRequiredAttributeValue(XMLStreamReader reader,

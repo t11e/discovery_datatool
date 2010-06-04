@@ -1,0 +1,8 @@
+To create the Eclipse project files:
+
+  mvn eclipse:clean eclipse:eclipse -DdownloadSources=true -DdownloadJavadocs=true
+
+To build the war and skip the tests:
+
+  mvn clean package -DskipTests=true
+
