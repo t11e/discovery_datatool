@@ -2,7 +2,10 @@ To create the Eclipse project files:
 
   mvn eclipse:clean eclipse:eclipse -DdownloadSources=true -DdownloadJavadocs=true
 
-To build the war and skip the tests:
+To build the release and skip the tests:
 
   mvn clean package -DskipTests=true
 
+To quickly deploy without building a war run:
+
+  cd stage && mvn -f ../pom.xml jetty:run

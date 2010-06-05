@@ -20,49 +20,62 @@
           <archiveClasses>true</archiveClasses>
         </configuration>
       </plugin>
-		<plugin>
-		  <artifactId>maven-antrun-plugin</artifactId>
-		  <executions>
-		    <execution>
-		      <id>ant-magic</id>
-		      <phase>package</phase>
-		      <goals>
-		        <goal>run</goal>
-		      </goals>
-		      <configuration>
-		        <tasks>
-		          <echo message="Creating standalone jar"/>
-		          <delete file="target/discovery_datatool_standalone.jar"/>
-		          <jar destfile="target/discovery_datatool_standalone.jar">
-		            <fileset dir="target/classes">
-		              <include name="com/t11e/discovery/datatool/WebServerMain.class"/>
-		              <include name="com/t11e/discovery/datatool/CustomLogFormatter.class"/>
-		            </fileset>
-		            <zipgroupfileset dir="lib">
-		                <include name="jetty-6.1.22.jar"/>
-		                <include name="jetty-util-6.1.22.jar"/>
-		                <include name="servlet-2.5.jar"/>
-		                <include name="slf4j-api-1.5.10.jar"/>
-		                <include name="slf4j-jdk14-1.5.10.jar"/>
-		                <include name="commons-lang-2.4.jar"/>
-		            </zipgroupfileset>
-		            <zipgroupfileset file="target/discovery_datatool-1.0-SNAPSHOT.war"/>
-		            <manifest>
-		                <attribute name="Main-Class" value="com.t11e.discovery.datatool.WebServerMain" />
-		            </manifest>
-		          </jar>
-		          <echo message="Creating release zip"/>
-				  <delete file="target/discovery_datatool-1.0-SNAPSHOT.zip"/>
-				  <zip destfile="target/discovery_datatool-1.0-SNAPSHOT.zip">
-				    <zipfileset prefix="discovery_datatool-1.0-SNAPSHOT/" dir="stage" excludes="*.sh"/>
-				    <zipfileset prefix="discovery_datatool-1.0-SNAPSHOT/" dir="stage" includes="*.sh" filemode="755"/>
-				    <zipfileset prefix="discovery_datatool-1.0-SNAPSHOT/" file="target/discovery_datatool_standalone.jar"/>
-				  </zip>
-		        </tasks>
-		      </configuration>
-		    </execution>
-		  </executions>
-		</plugin>
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <configuration>
+          <scanIntervalSeconds>10</scanIntervalSeconds>
+          <connectors>
+            <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+              <port>8080</port>
+              <maxIdleTime>60000</maxIdleTime>
+            </connector>
+          </connectors>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+            <execution>
+            <id>ant-magic</id>
+            <phase>package</phase>
+            <goals>
+                <goal>run</goal>
+            </goals>
+            <configuration>
+                <tasks>
+                <echo message="Creating standalone jar"/>
+                <delete file="target/discovery_datatool_standalone.jar"/>
+                <jar destfile="target/discovery_datatool_standalone.jar">
+                    <fileset dir="target/classes">
+                    <include name="com/t11e/discovery/datatool/WebServerMain.class"/>
+                    <include name="com/t11e/discovery/datatool/CustomLogFormatter.class"/>
+                    </fileset>
+                    <zipgroupfileset dir="lib">
+                        <include name="jetty-6.1.22.jar"/>
+                        <include name="jetty-util-6.1.22.jar"/>
+                        <include name="servlet-2.5.jar"/>
+                        <include name="slf4j-api-1.5.10.jar"/>
+                        <include name="slf4j-jdk14-1.5.10.jar"/>
+                        <include name="commons-lang-2.4.jar"/>
+                    </zipgroupfileset>
+                    <zipgroupfileset file="target/discovery_datatool-1.0-SNAPSHOT.war"/>
+                    <manifest>
+                        <attribute name="Main-Class" value="com.t11e.discovery.datatool.WebServerMain" />
+                    </manifest>
+                </jar>
+                <echo message="Creating release zip"/>
+                <delete file="target/discovery_datatool-1.0-SNAPSHOT.zip"/>
+                <zip destfile="target/discovery_datatool-1.0-SNAPSHOT.zip">
+                    <zipfileset prefix="discovery_datatool-1.0-SNAPSHOT/" dir="stage" excludes="*.sh"/>
+                    <zipfileset prefix="discovery_datatool-1.0-SNAPSHOT/" dir="stage" includes="*.sh" filemode="755"/>
+                    <zipfileset prefix="discovery_datatool-1.0-SNAPSHOT/" file="target/discovery_datatool_standalone.jar"/>
+                </zip>
+                </tasks>
+            </configuration>
+            </execution>
+        </executions>
+        </plugin>
     </plugins>
   </build>
   <dependencies>
