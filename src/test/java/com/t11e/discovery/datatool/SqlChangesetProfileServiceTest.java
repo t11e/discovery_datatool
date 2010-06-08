@@ -55,6 +55,23 @@ public class SqlChangesetProfileServiceTest
   }
 
   @Test
+  public void testAutoCreateProfile()
+  {
+    profileService.setCreateSql("insert into profile_table (name) values (:name)");
+    assertValidProfile("autocreate1", null);
+
+    final Date run1 = new Date();
+    final Date run2 = new Date(run1.getTime() + (1000 * 60));
+    profileService.saveChangesetProfileLastRun("autocreate1", run2);
+    assertValidProfile("autocreate1", run2);
+    assertValidProfile("other", null);
+
+    profileService.saveChangesetProfileLastRun("autocreate1", run2);
+    assertValidProfile("autocreate1", run2);
+    assertValidProfile("other", null);
+  }
+
+  @Test
   public void testProfileUpdate()
   {
     final Date run1 = new Date();

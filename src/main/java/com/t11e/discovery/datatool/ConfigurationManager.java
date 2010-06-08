@@ -231,6 +231,7 @@ public class ConfigurationManager
     {
       final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
       builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
+      builder.addPropertyValue("createSql", node.valueOf("c:createSql/text()"));
       builder.addPropertyValue("retrieveStartColumn", node.valueOf("c:retrieveSql/@startColumn"));
       builder.addPropertyValue("retrieveEndColumn", node.valueOf("c:retrieveSql/@endColumn"));
       builder.addPropertyValue("retrieveSql", node.valueOf("c:retrieveSql/text()"));

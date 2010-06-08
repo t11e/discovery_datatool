@@ -1,4 +1,9 @@
-<config>
+<config
+  xmlns="http://transparensee.com/schema/datatool-config-1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+    "http://transparensee.com/schema/datatool-config-1
+     http://transparensee.com/schema/datatool-config-1.xsd">
   <dataSources>
     <dataSource name="mysqlTest"
       jar="stage/mysql-connector-java-5.1.10-bin.jar"
@@ -10,8 +15,22 @@
   </dataSources>
 
   <profiles>
-    <sqlProfile name="sqlProfile" dataSource="mysqlTest"
-                tableName="ChangesetProfile" nameColumn="name" lastRunColumn="lastRun"/>
+    <sqlProfile name="sqlProfile" dataSource="mysqlTest">
+      <!-- createSql is optional. By including it we enable automatic profile creation. -->
+      <createSql>
+        insert into changeset_profile (name) values (:name)
+      </createSql>
+      <retrieveSql startColumn="start" endColumn="end">
+        select lastRun as start, CURRENT_TIMESTAMP as end
+        from changeset_profile
+        where name = :name
+      </retrieveSql>
+      <updateSql>
+        update changeset_profile
+        set last_run = :lastRun
+        where name = :name
+      </updateSql>
+    </sqlProfile>
   </profiles>
 
   <publishers>
