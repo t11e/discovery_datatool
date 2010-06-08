@@ -65,6 +65,7 @@
 
     <complexType name="SqlProfileType">
       <sequence>
+        <element name="createSql" type="string" minOccurs="0"/>
         <element name="retrieveSql" type="tns:retrieveSql"/>
         <element name="updateSql" type="string"/>
       </sequence>
