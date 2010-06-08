@@ -21,7 +21,7 @@
         insert into changeset_profile (name) values (:name)
       </createSql>
       <retrieveSql startColumn="start" endColumn="end">
-        select lastRun as start, CURRENT_TIMESTAMP as end
+        select last_run as start, CURRENT_TIMESTAMP as end
         from changeset_profile
         where name = :name
       </retrieveSql>
