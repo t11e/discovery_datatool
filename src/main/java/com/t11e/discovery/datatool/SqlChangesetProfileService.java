@@ -21,20 +21,34 @@ public class SqlChangesetProfileService
   private String updateSql;
   private NamedParameterJdbcTemplate jdbcTemplate;
 
-  public Date[] getChangesetProfileDateRange(final String profile)
+  public Date[] getChangesetProfileDateRange(final String profile,
+    final boolean dryRun)
   {
-    return getChangesetProfileDateRange(profile, true);
+    Date[] result;
+    try
+    {
+      result = getChangesetProfileDateRange(profile);
+    }
+    catch (final NoSuchProfileException e)
+    {
+      if (dryRun || StringUtils.isBlank(createSql))
+      {
+        throw e;
+      }
+      createProfile(profile);
+      result = getChangesetProfileDateRange(profile);
+    }
+    return result;
   }
 
-  private Date[] getChangesetProfileDateRange(final String profile, final boolean shouldCreateProfile)
+  private Date[] getChangesetProfileDateRange(final String profile)
   {
     Date[] startEnd;
     {
-      final MapSqlParameterSource params = new MapSqlParameterSource();
-      params.addValue("name", profile);
       try
       {
-        final Map<String, Object> data = jdbcTemplate.queryForMap(retrieveSql, params);
+        final Map<String, Object> data = jdbcTemplate.queryForMap(retrieveSql,
+          CollectionsFactory.makeMap("name", profile));
         startEnd = new Date[] {
             (Date) data.get(retrieveStartColumn),
             (Date) data.get(retrieveEndColumn)
@@ -46,15 +60,7 @@ public class SqlChangesetProfileService
       }
       catch (final EmptyResultDataAccessException e)
       {
-        if (shouldCreateProfile && StringUtils.isNotBlank(createSql))
-        {
-          createProfile(profile);
-          startEnd = getChangesetProfileDateRange(profile, false);
-        }
-        else
-        {
-          throw new NoSuchProfileException(profile);
-        }
+        throw new NoSuchProfileException(profile);
       }
     }
     return startEnd;

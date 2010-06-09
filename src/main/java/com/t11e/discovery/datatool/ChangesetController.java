@@ -78,7 +78,7 @@ public class ChangesetController
     {
       try
       {
-        final Date[] range = changesetProfileService.getChangesetProfileDateRange(profile);
+        final Date[] range = changesetProfileService.getChangesetProfileDateRange(profile, dryRun);
         start = range[0];
         end = range[1];
       }

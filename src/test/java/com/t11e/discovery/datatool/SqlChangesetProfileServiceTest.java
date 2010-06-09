@@ -50,46 +50,53 @@ public class SqlChangesetProfileServiceTest
   @Test
   public void testValidProfile()
   {
-    assertValidProfile("test", null);
-    assertValidProfile("other", null);
+    assertValidProfile("test", null, false);
+    assertValidProfile("other", null, false);
   }
 
   @Test
   public void testAutoCreateProfile()
   {
     profileService.setCreateSql("insert into profile_table (name) values (:name)");
-    assertValidProfile("autocreate1", null);
+    assertValidProfile("autocreate1", null, false);
 
     final Date run1 = new Date();
     final Date run2 = new Date(run1.getTime() + (1000 * 60));
     profileService.saveChangesetProfileLastRun("autocreate1", run2);
-    assertValidProfile("autocreate1", run2);
-    assertValidProfile("other", null);
+    assertValidProfile("autocreate1", run2, false);
+    assertValidProfile("other", null, false);
 
     profileService.saveChangesetProfileLastRun("autocreate1", run2);
-    assertValidProfile("autocreate1", run2);
-    assertValidProfile("other", null);
+    assertValidProfile("autocreate1", run2, false);
+    assertValidProfile("other", null, false);
+  }
+
+  @Test
+  public void testDryRunDoesNotAutoCreateProfile()
+  {
+    profileService.setCreateSql("insert into profile_table (name) values (:name)");
+    assertNoProfile("autocreate2");
   }
 
   @Test
   public void testProfileUpdate()
   {
     final Date run1 = new Date();
-    assertValidProfile("test", null);
-    assertValidProfile("other", null);
+    assertValidProfile("test", null, false);
+    assertValidProfile("other", null, false);
 
     profileService.saveChangesetProfileLastRun("test", run1);
-    assertValidProfile("test", run1);
-    assertValidProfile("other", null);
+    assertValidProfile("test", run1, false);
+    assertValidProfile("other", null, false);
 
     final Date run2 = new Date(run1.getTime() + (1000 * 60));
     profileService.saveChangesetProfileLastRun("test", run2);
-    assertValidProfile("test", run2);
-    assertValidProfile("other", null);
+    assertValidProfile("test", run2, false);
+    assertValidProfile("other", null, false);
 
     profileService.saveChangesetProfileLastRun("test", run2);
-    assertValidProfile("test", run2);
-    assertValidProfile("other", null);
+    assertValidProfile("test", run2, false);
+    assertValidProfile("other", null, false);
   }
 
   @Test
@@ -106,9 +113,12 @@ public class SqlChangesetProfileServiceTest
     }
   }
 
-  private void assertValidProfile(final String profile, final Date start)
+  private void assertValidProfile(
+    final String profile,
+    final Date start,
+    final boolean dryRun)
   {
-    final Date[] range = profileService.getChangesetProfileDateRange(profile);
+    final Date[] range = profileService.getChangesetProfileDateRange(profile, dryRun);
     Assert.assertNotNull(range);
     Assert.assertEquals(2, range.length);
     Assert.assertEquals(start, range[0]);
@@ -119,7 +129,7 @@ public class SqlChangesetProfileServiceTest
   {
     try
     {
-      profileService.getChangesetProfileDateRange(profile);
+      profileService.getChangesetProfileDateRange(profile, true);
       Assert.fail("Expected NoSuchProfileException");
     }
     catch (final NoSuchProfileException e)
