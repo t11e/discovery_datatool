@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -175,10 +176,13 @@ public class ConfigurationManager
       throw new RuntimeException(e);
     }
     saxReader.setEntityResolver(new DataToolEntityResolver());
+    final Map<String, String> namespacesByPrefix = CollectionsFactory.makeMapGeneric(
+      "c1", "http://transparensee.com/schema/datatool-config-1",
+      "c2", "http://transparensee.com/schema/datatool-config-2");
+    final Map<String, String> namespacesByUri = MapUtils.invertMap(namespacesByPrefix);
     {
       final DocumentFactory factory = new DocumentFactory();
-      factory.setXPathNamespaceURIs(CollectionsFactory.makeMap(
-        "c", "http://transparensee.com/schema/datatool-config-1"));
+      factory.setXPathNamespaceURIs(namespacesByPrefix);
       saxReader.setDocumentFactory(factory);
     }
     final Document document;
@@ -190,8 +194,12 @@ public class ConfigurationManager
     {
       throw new RuntimeException(e);
     }
-
-    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:dataSource"))
+    final String ns;
+    {
+      final String prefix = namespacesByUri.get(document.getRootElement().getNamespaceURI());
+      ns = prefix == null ? "" : (prefix + ":");
+    }
+    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:dataSource".replace("c:", ns)))
     {
       final String name = node.valueOf("@name");
       final Class<DataSource> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
@@ -204,18 +212,18 @@ public class ConfigurationManager
       applicationContext.registerBeanDefinition("dataSource-" + name, builder.getBeanDefinition());
     }
 
-    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:driver"))
+    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:driver".replace("c:", ns)))
     {
       final String name = node.valueOf("@name");
       final Class<Driver> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
       final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SimpleDriverDataSource.class);
       builder.addPropertyValue("driverClass", clazz);
-      builder.addPropertyValue("url", node.valueOf("c:url/text()"));
-      addPropertyIfExists(builder, "username", node, "c:username/text()");
-      addPropertyIfExists(builder, "password", node, "c:password/text()");
+      builder.addPropertyValue("url", node.valueOf("c:url/text()".replace("c:", ns)));
+      addPropertyIfExists(builder, "username", node, "c:username/text()".replace("c:", ns));
+      addPropertyIfExists(builder, "password", node, "c:password/text()".replace("c:", ns));
       {
         final Map<String, String> properties = new HashMap<String, String>();
-        for (final Node child : (List<Node>) node.selectNodes("c:properties/*"))
+        for (final Node child : (List<Node>) node.selectNodes("c:properties/*".replace("c:", ns)))
         {
           properties.put(child.getName(), StringUtils.trimToEmpty(child.getText()));
         }
@@ -227,29 +235,29 @@ public class ConfigurationManager
       applicationContext.registerBeanDefinition("dataSource-" + name, builder.getBeanDefinition());
     }
 
-    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:profiles/c:sqlProfile"))
+    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:profiles/c:sqlProfile".replace("c:", ns)))
     {
       final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
       builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
-      builder.addPropertyValue("createSql", node.valueOf("c:createSql/text()"));
-      builder.addPropertyValue("retrieveStartColumn", node.valueOf("c:retrieveSql/@startColumn"));
-      builder.addPropertyValue("retrieveEndColumn", node.valueOf("c:retrieveSql/@endColumn"));
-      builder.addPropertyValue("retrieveSql", node.valueOf("c:retrieveSql/text()"));
-      builder.addPropertyValue("updateSql", node.valueOf("c:updateSql/text()"));
+      builder.addPropertyValue("createSql", node.valueOf("c:createSql/text()".replace("c:", ns)));
+      builder.addPropertyValue("retrieveStartColumn", node.valueOf("c:retrieveSql/@startColumn".replace("c:", ns)));
+      builder.addPropertyValue("retrieveEndColumn", node.valueOf("c:retrieveSql/@endColumn".replace("c:", ns)));
+      builder.addPropertyValue("retrieveSql", node.valueOf("c:retrieveSql/text()".replace("c:", ns)));
+      builder.addPropertyValue("updateSql", node.valueOf("c:updateSql/text()".replace("c:", ns)));
       applicationContext.registerBeanDefinition("profile-" + node.valueOf("@name"), builder.getBeanDefinition());
     }
 
     {
       final List<ChangesetPublisher> publishers = new ArrayList<ChangesetPublisher>();
-      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher"))
+      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher".replace("c:", ns)))
       {
         final List<SqlAction> actions = new ArrayList<SqlAction>();
-        for (final Node action : (List<Node>) node.selectNodes("c:action"))
+        for (final Node action : (List<Node>) node.selectNodes("c:action".replace("c:", ns)))
         {
           final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlAction.class);
           builder.addPropertyValue("action", action.valueOf("@type"));
           builder.addPropertyValue("filter", action.valueOf("@filter"));
-          builder.addPropertyValue("query", StringUtils.trimToEmpty(action.valueOf("c:query/text()")));
+          builder.addPropertyValue("query", StringUtils.trimToEmpty(action.valueOf("c:query/text()".replace("c:", ns))));
           builder.addPropertyValue("idColumn", action.valueOf("@idColumn"));
           builder.addPropertyValue("jsonColumnNames", action.valueOf("@jsonColumnNames"));
           final String beanName = "SqlAction-" + System.identityHashCode(builder);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" 
-    targetNamespace="http://transparensee.com/schema/datatool-config-1" 
-    xmlns:tns="http://transparensee.com/schema/datatool-config-1" 
+    targetNamespace="http://transparensee.com/schema/datatool-config-2" 
+    xmlns:tns="http://transparensee.com/schema/datatool-config-2" 
     elementFormDefault="qualified"
     >
 
@@ -65,6 +65,18 @@
 
     <complexType name="SqlProfileType">
       <sequence>
+        <element name="createSql" type="string" minOccurs="0">
+          <annotation>
+            <documentation xml:lang="en">
+              Optional SQL used to create a profile when one is not found.
+              Since datatool-config-2.
+              Bound parameters:
+                :name -- profile name
+              Outputs:
+                none
+            </documentation>
+          </annotation>
+        </element>
         <element name="retrieveSql" type="tns:retrieveSql"/>
         <element name="updateSql" type="string"/>
       </sequence>

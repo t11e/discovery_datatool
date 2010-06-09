@@ -1,9 +1,9 @@
 <config
-  xmlns="http://transparensee.com/schema/datatool-config-1"
+  xmlns="http://transparensee.com/schema/datatool-config-2"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation=
-    "http://transparensee.com/schema/datatool-config-1
-     http://transparensee.com/schema/datatool-config-1.xsd">
+    "http://transparensee.com/schema/datatool-config-2
+     http://transparensee.com/schema/datatool-config-2.xsd">
   <dataSources>
     <dataSource name="production-dataSource"
       jar="drivers/mysql-connector-java-5.1.10-bin.jar"
