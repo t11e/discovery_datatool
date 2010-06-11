@@ -18,3 +18,21 @@ Unpack it and create a discovery_datatool.xml configuration file. The release
 includes example configuration files in the examples directory of the zip file.
 
 Then run the tool by executing the run.sh script.
+
+Release Notes
+-------------
+
+1.1 - 2010-06-11
+
+  * Added createSql support to sqlProfile, used to auto create missing
+    changeset profiles.
+  * Bumped the schema from http://transparensee.com/schema/datatool-config-1
+    to http://transparensee.com/schema/datatool-config-2.
+  * Added init script to the built release, depends upon Apache Commons Daemon
+    jsvc (http://commons.apache.org/daemon/jsvc.html).
+  * Fixed Configuration parsing issue where long text elements in the XML
+    were being truncated.
+
+1.0 - 2010-06-03
+
+  * Initial release
