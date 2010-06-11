@@ -218,9 +218,9 @@ public class ConfigurationManager
       final Class<Driver> clazz = loadDataSource(node.valueOf("@class"), node.valueOf("@jar"));
       final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SimpleDriverDataSource.class);
       builder.addPropertyValue("driverClass", clazz);
-      builder.addPropertyValue("url", node.valueOf("c:url/text()".replace("c:", ns)));
-      addPropertyIfExists(builder, "username", node, "c:username/text()".replace("c:", ns));
-      addPropertyIfExists(builder, "password", node, "c:password/text()".replace("c:", ns));
+      builder.addPropertyValue("url", node.valueOf("c:url".replace("c:", ns)));
+      addPropertyIfExists(builder, "username", node, "c:username".replace("c:", ns));
+      addPropertyIfExists(builder, "password", node, "c:password".replace("c:", ns));
       {
         final Map<String, String> properties = new HashMap<String, String>();
         for (final Node child : (List<Node>) node.selectNodes("c:properties/*".replace("c:", ns)))
@@ -239,11 +239,11 @@ public class ConfigurationManager
     {
       final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
       builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
-      builder.addPropertyValue("createSql", node.valueOf("c:createSql/text()".replace("c:", ns)));
+      builder.addPropertyValue("createSql", node.valueOf("c:createSql".replace("c:", ns)));
       builder.addPropertyValue("retrieveStartColumn", node.valueOf("c:retrieveSql/@startColumn".replace("c:", ns)));
       builder.addPropertyValue("retrieveEndColumn", node.valueOf("c:retrieveSql/@endColumn".replace("c:", ns)));
-      builder.addPropertyValue("retrieveSql", node.valueOf("c:retrieveSql/text()".replace("c:", ns)));
-      builder.addPropertyValue("updateSql", node.valueOf("c:updateSql/text()".replace("c:", ns)));
+      builder.addPropertyValue("retrieveSql", node.valueOf("c:retrieveSql".replace("c:", ns)));
+      builder.addPropertyValue("updateSql", node.valueOf("c:updateSql".replace("c:", ns)));
       applicationContext.registerBeanDefinition("profile-" + node.valueOf("@name"), builder.getBeanDefinition());
     }
 

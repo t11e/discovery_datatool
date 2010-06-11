@@ -1,0 +1,13 @@
+<test>
+  <one-line>abc</one-line>
+  <two-lines>
+abc
+def</two-lines>
+  <many-lines>
+There was a young rustic named Mallory,
+who drew but a very small salary.
+When he went to the show,
+his purse made him go
+to a seat in the uppermost gallery.
+Tune, wont you come to Limerick.</many-lines>
+</test>
