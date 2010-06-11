@@ -147,6 +147,25 @@ public class IntegrationTest
       Collections.EMPTY_LIST);
   }
 
+  @Test
+  public void testXmlEscaping() throws Exception
+  {
+    final MockHttpServletRequest request = new MockHttpServletRequest();
+    final MockHttpServletResponse response = new MockHttpServletResponse();
+    changesetController.publish(request, response,
+      "test-xml-escaping", null, null, "", false);
+    Assert.assertEquals(200, response.getStatus());
+    Assert.assertEquals("text/xml; charset=utf-8", response.getContentType());
+    Assert.assertEquals("snapshot", response.getHeader("X-t11e-type"));
+    Assert.assertFalse("Should contain escaped XML",
+      response.getContentAsString().contains("Hello & < > goodbye"));
+    Assert.assertTrue("Should contain escaped XML",
+      response.getContentAsString().contains("Hello &amp; &lt; > \" ' goodbye"));
+    final Document doc = parseXmlResponse(response);
+    Assert.assertEquals("Hello & < > \" ' goodbye", doc.valueOf(
+      "/changeset/set-item[@id='1']/properties/struct/entry[@name='text_content']/string"));
+  }
+
   @SuppressWarnings("unchecked")
   private void assertChangeset(
     final String publisher,
@@ -163,14 +182,14 @@ public class IntegrationTest
     Assert.assertEquals("text/xml; charset=utf-8", response.getContentType());
     Assert.assertEquals(expectedType, response.getHeader("X-t11e-type"));
     final Document doc = parseXmlResponse(response);
-    Assert.assertEquals(expectedSetItemIds.size(), doc.selectNodes("changeset/set-item").size());
+    Assert.assertEquals(expectedSetItemIds.size(), doc.selectNodes("/changeset/set-item").size());
     Assert.assertEquals(
       new HashSet(expectedSetItemIds),
-      new HashSet(nodesAsStrings(doc, "changeset/set-item/@id")));
-    Assert.assertEquals(expectedRemoveItemIds.size(), doc.selectNodes("changeset/remove-item").size());
+      new HashSet(nodesAsStrings(doc, "/changeset/set-item/@id")));
+    Assert.assertEquals(expectedRemoveItemIds.size(), doc.selectNodes("/changeset/remove-item").size());
     Assert.assertEquals(
       new HashSet(expectedRemoveItemIds),
-      new HashSet(nodesAsStrings(doc, "changeset/remove-item/@id")));
+      new HashSet(nodesAsStrings(doc, "/changeset/remove-item/@id")));
   }
 
   private List<String> nodesAsStrings(final Document doc, final String xpath)
