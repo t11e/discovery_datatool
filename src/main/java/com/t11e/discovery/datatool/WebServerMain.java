@@ -1,25 +1,63 @@
 package com.t11e.discovery.datatool;
 
+import java.io.IOException;
 import java.net.URL;
 
-import org.mortbay.jetty.Connector;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+
+import org.apache.commons.lang.StringUtils;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 public class WebServerMain
 {
-  public static void main(final String[] args)
+  public static void main(final String[] args) throws IOException
   {
-    if (args.length != 1)
+    final OptionParser parser = new OptionParser();
+    final OptionSpec<String> bindAddress = parser.accepts("bind-address", "Optional address to bind to for listening").withRequiredArg().ofType(String.class);
+    final OptionSpec<Integer> port = parser.accepts("port", "The port on which to listen for HTTP requests").withRequiredArg().ofType(Integer.class);;
+    final OptionSpec<Integer> httpsPort = parser.accepts("https-port", "The port on which to listen for HTTPS resquests").withRequiredArg().ofType(Integer.class);
+    final OptionSpec<String> keystoreFile = parser.accepts("keystore-file", "Java Key Store with combined server certificate and private key for HTTPS use").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> keystorePassword = parser.accepts("keystore-pass", "Password for the key store").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> keyPassword = parser.accepts("key-pass", "Password for the server key").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> truststoreFile = parser.accepts("truststore-file", "Java Key Store with certificates for trusted clients for HTTPS use.").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> truststorePassword = parser.accepts("truststore-pass", "Password for the trust store").withRequiredArg().ofType(String.class);
+
+    OptionSet options = null;
+    try
     {
-      System.err.println("Usage: " + WebServerMain.class.getName() + " [address:]port");
+      options = parser.parse(args);
+    }
+    catch (final OptionException e)
+    {
+      System.err.println(e.getLocalizedMessage());
+      parser.printHelpOn(System.err);
+      System.exit(1);
+    }
+    if ((!options.has(port) && !options.has(httpsPort)) ||
+        (options.has(httpsPort) && !options.has(keystoreFile)))
+    {
+      parser.printHelpOn(System.err);
       System.exit(1);
     }
     try
     {
-      final WebServerMain main = new WebServerMain(args[0]);
+      final WebServerMain main = new WebServerMain(
+        options.valueOf(bindAddress),
+        options.valueOf(port),
+        options.valueOf(httpsPort),
+        options.valueOf(keystoreFile),
+        options.valueOf(keystorePassword),
+        options.valueOf(keyPassword),
+        options.valueOf(truststoreFile),
+        options.valueOf(truststorePassword)
+      );
       main.start();
     }
     catch (final Exception e)
@@ -31,41 +69,88 @@ public class WebServerMain
 
   private Server server;
 
-  public WebServerMain(final String address)
+  public WebServerMain(
+    final String address,
+    final Integer httpPort,
+    final Integer httpsPort,
+    final String keystoreFile,
+    final String keyStorePassword,
+    final String keyPassword,
+    final String trustStore,
+    final String trustStorePassword)
   {
-    this(address, null);
+    this(address, httpPort, httpsPort, keystoreFile, keyStorePassword, keyPassword, trustStore, trustStorePassword, null);
   }
 
-  public WebServerMain(final String address, final String warPath)
+  public WebServerMain(
+    final String address,
+    final Integer httpPort,
+    final Integer httpsPort,
+    final String keystoreFile,
+    final String keyStorePassword,
+    final String keyPassword,
+    final String trustStore,
+    final String trustStorePassword,
+    final String warPath)
   {
-    init(address, warPath != null ? warPath : findWarPath());
+    init(address, httpPort, httpsPort, keystoreFile, keyStorePassword, keyPassword, trustStore, trustStorePassword,
+      warPath != null ? warPath : findWarPath());
   }
 
-  private void init(final String address, final String warPath)
+  private void init(final String address,
+    final Integer httpPort,
+    final Integer httpsPort,
+    final String keystoreFile,
+    final String keyStorePassword,
+    final String keyPassword,
+    final String trustStore,
+    final String trustStorePassword,
+    final String warPath)
   {
     server = new Server();
     final ContextHandlerCollection contexts = new ContextHandlerCollection();
     server.setHandler(contexts);
 
-    final SocketConnector connector = new SocketConnector();
+    if (httpPort != null)
     {
-      final int colon = address.lastIndexOf(':');
-      if (colon < 0)
-      {
-        connector.setPort(Integer.parseInt(address));
-      }
-      else
-      {
-        connector.setHost(address.substring(0,colon));
-        connector.setPort(Integer.parseInt(address.substring(colon+1)));
-      }
+      final SocketConnector connector = new SocketConnector();
+      connector.setPort(httpPort);
+      setAddress(address, connector);
+      server.addConnector(connector);
     }
-    server.setConnectors(new Connector[]{connector});
+    if (httpsPort != null)
+    {
+      final SslSocketConnector connector = new SslSocketConnector();
+      connector.setPort(httpsPort);
+      if (StringUtils.isNotBlank(keystoreFile))
+      {
+        connector.setKeystore(keystoreFile);
+        connector.setPassword(keyStorePassword);
+        connector.setKeyPassword(keyPassword);
+      }
+      if (StringUtils.isNotBlank(trustStore))
+      {
+        connector.setTruststore(trustStore);
+        connector.setTrustPassword(trustStorePassword);
+      }
+      setAddress(address, connector);
+      server.addConnector(connector);
+    }
 
     final WebAppContext webapp = new WebAppContext();
     webapp.setWar(warPath);
     webapp.setContextPath("/");
     contexts.addHandler(webapp);
+  }
+
+  private static void setAddress(
+    final String address,
+    final SocketConnector connector)
+  {
+    if (StringUtils.isNotBlank(address))
+    {
+      connector.setHost(address);
+    }
   }
 
   public void start()

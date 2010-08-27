@@ -197,6 +197,7 @@
               <include name="com/t11e/discovery/datatool/CustomLogFormatter.class"/>
             </fileset>
             <zipgroupfileset dir="lib">
+                <include name="jopt-simple-3.2.jar"/>
                 <include name="jetty/jetty-6.1.22.jar"/>
                 <include name="jetty/jetty-util-6.1.22.jar"/>
                 <include name="javax/servlet-2.5.jar"/>
