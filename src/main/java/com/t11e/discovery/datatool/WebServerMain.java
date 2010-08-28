@@ -2,8 +2,6 @@ package com.t11e.discovery.datatool;
 
 import java.io.IOException;
 import java.net.URL;
-
-import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -20,6 +18,21 @@ public class WebServerMain
   public static void main(final String[] args) throws IOException
   {
     final OptionParser parser = new OptionParser();
+    try
+    {
+      final WebServerMain main = fromArgs(parser, args);
+      main.start();
+    }
+    catch (final Exception e)
+    {
+      System.err.println(e.getLocalizedMessage());
+      parser.printHelpOn(System.err);
+      System.exit(1);
+    }
+  }
+
+  public static WebServerMain fromArgs(final OptionParser parser, final String[] args)
+  {
     final OptionSpec<String> bindAddress = parser.accepts("bind-address", "Optional address to bind to for listening").withRequiredArg().ofType(String.class);
     final OptionSpec<Integer> port = parser.accepts("port", "The port on which to listen for HTTP requests").withRequiredArg().ofType(Integer.class);;
     final OptionSpec<Integer> httpsPort = parser.accepts("https-port", "The port on which to listen for HTTPS resquests").withRequiredArg().ofType(Integer.class);
@@ -30,41 +43,24 @@ public class WebServerMain
     final OptionSpec<String> truststorePassword = parser.accepts("truststore-pass", "Password for the trust store").withRequiredArg().ofType(String.class);
 
     OptionSet options = null;
-    try
-    {
       options = parser.parse(args);
-    }
-    catch (final OptionException e)
-    {
-      System.err.println(e.getLocalizedMessage());
-      parser.printHelpOn(System.err);
-      System.exit(1);
-    }
     if ((!options.has(port) && !options.has(httpsPort)) ||
-        (options.has(httpsPort) && !options.has(keystoreFile)))
+        (options.has(httpsPort) && (!options.has(keystoreFile) || !options.has(keyPassword) || !options.has(keyPassword))))
     {
-      parser.printHelpOn(System.err);
-      System.exit(1);
+      throw new IllegalArgumentException(
+        "You must specify --port or --https-port, --keystore-file, --keystore-pass and --key-pass");
     }
-    try
-    {
-      final WebServerMain main = new WebServerMain(
-        options.valueOf(bindAddress),
-        options.valueOf(port),
-        options.valueOf(httpsPort),
-        options.valueOf(keystoreFile),
-        options.valueOf(keystorePassword),
-        options.valueOf(keyPassword),
-        options.valueOf(truststoreFile),
-        options.valueOf(truststorePassword)
-      );
-      main.start();
-    }
-    catch (final Exception e)
-    {
-      System.err.println(e.getMessage());
-      System.exit(1);
-    }
+    final WebServerMain main = new WebServerMain(
+      options.valueOf(bindAddress),
+      options.valueOf(port),
+      options.valueOf(httpsPort),
+      options.valueOf(keystoreFile),
+      options.valueOf(keystorePassword),
+      options.valueOf(keyPassword),
+      options.valueOf(truststoreFile),
+      options.valueOf(truststorePassword)
+    );
+    return main;
   }
 
   private Server server;
