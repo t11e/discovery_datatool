@@ -3,12 +3,12 @@ package com.t11e.discovery.datatool;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -21,7 +21,6 @@ import org.springframework.web.filter.GenericFilterBean;
 public class BypassAuthenticationFilter
   extends GenericFilterBean
 {
-  private static final Logger logger = Logger.getLogger(BypassAuthenticationFilter.class.getName());
   private static final List<GrantedAuthority> DEFAULT_ROLES =
     Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
   private final byte[] bypassLock = {};
@@ -41,7 +40,6 @@ public class BypassAuthenticationFilter
     }
     if (doBypass && SecurityContextHolder.getContext().getAuthentication() == null)
     {
-      logger.info("Bypassing");
       final AnonymousAuthenticationToken auth =
         new AnonymousAuthenticationToken("bypass_auth", "bypass_auth", DEFAULT_ROLES);
       auth.setDetails(new User("bypass_auth", "bypass_auth", true, true, true, true, DEFAULT_ROLES));
