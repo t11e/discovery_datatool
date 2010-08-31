@@ -199,6 +199,12 @@ public class ConfigurationManager
       final String prefix = namespacesByUri.get(document.getRootElement().getNamespaceURI());
       ns = prefix == null ? "" : (prefix + ":");
     }
+
+    if (document.selectSingleNode("/c:config".replace("c:", ns)) == null)
+    {
+      throw new RuntimeException("Missing root config element. Did you specify a namespace?");
+    }
+
     for (final Node node : (List<Node>) document.selectNodes("/c:config/c:dataSources/c:dataSource".replace("c:", ns)))
     {
       final String name = node.valueOf("@name");

@@ -41,6 +41,7 @@ public class SqlChangesetProfileService
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   private Date[] getChangesetProfileDateRange(final String profile)
   {
     Date[] startEnd;
