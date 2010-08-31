@@ -11,6 +11,3 @@ Basic steps
   openssl pkcs12 -inkey datatool.key -in datatool.crt -export -out datatool.pkcs12
   # create a Java key store and import the key and certificate
   keytool -importkeystore -srckeystore datatool.pkcs12 -srcstoretype PKCS12 -destkeystore datatool
-  # create a truststore with the cert for the client. This will be used by the discovery engine
-  # At a minimum, the client will need the x509 certificate (not the private key)
-  keytool -import -alias datatool -file datatool.crt -keystore truststore
