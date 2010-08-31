@@ -21,14 +21,18 @@
   <mvc:annotation-driven/>
 
   <sec:authentication-manager>
-    <sec:authentication-provider>
-      <sec:user-service id="userDetailsService" properties="file:users.properties"/>
-    </sec:authentication-provider>
+    <sec:authentication-provider user-service-ref="userDetailsService"/>
   </sec:authentication-manager>
   <sec:http auto-config="true" realm="datatool">
+    <sec:custom-filter ref="BypassAuthenticationFilter" before="ANONYMOUS_FILTER"/>
     <sec:intercept-url pattern="/**" access="ROLE_USER" />
     <sec:http-basic />
   </sec:http>
+  <bean id="userDetailsService" class="org.springframework.security.core.userdetails.memory.InMemoryDaoImpl">
+    <property name="userProperties">
+      <props/>
+    </property>
+  </bean>
 
   <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
     <property name="exitOnInvalidConfigAtStartup" value="true"/>
