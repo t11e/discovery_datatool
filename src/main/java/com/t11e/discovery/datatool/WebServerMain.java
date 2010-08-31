@@ -45,10 +45,10 @@ public class WebServerMain
     OptionSet options = null;
       options = parser.parse(args);
     if ((!options.has(port) && !options.has(httpsPort)) ||
-        (options.has(httpsPort) && (!options.has(keystoreFile) || !options.has(keyPassword) || !options.has(keyPassword))))
+        (options.has(httpsPort) && (!options.has(keystoreFile) || !options.has(keystorePassword))))
     {
       throw new IllegalArgumentException(
-        "You must specify --port or --https-port, --keystore-file, --keystore-pass and --key-pass");
+        "You must specify --port or --https-port, --keystore-file, and --keystore-pass");
     }
     final WebServerMain main = new WebServerMain();
     main.address = options.valueOf(bindAddress);
@@ -100,7 +100,10 @@ public class WebServerMain
       {
         connector.setKeystore(keystoreFile);
         connector.setPassword(keyStorePassword);
-        connector.setKeyPassword(keyPassword);
+        if (StringUtils.isNotBlank(keyPassword))
+        {
+          connector.setKeyPassword(keyPassword);
+        }
       }
       if (StringUtils.isNotBlank(trustStore))
       {
