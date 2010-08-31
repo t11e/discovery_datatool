@@ -50,58 +50,36 @@ public class WebServerMain
       throw new IllegalArgumentException(
         "You must specify --port or --https-port, --keystore-file, --keystore-pass and --key-pass");
     }
-    final WebServerMain main = new WebServerMain(
-      options.valueOf(bindAddress),
-      options.valueOf(port),
-      options.valueOf(httpsPort),
-      options.valueOf(keystoreFile),
-      options.valueOf(keystorePassword),
-      options.valueOf(keyPassword),
-      options.valueOf(truststoreFile),
-      options.valueOf(truststorePassword)
-    );
+    final WebServerMain main = new WebServerMain();
+    main.address = options.valueOf(bindAddress);
+    main.httpPort = options.valueOf(port);
+    main.httpsPort = options.valueOf(httpsPort);
+    main.keystoreFile = options.valueOf(keystoreFile);
+    main.keyStorePassword = options.valueOf(keystorePassword);
+    main.keyPassword = options.valueOf(keyPassword);
+    main.trustStore = options.valueOf(truststoreFile);
+    main.trustStorePassword = options.valueOf(truststorePassword);
+    main.warPath = main.findWarPath();
+    main.init();
     return main;
   }
 
   private Server server;
+  private String address;
+  private Integer httpPort;
+  private Integer httpsPort;
+  private String keystoreFile;
+  private String keyStorePassword;
+  private String keyPassword;
+  private String trustStore;
+  private String trustStorePassword;
+  private String warPath;
 
-  public WebServerMain(
-    final String address,
-    final Integer httpPort,
-    final Integer httpsPort,
-    final String keystoreFile,
-    final String keyStorePassword,
-    final String keyPassword,
-    final String trustStore,
-    final String trustStorePassword)
+  private WebServerMain()
   {
-    this(address, httpPort, httpsPort, keystoreFile, keyStorePassword, keyPassword, trustStore, trustStorePassword, null);
   }
 
-  public WebServerMain(
-    final String address,
-    final Integer httpPort,
-    final Integer httpsPort,
-    final String keystoreFile,
-    final String keyStorePassword,
-    final String keyPassword,
-    final String trustStore,
-    final String trustStorePassword,
-    final String warPath)
-  {
-    init(address, httpPort, httpsPort, keystoreFile, keyStorePassword, keyPassword, trustStore, trustStorePassword,
-      warPath != null ? warPath : findWarPath());
-  }
-
-  private void init(final String address,
-    final Integer httpPort,
-    final Integer httpsPort,
-    final String keystoreFile,
-    final String keyStorePassword,
-    final String keyPassword,
-    final String trustStore,
-    final String trustStorePassword,
-    final String warPath)
+  private void init()
   {
     server = new Server();
     final ContextHandlerCollection contexts = new ContextHandlerCollection();
