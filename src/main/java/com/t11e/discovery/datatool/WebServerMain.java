@@ -33,14 +33,14 @@ public class WebServerMain
 
   public static WebServerMain fromArgs(final OptionParser parser, final String[] args)
   {
-    final OptionSpec<String> bindAddress = parser.accepts("bind-address", "Optional address to bind to for listening").withRequiredArg().ofType(String.class);
-    final OptionSpec<Integer> port = parser.accepts("port", "The port on which to listen for HTTP requests").withRequiredArg().ofType(Integer.class);;
-    final OptionSpec<Integer> httpsPort = parser.accepts("https-port", "The port on which to listen for HTTPS resquests").withRequiredArg().ofType(Integer.class);
-    final OptionSpec<String> keystoreFile = parser.accepts("keystore-file", "Java Key Store with combined server certificate and private key for HTTPS use").withRequiredArg().ofType(String.class);
-    final OptionSpec<String> keystorePassword = parser.accepts("keystore-pass", "Password for the key store").withRequiredArg().ofType(String.class);
-    final OptionSpec<String> keyPassword = parser.accepts("key-pass", "Password for the server key").withRequiredArg().ofType(String.class);
-    final OptionSpec<String> truststoreFile = parser.accepts("truststore-file", "Java Key Store with certificates for trusted clients for HTTPS use.").withRequiredArg().ofType(String.class);
-    final OptionSpec<String> truststorePassword = parser.accepts("truststore-pass", "Password for the trust store").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> bindAddress = parser.accepts("bind-address", "Optional interface address on which the Discovery Data Tool should listen.").withRequiredArg().ofType(String.class);
+    final OptionSpec<Integer> port = parser.accepts("port", "Optional port on which the Discovery Data Tool will listen for HTTP requests.").withRequiredArg().ofType(Integer.class);;
+    final OptionSpec<Integer> httpsPort = parser.accepts("https-port", "Optional port on which the Discovery Data Tool will listen for HTTPS requests.").withRequiredArg().ofType(Integer.class);
+    final OptionSpec<String> keystoreFile = parser.accepts("keystore-file", "Path the a Java Key Store file containing the server certificate and private key. Required if you want to use HTTPS.").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> keystorePassword = parser.accepts("keystore-pass", "Password for the Java Key Store file containing the server certificate and private key. Required if you want to use HTTPS.").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> keyPassword = parser.accepts("key-pass", "Password for the server private key. Required if your key has a password.").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> truststoreFile = parser.accepts("truststore-file", " Optional path to a Java Key Store file containing trusted client certificates.").withRequiredArg().ofType(String.class);
+    final OptionSpec<String> truststorePassword = parser.accepts("truststore-pass", "Password for the trust store. Required if using client certificates.").withRequiredArg().ofType(String.class);
 
     OptionSet options = null;
       options = parser.parse(args);
