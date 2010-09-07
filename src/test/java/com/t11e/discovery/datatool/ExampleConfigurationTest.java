@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.core.userdetails.memory.InMemoryDaoImpl;
 
 public class ExampleConfigurationTest
 {
@@ -64,6 +65,8 @@ public class ExampleConfigurationTest
     configurationManager = new ConfigurationManager();
     configurationManager.setWorkingDirectory("stage");
     configurationManager.setConfigurationFile(configFile.getPath());
+    configurationManager.setBypassAuthenticationFilter(new BypassAuthenticationFilter());
+    configurationManager.setInMemoryDaoImpl(new InMemoryDaoImpl());
     configurationManager.onPostConstruct();
     Assert.assertNotNull(configurationManager.getBean(ChangesetPublisherManager.class));
   }

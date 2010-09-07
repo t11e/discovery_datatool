@@ -1,0 +1,13 @@
+See http://docs.codehaus.org/display/JETTY/How+to+configure+SSL for detailed instructions
+
+Basic steps
+
+  # Generate RSA key.
+  # Note that the CN *must* match the host name that will be in the public feed url for the datatool
+  openssl genrsa -des3 -out datatool.key
+  # Create x509 certificate from the key
+  openssl req -new -x509 -key datatool.key -out datatool.crt
+  # Combine the key(s) and the certificate into the a single pkcs12 file
+  openssl pkcs12 -inkey datatool.key -in datatool.crt -export -out datatool.pkcs12
+  # create a Java key store and import the key and certificate
+  keytool -importkeystore -srckeystore datatool.pkcs12 -srcstoretype PKCS12 -destkeystore datatool

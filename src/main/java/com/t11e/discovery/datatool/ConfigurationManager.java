@@ -11,11 +11,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.apache.commons.collections.MapUtils;
@@ -28,21 +30,31 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.memory.InMemoryDaoImpl;
+import org.springframework.security.core.userdetails.memory.UserMap;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 @Component("ConfigurationManager")
 public class ConfigurationManager
 {
+  private static final List<GrantedAuthority> DEFAULT_ROLES =
+    Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
   private File configurationFile = new File("discovery_datatool.xml");
   private File workingDirectory;
   private boolean exitOnInvalidConfigAtStartup;
   private ConfigurableApplicationContext currentContext;
+  private BypassAuthenticationFilter bypassAuthenticationFilter;
+  private InMemoryDaoImpl userDetailsService;
 
   @PostConstruct
   public void onPostConstruct()
@@ -101,7 +113,6 @@ public class ConfigurationManager
     IOUtils.closeQuietly(is);
     final GenericApplicationContext newContext = createApplicationContext(new ByteArrayInputStream(config));
     newContext.start();
-
     synchronized(this)
     {
       if (persist)
@@ -114,6 +125,7 @@ public class ConfigurationManager
         currentContext.close();
         currentContext = null;
       }
+      applyAccessControl(new ByteArrayInputStream(config));
       currentContext = newContext;
     }
     return persisted;
@@ -165,39 +177,14 @@ public class ConfigurationManager
   private GenericApplicationContext createApplicationContext(final InputStream is)
   {
     final GenericApplicationContext applicationContext = new GenericApplicationContext();
-
-    final SAXReader saxReader = new SAXReader(true);
-    try
-    {
-      saxReader.setFeature("http://apache.org/xml/features/validation/schema", true);
-    }
-    catch (final SAXException e)
-    {
-      throw new RuntimeException(e);
-    }
-    saxReader.setEntityResolver(new DataToolEntityResolver());
-    final Map<String, String> namespacesByPrefix = CollectionsFactory.makeMapGeneric(
-      "c1", "http://transparensee.com/schema/datatool-config-1",
-      "c2", "http://transparensee.com/schema/datatool-config-2");
-    final Map<String, String> namespacesByUri = MapUtils.invertMap(namespacesByPrefix);
-    {
-      final DocumentFactory factory = new DocumentFactory();
-      factory.setXPathNamespaceURIs(namespacesByPrefix);
-      saxReader.setDocumentFactory(factory);
-    }
     final Document document;
-    try
-    {
-      document = saxReader.read(is);
-    }
-    catch (final DocumentException e)
-    {
-      throw new RuntimeException(e);
-    }
     final String ns;
     {
-      final String prefix = namespacesByUri.get(document.getRootElement().getNamespaceURI());
-      ns = prefix == null ? "" : (prefix + ":");
+      final Document[] documentHolder = new Document[1];
+      final String[] namespaceHolder = new String[1];
+      parseConfiguration(is, documentHolder, namespaceHolder);
+      document = documentHolder[0];
+      ns = namespaceHolder[0];
     }
 
     if (document.selectSingleNode("/c:config".replace("c:", ns)) == null)
@@ -298,6 +285,75 @@ public class ConfigurationManager
     return applicationContext;
   }
 
+  @SuppressWarnings("unchecked")
+  private void applyAccessControl(final InputStream is)
+  {
+    final Document document;
+    final String ns;
+    {
+      final Document[] documentHolder = new Document[1];
+      final String[] namespaceHolder = new String[1];
+      parseConfiguration(is, documentHolder, namespaceHolder);
+      document = documentHolder[0];
+      ns = namespaceHolder[0];
+    }
+    bypassAuthenticationFilter.setBypass(false);
+    userDetailsService.setUserMap(new UserMap());
+    for (final Node node : (List<Node>) document.selectNodes("/c:config/c:accessControl/c:user".replace("c:", ns)))
+    {
+      userDetailsService.getUserMap().addUser(new User(node.valueOf("@name"),
+        node.valueOf("@password"), true, true, true, true, DEFAULT_ROLES));
+    }
+    {
+      final Node accessControl = document.selectSingleNode("/c:config/c:accessControl".replace("c:", ns));
+      bypassAuthenticationFilter.setBypass(accessControl == null);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void parseConfiguration(
+    final InputStream is,
+    final Document[] documentHolder,
+    final String[] namespaceHolder)
+  {
+    final SAXReader saxReader = new SAXReader(true);
+    try
+    {
+      saxReader.setFeature("http://apache.org/xml/features/validation/schema", true);
+    }
+    catch (final SAXException e)
+    {
+      throw new RuntimeException(e);
+    }
+    saxReader.setEntityResolver(new DataToolEntityResolver());
+    final Map<String, String> namespacesByPrefix = CollectionsFactory.makeMapGeneric(
+      "c1", "http://transparensee.com/schema/datatool-config-1",
+      "c2", "http://transparensee.com/schema/datatool-config-2",
+      "c3", "http://transparensee.com/schema/datatool-config-3");
+    final Map<String, String> namespacesByUri = MapUtils.invertMap(namespacesByPrefix);
+    {
+      final DocumentFactory factory = new DocumentFactory();
+      factory.setXPathNamespaceURIs(namespacesByPrefix);
+      saxReader.setDocumentFactory(factory);
+    }
+    final Document document;
+    try
+    {
+      document = saxReader.read(is);
+    }
+    catch (final DocumentException e)
+    {
+      throw new RuntimeException(e);
+    }
+    final String ns;
+    {
+      final String prefix = namespacesByUri.get(document.getRootElement().getNamespaceURI());
+      ns = prefix == null ? "" : (prefix + ":");
+    }
+    namespaceHolder[0] = ns;
+    documentHolder[0] = document;
+  }
+
   private static void addPropertyIfExists(
     final BeanDefinitionBuilder builder,
     final String name,
@@ -384,5 +440,18 @@ public class ConfigurationManager
     {
       throw new RuntimeException(e);
     }
+  }
+
+  @Resource(name="BypassAuthenticationFilter")
+  public void setBypassAuthenticationFilter(
+    final BypassAuthenticationFilter bypassAuthenticationFilter)
+  {
+    this.bypassAuthenticationFilter = bypassAuthenticationFilter;
+  }
+
+  @Autowired
+  public void setInMemoryDaoImpl(final InMemoryDaoImpl inMemoryDaoImpl)
+  {
+    userDetailsService = inMemoryDaoImpl;
   }
 }

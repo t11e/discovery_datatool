@@ -1,5 +1,9 @@
 package com.t11e.discovery.datatool;
 
+import java.io.StringWriter;
+
+import joptsimple.OptionParser;
+
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 
@@ -12,11 +16,19 @@ public class WebServerDaemon
     throws Exception
   {
     final String[] args = context.getArguments();
-    if (args.length != 1)
+    final OptionParser parser = new OptionParser();
+    try
     {
-      context.getController().fail("Usage: " + WebServerDaemon.class.getName() + " [address:]port");
+      main = WebServerMain.fromArgs(parser, args);
+      main.start();
     }
-    main = new WebServerMain(args[0]);
+    catch (final Exception e)
+    {
+      final StringWriter writer = new StringWriter();
+      parser.printHelpOn(writer);
+      context.getController().fail(e.getLocalizedMessage() +
+        " Usage: " + WebServerDaemon.class.getName() + writer.getBuffer());
+    }
   }
 
   public void start()

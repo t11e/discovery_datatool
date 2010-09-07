@@ -188,7 +188,7 @@
         </jar>
     </target>
 
-    <target name="standalone-jar" depends="war">
+    <target name="standalone-jar" depends="war" description="Built the stand-alone executable jar.">
         <delete file="build.ant/discovery_datatool_standalone.jar"/>
         <jar destfile="build.ant/discovery_datatool_standalone.jar">
             <fileset dir="build.ant/main">
@@ -197,6 +197,7 @@
               <include name="com/t11e/discovery/datatool/CustomLogFormatter.class"/>
             </fileset>
             <zipgroupfileset dir="lib">
+                <include name="jopt-simple-3.2.jar"/>
                 <include name="jetty/jetty-6.1.22.jar"/>
                 <include name="jetty/jetty-util-6.1.22.jar"/>
                 <include name="javax/servlet-2.5.jar"/>
@@ -213,7 +214,8 @@
     </target>
 
     <property name="external.version" value="0.0.0"/>
-    <target name="release" depends="standalone-jar">
+    <target name="release" depends="standalone-jar"
+      description="Build the distribution ZIP. Can set external.version if building from a tag.">
       <delete file="build.ant/discovery_datatool.zip"/>
       <zip destfile="build.ant/discovery_datatool-${external.version}.zip">
         <zipfileset prefix="discovery_datatool-${external.version}/" dir="stage" excludes="*.sh"/>
