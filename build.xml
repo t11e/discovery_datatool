@@ -33,7 +33,7 @@
         <delete dir="build.ant/junit"/>
         <delete dir="build.ant/report"/>
         <mkdir dir="build.ant/junit"/>
-        <junit haltonerror="false" errorproperty="junit.error"
+        <junit fork="true" haltonerror="false" errorproperty="junit.error"
           haltonfailure="false" failureproperty="junit.error"
           printsummary="true">
             <classpath>
