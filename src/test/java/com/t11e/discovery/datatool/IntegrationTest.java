@@ -64,7 +64,7 @@ public class IntegrationTest
   {
     assertChangeset("test-all", "", "snapshot",
       CollectionsFactory.makeList("1", "2", "3"),
-      CollectionsFactory.makeList("4", "5"));
+      CollectionsFactory.makeList("4", "5"), false);
   }
 
   @Test
@@ -75,10 +75,10 @@ public class IntegrationTest
     // Snapshot with no lastRun date
     assertChangeset("test", "test", "snapshot",
       CollectionsFactory.makeList("1", "2", "3"),
-      CollectionsFactory.makeList("4", "5"));
+      CollectionsFactory.makeList("4", "5"), false);
     assertChangeset("test", "test", "delta",
       Collections.EMPTY_LIST,
-      Collections.EMPTY_LIST);
+      Collections.EMPTY_LIST, false);
     // Touch two rows and get another delta
     {
       final Date origLastRun = template.queryForObject(
@@ -101,10 +101,17 @@ public class IntegrationTest
     }
     assertChangeset("test", "test", "delta",
       CollectionsFactory.makeList("1", "3"),
-      Collections.EMPTY_LIST);
+      Collections.EMPTY_LIST, false);
     assertChangeset("test", "test", "delta",
       Collections.EMPTY_LIST,
-      Collections.EMPTY_LIST);
+      Collections.EMPTY_LIST, false);
+
+    assertChangeset("test", "test", "snapshot",
+      CollectionsFactory.makeList("1", "2", "3"),
+      CollectionsFactory.makeList("4", "5"), true);
+    assertChangeset("test", "test", "delta",
+      Collections.EMPTY_LIST,
+      Collections.EMPTY_LIST, false);
   }
 
   @Test
@@ -115,10 +122,10 @@ public class IntegrationTest
     // Snapshot with no lastRun date
     assertChangeset("test", "test", "snapshot",
       CollectionsFactory.makeList("1", "2", "3"),
-      CollectionsFactory.makeList("4", "5"));
+      CollectionsFactory.makeList("4", "5"), false);
     assertChangeset("test", "test", "delta",
       Collections.EMPTY_LIST,
-      Collections.EMPTY_LIST);
+      Collections.EMPTY_LIST, false);
     // Delete two rows and get another delta
     {
       final Date origLastRun = template.queryForObject(
@@ -141,10 +148,10 @@ public class IntegrationTest
     }
     assertChangeset("test", "test", "delta",
       Collections.EMPTY_LIST,
-      CollectionsFactory.makeList("1", "3"));
+      CollectionsFactory.makeList("1", "3"), false);
     assertChangeset("test", "test", "delta",
       Collections.EMPTY_LIST,
-      Collections.EMPTY_LIST);
+      Collections.EMPTY_LIST, false);
   }
 
   @Test
@@ -153,7 +160,7 @@ public class IntegrationTest
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
     changesetController.publish(request, response,
-      "test-xml-escaping", null, null, "", false);
+      "test-xml-escaping", null, null, "", false, false);
     Assert.assertEquals(200, response.getStatus());
     Assert.assertEquals("text/xml; charset=utf-8", response.getContentType());
     Assert.assertEquals("snapshot", response.getHeader("X-t11e-type"));
@@ -171,13 +178,15 @@ public class IntegrationTest
     final String publisher,
     final String profile,
     final String expectedType,
-    final Collection<String> expectedSetItemIds, final Collection<String> expectedRemoveItemIds)
-    throws XMLStreamException, IOException, DocumentException
+    final Collection<String> expectedSetItemIds,
+    final Collection<String> expectedRemoveItemIds,
+    final boolean forceSnapshot)
+  throws XMLStreamException, IOException, DocumentException
   {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
     changesetController.publish(request, response,
-      publisher, null, null, profile, false);
+      publisher, null, null, profile, false, forceSnapshot);
     Assert.assertEquals(200, response.getStatus());
     Assert.assertEquals("text/xml; charset=utf-8", response.getContentType());
     Assert.assertEquals(expectedType, response.getHeader("X-t11e-type"));

@@ -55,7 +55,8 @@ public class ChangesetController
     @RequestParam(value="startDate", defaultValue="", required=false) final Date startParam,
     @RequestParam(value="endDate", defaultValue="", required=false) final Date endParam,
     @RequestParam(value="profile", defaultValue="", required=false) final String profile,
-    @RequestParam(value="dryRun", defaultValue="false", required=false) final boolean dryRun)
+    @RequestParam(value="dryRun", defaultValue="false", required=false) final boolean dryRun,
+    @RequestParam(value="forceSnapshot", defaultValue="false", required=false) final boolean forceSnapshot)
     throws XMLStreamException, IOException
   {
     final ChangesetPublisher changesetPublisher =
@@ -79,7 +80,7 @@ public class ChangesetController
       try
       {
         final Date[] range = changesetProfileService.getChangesetProfileDateRange(profile, dryRun);
-        start = range[0];
+        start = forceSnapshot ? null : range[0];
         end = range[1];
       }
       catch (final NoSuchProfileException e)
