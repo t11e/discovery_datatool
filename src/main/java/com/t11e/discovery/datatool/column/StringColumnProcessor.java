@@ -10,7 +10,7 @@ public class StringColumnProcessor
       new StringColumnProcessor();
 
   @Override
-  public Object processColumn(final ResultSet rs, final int column)
+  public String processColumn(final ResultSet rs, final int column)
     throws SQLException
   {
     String value = rs.getString(column);

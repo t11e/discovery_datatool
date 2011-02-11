@@ -10,7 +10,7 @@ public class BooleanColumnProcessor
       new BooleanColumnProcessor();
 
   @Override
-  public Object processColumn(final ResultSet rs, final int column)
+  public String processColumn(final ResultSet rs, final int column)
     throws SQLException
   {
     final boolean value = rs.getBoolean(column);
