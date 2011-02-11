@@ -11,6 +11,7 @@ import org.xml.sax.SAXException;
 public final class DataToolEntityResolver
   implements EntityResolver
 {
+  @Override
   public InputSource resolveEntity(final String publicId, final String systemId)
     throws SAXException, IOException
   {

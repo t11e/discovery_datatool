@@ -9,6 +9,7 @@ public class BooleanColumnProcessor
   public static final IColumnProcessor INSTANCE =
     new BooleanColumnProcessor();
 
+  @Override
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException
   {

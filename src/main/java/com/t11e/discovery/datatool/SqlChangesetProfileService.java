@@ -21,6 +21,7 @@ public class SqlChangesetProfileService
   private String updateSql;
   private NamedParameterJdbcTemplate jdbcTemplate;
 
+  @Override
   public Date[] getChangesetProfileDateRange(final String profile,
     final boolean dryRun)
   {
@@ -73,6 +74,7 @@ public class SqlChangesetProfileService
     jdbcTemplate.update(createSql, CollectionsFactory.makeMap("name", profile));
   }
 
+  @Override
   public void saveChangesetProfileLastRun(
     final String profile,
     final Date lastRun)

@@ -12,6 +12,7 @@ public class WebServerDaemon
 {
   private WebServerMain main;
 
+  @Override
   public void init(final DaemonContext context)
     throws Exception
   {
@@ -31,18 +32,21 @@ public class WebServerDaemon
     }
   }
 
+  @Override
   public void start()
     throws Exception
   {
     main.start();
   }
 
+  @Override
   public void stop()
     throws Exception
   {
     main.stop();
   }
 
+  @Override
   public void destroy()
   {
     main.destroy();

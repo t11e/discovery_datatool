@@ -16,6 +16,7 @@ public class SqlChangesetExtractor implements ChangesetExtractor
   private List<SqlAction> sqlActions;
   private NamedParameterJdbcTemplate jdbcTemplate;
 
+  @Override
   public void writeChangeset(
     final ChangesetWriter writer,
     final String changesetType,

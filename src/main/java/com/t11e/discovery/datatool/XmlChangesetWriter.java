@@ -16,6 +16,7 @@ public class XmlChangesetWriter
     this.writer = writer;
   }
 
+  @Override
   public void setItem(
     final String id,
     final Map<String, Object> properties)
@@ -30,6 +31,7 @@ public class XmlChangesetWriter
     writer.writeCharacters("\n");
   }
 
+  @Override
   public void addToItem(
     final String id,
     final Map<String, Object> properties)
@@ -44,6 +46,7 @@ public class XmlChangesetWriter
     writer.writeCharacters("\n");
   }
 
+  @Override
   public void removeFromItem(
     final String id,
     final Map<String, Object> properties)
@@ -58,6 +61,7 @@ public class XmlChangesetWriter
     writer.writeCharacters("\n");
   }
 
+  @Override
   public void removeAllFromItem(
     final String id)
     throws XMLStreamException
@@ -69,6 +73,7 @@ public class XmlChangesetWriter
     writer.writeCharacters("\n");
   }
 
+  @Override
   public void addItem(
     final String id)
     throws XMLStreamException
@@ -79,6 +84,7 @@ public class XmlChangesetWriter
     writer.writeCharacters("\n");
   }
 
+  @Override
   public void removeItem(
     final String id)
     throws XMLStreamException

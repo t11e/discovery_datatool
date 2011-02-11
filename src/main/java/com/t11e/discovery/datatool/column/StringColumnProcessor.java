@@ -10,6 +10,7 @@ public class StringColumnProcessor
   public static final IColumnProcessor INSTANCE =
     new StringColumnProcessor();
 
+  @Override
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException
   {

@@ -15,6 +15,7 @@ public class DateColumnProcessor
 
   private final Format format = FastDateFormat.getInstance("yyyy-MM-dd");
 
+  @Override
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException
   {

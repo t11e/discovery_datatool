@@ -10,6 +10,7 @@ public class JsonColumnProcessor
 {
   public static final IColumnProcessor INSTANCE = new JsonColumnProcessor();
 
+  @Override
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException
   {

@@ -50,6 +50,7 @@ public class CreateActionRowCallbackHandler
     this.jsonColumns = jsonColumns;
   }
 
+  @Override
   public void processRow(final ResultSet rs)
     throws SQLException
   {

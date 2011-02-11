@@ -16,6 +16,7 @@ public class TimestampColumnProcessor
 
   private final Format format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
+  @Override
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException
   {

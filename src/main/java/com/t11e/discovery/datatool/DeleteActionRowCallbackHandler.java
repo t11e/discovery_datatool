@@ -21,6 +21,7 @@ public class DeleteActionRowCallbackHandler
     this.idColumn = idColumn;
   }
 
+  @Override
   public void processRow(final ResultSet rs)
     throws SQLException
   {
