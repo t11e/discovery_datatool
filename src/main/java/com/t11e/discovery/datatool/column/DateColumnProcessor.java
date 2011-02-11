@@ -13,7 +13,7 @@ public class DateColumnProcessor
   public static final IColumnProcessor INSTANCE =
     new DateColumnProcessor();
 
-  private Format format = FastDateFormat.getInstance("yyyy-MM-dd");
+  private final Format format = FastDateFormat.getInstance("yyyy-MM-dd");
 
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException

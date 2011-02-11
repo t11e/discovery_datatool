@@ -32,11 +32,11 @@ public class StaxUtil
 
   }
 
-  public static String getRequiredAttributeValue(XMLStreamReader reader,
-    String ns, String localName)
+  public static String getRequiredAttributeValue(final XMLStreamReader reader,
+    final String ns, final String localName)
     throws XMLStreamException
   {
-    String value = reader.getAttributeValue(ns, localName);
+    final String value = reader.getAttributeValue(ns, localName);
     if (value == null)
     {
       throw newMissingAttributeException(ns, localName);
@@ -44,8 +44,8 @@ public class StaxUtil
     return value;
   }
 
-  public static XMLStreamException newMissingAttributeException(String ns,
-    String name)
+  public static XMLStreamException newMissingAttributeException(final String ns,
+    final String name)
   {
     return new XMLStreamException("The required attribute " +
       (ns == null ? "" : "{" + ns + "}") + name + " is missing");
@@ -54,7 +54,7 @@ public class StaxUtil
   /**
    * Variant of XMLStreamReader.nextTag that additionally ignores any DTD tokens.
    */
-  public static int nextTagIgnoringDocType(XMLStreamReader reader)
+  public static int nextTagIgnoringDocType(final XMLStreamReader reader)
     throws XMLStreamException
   {
     int next = -1;
@@ -96,7 +96,7 @@ public class StaxUtil
    * Find either the next START_ELEMENT or text, returns the text if
    * available and null if a tag was found.
    */
-  public static String nextTextOrTag(XMLStreamReader reader)
+  public static String nextTextOrTag(final XMLStreamReader reader)
     throws XMLStreamException
   {
     String output = null;
@@ -105,7 +105,7 @@ public class StaxUtil
     boolean done = false;
     do
     {
-      int type = reader.next();
+      final int type = reader.next();
       switch (type)
       {
         case XMLStreamConstants.CHARACTERS:
@@ -165,13 +165,13 @@ public class StaxUtil
     return output;
   }
 
-  public static void skipNestedElements(XMLStreamReader reader)
+  public static void skipNestedElements(final XMLStreamReader reader)
     throws XMLStreamException
   {
     int level = 0;
     while (level >= 0)
     {
-      int next = reader.next();
+      final int next = reader.next();
       switch (next)
       {
         case XMLStreamConstants.SPACE:
@@ -193,7 +193,7 @@ public class StaxUtil
     }
   }
 
-  protected static String tokenTypeDesc(int type)
+  protected static String tokenTypeDesc(final int type)
   {
     String desc;
     switch (type)
@@ -237,8 +237,8 @@ public class StaxUtil
     return desc;
   }
 
-  public static void writeCharactersIfNotNull(XMLStreamWriter writer,
-    String chars)
+  public static void writeCharactersIfNotNull(final XMLStreamWriter writer,
+    final String chars)
     throws XMLStreamException
   {
     if (chars != null)
@@ -247,8 +247,8 @@ public class StaxUtil
     }
   }
 
-  public static void writeAttributeIfNotNull(XMLStreamWriter writer,
-    String name, String value)
+  public static void writeAttributeIfNotNull(final XMLStreamWriter writer,
+    final String name, final String value)
     throws XMLStreamException
   {
     if (value != null)

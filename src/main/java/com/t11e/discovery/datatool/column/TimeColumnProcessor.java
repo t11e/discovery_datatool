@@ -13,7 +13,7 @@ public class TimeColumnProcessor
   public static final IColumnProcessor INSTANCE =
     new TimeColumnProcessor();
 
-  private Format format = FastDateFormat.getInstance("HH:mm:ss");
+  private final Format format = FastDateFormat.getInstance("HH:mm:ss");
 
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException

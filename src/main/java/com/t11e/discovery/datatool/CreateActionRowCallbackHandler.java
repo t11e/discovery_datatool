@@ -23,12 +23,12 @@ import com.t11e.discovery.datatool.column.TimestampColumnProcessor;
 public class CreateActionRowCallbackHandler
   implements RowCallbackHandler
 {
-  private ChangesetWriter writer;
-  private String idColumn;
-  private String idPrefix;
-  private String idSuffix;
-  private boolean lowerCaseColumnNames;
-  private Set<String> jsonColumns;
+  private final ChangesetWriter writer;
+  private final String idColumn;
+  private final String idPrefix;
+  private final String idSuffix;
+  private final boolean lowerCaseColumnNames;
+  private final Set<String> jsonColumns;
   // Lazily initialized fields
   private ResultSetMetaData metadata;
   private IColumnProcessor[] columnProcessors;

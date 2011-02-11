@@ -14,7 +14,7 @@ public class TimestampColumnProcessor
   public static final IColumnProcessor INSTANCE =
     new TimestampColumnProcessor();
 
-  private Format format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
+  private final Format format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
   public Object processColumn(final ResultSet rs, final int column)
     throws SQLException
