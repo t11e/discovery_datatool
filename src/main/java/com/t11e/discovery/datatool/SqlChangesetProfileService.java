@@ -51,7 +51,7 @@ public class SqlChangesetProfileService
       {
         final Map<String, Object> data = jdbcTemplate.queryForMap(retrieveSql,
           CollectionsFactory.makeMap("name", profile));
-        startEnd = new Date[] {
+        startEnd = new Date[]{
             (Date) data.get(retrieveStartColumn),
             (Date) data.get(retrieveEndColumn)
         };
@@ -95,26 +95,31 @@ public class SqlChangesetProfileService
   {
     jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
+
   /** Optional. Setting this enables profile auto-creation. */
   public void setCreateSql(final String createSql)
   {
     this.createSql = createSql;
   }
+
   @Required
   public void setRetrieveSql(final String retrieveSql)
   {
     this.retrieveSql = retrieveSql;
   }
+
   @Required
   public void setRetrieveStartColumn(final String retrieveStartColumn)
   {
     this.retrieveStartColumn = retrieveStartColumn;
   }
+
   @Required
   public void setRetrieveEndColumn(final String retrieveEndColumn)
   {
     this.retrieveEndColumn = retrieveEndColumn;
   }
+
   @Required
   public void setUpdateSql(final String updateSql)
   {

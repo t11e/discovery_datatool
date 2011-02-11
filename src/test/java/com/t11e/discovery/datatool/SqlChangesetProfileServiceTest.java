@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
-  locations={"applicationContext-test.xml"})
+    locations = {"applicationContext-test.xml"})
 public class SqlChangesetProfileServiceTest
 {
   @Autowired
@@ -29,14 +29,14 @@ public class SqlChangesetProfileServiceTest
     profileService.setDataSource(dataSource);
     profileService.setRetrieveSql(
       "select last_run as startTime, CURRENT_TIME as endTime " +
-      "from profile_table " +
-      "where name = :name");
+        "from profile_table " +
+        "where name = :name");
     profileService.setRetrieveStartColumn("startTime");
     profileService.setRetrieveEndColumn("endTime");
     profileService.setUpdateSql(
       "update profile_table " +
-      "set last_run = :lastRun " +
-      "where name = :name");
+        "set last_run = :lastRun " +
+        "where name = :name");
   }
 
   @Test

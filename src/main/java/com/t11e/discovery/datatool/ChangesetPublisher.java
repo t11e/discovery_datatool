@@ -12,24 +12,29 @@ public class ChangesetPublisher
   {
     return name;
   }
+
   @Required
   public void setName(final String name)
   {
     this.name = name;
   }
+
   public ChangesetExtractor getChangesetExtractor()
   {
     return changesetExtractor;
   }
+
   @Required
   public void setChangesetExtractor(final ChangesetExtractor changesetExtractor)
   {
     this.changesetExtractor = changesetExtractor;
   }
+
   public ChangesetProfileService getChangesetProfileService()
   {
     return changesetProfileService;
   }
+
   @Required
   public void setChangesetProfileService(
     final ChangesetProfileService changesetProfileService)

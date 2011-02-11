@@ -26,12 +26,12 @@ public class CollectionsFactory
 
     for (int i = 0; i < keyValuePairs.length; i += 2)
     {
-      result.put(keyValuePairs[i], keyValuePairs[i+1]);
+      result.put(keyValuePairs[i], keyValuePairs[i + 1]);
     }
     return result;
   }
 
-  public static <T> List<T> makeList(final T...values)
+  public static <T> List<T> makeList(final T... values)
   {
     return Arrays.asList(values);
   }

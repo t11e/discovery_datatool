@@ -125,21 +125,21 @@ public class JsonUtilTest
     assertEquals("[[\"a\"]]", JsonUtil.encode(
       makeList(makeList("a"))));
     assertEquals("[[\"a\"],[\"b\"]]", JsonUtil.encode(
-      makeList(makeList("a"),makeList("b"))));
+      makeList(makeList("a"), makeList("b"))));
   }
 
   @Test
   public void testEncodeArray()
   {
     assertEquals("[]", JsonUtil.encode(new String[0]));
-    assertEquals("[\"a\"]", JsonUtil.encode(new String[] {"a"}));
-    assertEquals("[\"a\",\"b\"]", JsonUtil.encode(new String[] {"a", "b"}));
+    assertEquals("[\"a\"]", JsonUtil.encode(new String[]{"a"}));
+    assertEquals("[\"a\",\"b\"]", JsonUtil.encode(new String[]{"a", "b"}));
     assertEquals("[\"a\",true,1]", JsonUtil.encode(
-      new Object[] {"a", Boolean.TRUE, new Integer(1)}));
+      new Object[]{"a", Boolean.TRUE, new Integer(1)}));
     assertEquals("[[\"a\"]]", JsonUtil.encode(
-      new String[][] {{"a"}}));
+      new String[][]{{"a"}}));
     assertEquals("[[\"a\"],[\"b\"]]", JsonUtil.encode(
-      new String[][] {{"a"}, {"b"}}));
+      new String[][]{{"a"}, {"b"}}));
   }
 
   @Test
@@ -187,7 +187,7 @@ public class JsonUtilTest
       JsonUtil.decode("");
       fail("Should throw EOFException");
     }
-    catch(final RuntimeException e)
+    catch (final RuntimeException e)
     {
       // success expected
       assertEquals(
@@ -287,7 +287,7 @@ public class JsonUtilTest
       JsonUtil.decode("[\"a\",true,1]"));
     assertEquals(makeList(makeList("a")),
       JsonUtil.decode("[[\"a\"]]"));
-    assertEquals(makeList(makeList("a"),makeList("b")),
+    assertEquals(makeList(makeList("a"), makeList("b")),
       JsonUtil.decode("[[\"a\"],[\"b\"]]"));
   }
 

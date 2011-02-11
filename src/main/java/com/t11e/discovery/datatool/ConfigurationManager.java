@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
 public class ConfigurationManager
 {
   private static final List<GrantedAuthority> DEFAULT_ROLES =
-    Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
+      Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
   private File configurationFile = new File("discovery_datatool.xml");
   private File workingDirectory;
   private boolean exitOnInvalidConfigAtStartup;
@@ -113,7 +113,7 @@ public class ConfigurationManager
     IOUtils.closeQuietly(is);
     final GenericApplicationContext newContext = createApplicationContext(new ByteArrayInputStream(config));
     newContext.start();
-    synchronized(this)
+    synchronized (this)
     {
       if (persist)
       {
@@ -137,8 +137,8 @@ public class ConfigurationManager
     try
     {
       final File newConfig =
-        File.createTempFile(configurationFile.getName(), ".tmp",
-          configurationFile.getCanonicalFile().getParentFile());
+          File.createTempFile(configurationFile.getName(), ".tmp",
+            configurationFile.getCanonicalFile().getParentFile());
       FileUtils.writeByteArrayToFile(newConfig, config);
       final File backupFile = new File(configurationFile + ".bak");
       if (configurationFile.exists())
@@ -230,7 +230,8 @@ public class ConfigurationManager
 
     for (final Node node : (List<Node>) document.selectNodes("/c:config/c:profiles/c:sqlProfile".replace("c:", ns)))
     {
-      final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetProfileService.class);
+      final BeanDefinitionBuilder builder = BeanDefinitionBuilder
+        .genericBeanDefinition(SqlChangesetProfileService.class);
       builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
       builder.addPropertyValue("createSql", node.valueOf("c:createSql".replace("c:", ns)));
       builder.addPropertyValue("retrieveStartColumn", node.valueOf("c:retrieveSql/@startColumn".replace("c:", ns)));
@@ -242,7 +243,8 @@ public class ConfigurationManager
 
     {
       final List<ChangesetPublisher> publishers = new ArrayList<ChangesetPublisher>();
-      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher".replace("c:", ns)))
+      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher"
+        .replace("c:", ns)))
       {
         final List<SqlAction> actions = new ArrayList<SqlAction>();
         for (final Node action : (List<Node>) node.selectNodes("c:action".replace("c:", ns)))
@@ -250,7 +252,8 @@ public class ConfigurationManager
           final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlAction.class);
           builder.addPropertyValue("action", action.valueOf("@type"));
           builder.addPropertyValue("filter", action.valueOf("@filter"));
-          builder.addPropertyValue("query", StringUtils.trimToEmpty(action.valueOf("c:query/text()".replace("c:", ns))));
+          builder
+            .addPropertyValue("query", StringUtils.trimToEmpty(action.valueOf("c:query/text()".replace("c:", ns))));
           builder.addPropertyValue("idColumn", action.valueOf("@idColumn"));
           builder.addPropertyValue("jsonColumnNames", action.valueOf("@jsonColumnNames"));
           final String beanName = "SqlAction-" + System.identityHashCode(builder);
@@ -259,7 +262,8 @@ public class ConfigurationManager
         }
         BeanDefinition sqlChangesetExtractor;
         {
-          final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlChangesetExtractor.class);
+          final BeanDefinitionBuilder builder = BeanDefinitionBuilder
+            .genericBeanDefinition(SqlChangesetExtractor.class);
           builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
           builder.addPropertyValue("actions", actions);
           sqlChangesetExtractor = builder.getBeanDefinition();
@@ -276,7 +280,8 @@ public class ConfigurationManager
         }
       }
       {
-        final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ChangesetPublisherManager.class);
+        final BeanDefinitionBuilder builder = BeanDefinitionBuilder
+          .genericBeanDefinition(ChangesetPublisherManager.class);
         builder.addPropertyValue("publishers", publishers);
         applicationContext.registerBeanDefinition("ChangesetPublisherManager", builder.getBeanDefinition());
       }
@@ -391,7 +396,7 @@ public class ConfigurationManager
     return loadDataSource(dataSourceClassName, jarUrl);
   }
 
-    @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")
   private static <T> Class<T> loadDataSource(
     final String dataSourceClassName,
     final URL jarUrl)
@@ -405,7 +410,7 @@ public class ConfigurationManager
       }
       else
       {
-        final URLClassLoader classLoader = new URLClassLoader(new URL[] {jarUrl});
+        final URLClassLoader classLoader = new URLClassLoader(new URL[]{jarUrl});
         driverClass = (Class<T>) classLoader.loadClass(dataSourceClassName);
       }
     }
@@ -415,7 +420,8 @@ public class ConfigurationManager
     }
     catch (final ClassNotFoundException e)
     {
-      throw new RuntimeException("Could not find the DataSource or Driver: " + dataSourceClassName + " from " + jarUrl, e);
+      throw new RuntimeException("Could not find the DataSource or Driver: " + dataSourceClassName + " from " + jarUrl,
+        e);
     }
     return driverClass;
   }
@@ -425,6 +431,7 @@ public class ConfigurationManager
   {
     this.exitOnInvalidConfigAtStartup = exitOnInvalidConfigAtStartup;
   }
+
   public void setConfigurationFile(final String configurationFile)
   {
     this.configurationFile = new File(configurationFile);
@@ -442,7 +449,7 @@ public class ConfigurationManager
     }
   }
 
-  @Resource(name="BypassAuthenticationFilter")
+  @Resource(name = "BypassAuthenticationFilter")
   public void setBypassAuthenticationFilter(
     final BypassAuthenticationFilter bypassAuthenticationFilter)
   {

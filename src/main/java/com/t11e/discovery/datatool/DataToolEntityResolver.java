@@ -20,7 +20,7 @@ public final class DataToolEntityResolver
       systemId.startsWith("http://transparensee.com/schema/"))
     {
       final String resourceName =
-        StringUtils.removeStart(systemId, "http://transparensee.com/schema/");
+          StringUtils.removeStart(systemId, "http://transparensee.com/schema/");
       if (resourceName.contains("/"))
       {
         throw new RuntimeException("Unsupported XML entity " + publicId + " " + systemId);

@@ -11,7 +11,7 @@ public class TimeColumnProcessor
   implements IColumnProcessor
 {
   public static final IColumnProcessor INSTANCE =
-    new TimeColumnProcessor();
+      new TimeColumnProcessor();
 
   private final Format format = FastDateFormat.getInstance("HH:mm:ss");
 

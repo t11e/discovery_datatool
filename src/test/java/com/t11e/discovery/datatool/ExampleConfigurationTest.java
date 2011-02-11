@@ -76,7 +76,7 @@ public class ExampleConfigurationTest
     throws FileNotFoundException
   {
     final boolean persisted =
-      configurationManager.loadConfiguration(new FileInputStream(configFile), persist);
+        configurationManager.loadConfiguration(new FileInputStream(configFile), persist);
     if (persist)
     {
       Assert.assertTrue("Configuration was not saved", persisted);

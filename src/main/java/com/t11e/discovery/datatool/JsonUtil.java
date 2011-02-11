@@ -21,13 +21,16 @@ import java.util.Map;
 public class JsonUtil
 {
   private static final NumberFormat s_longNumberFormat = newLongNumberFormat();
+
   private static NumberFormat newLongNumberFormat()
   {
     final NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
     nf.setGroupingUsed(false);
     return nf;
   }
+
   private static final NumberFormat s_doubleNumberFormat = newDoubleNumberFormat();
+
   private static NumberFormat newDoubleNumberFormat()
   {
     final NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -286,8 +289,16 @@ public class JsonUtil
         reader.unread(c);
         output = decodeString(reader);
         break;
-      case '0': case '1': case '2': case '3': case '4':
-      case '5': case '6': case '7': case '8': case '9':
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
       case '-':
         reader.unread(c);
         output = decodeNumber(reader);
@@ -452,7 +463,7 @@ public class JsonUtil
             case '/':
               buffer.append((char) c);
               break;
-           case 'b':
+            case 'b':
               buffer.append('\b');
               break;
             case 'f':
@@ -479,29 +490,74 @@ public class JsonUtil
                 }
                 switch (c)
                 {
-                  case '0': c = 0; break;
-                  case '1': c = 1; break;
-                  case '2': c = 2; break;
-                  case '3': c = 3; break;
-                  case '4': c = 4; break;
-                  case '5': c = 5; break;
-                  case '6': c = 6; break;
-                  case '7': c = 7; break;
-                  case '8': c = 8; break;
-                  case '9': c = 9; break;
-                  case 'a': c = 10; break;
-                  case 'A': c = 10; break;
-                  case 'b': c = 11; break;
-                  case 'B': c = 11; break;
-                  case 'c': c = 12; break;
-                  case 'C': c = 12; break;
-                  case 'd': c = 13; break;
-                  case 'D': c = 13; break;
-                  case 'e': c = 14; break;
-                  case 'E': c = 14; break;
-                  case 'f': c = 15; break;
-                  case 'F': c = 15; break;
-                  default: throw new JsonParseException("Invalid hex digit in unicode escape");
+                  case '0':
+                    c = 0;
+                    break;
+                  case '1':
+                    c = 1;
+                    break;
+                  case '2':
+                    c = 2;
+                    break;
+                  case '3':
+                    c = 3;
+                    break;
+                  case '4':
+                    c = 4;
+                    break;
+                  case '5':
+                    c = 5;
+                    break;
+                  case '6':
+                    c = 6;
+                    break;
+                  case '7':
+                    c = 7;
+                    break;
+                  case '8':
+                    c = 8;
+                    break;
+                  case '9':
+                    c = 9;
+                    break;
+                  case 'a':
+                    c = 10;
+                    break;
+                  case 'A':
+                    c = 10;
+                    break;
+                  case 'b':
+                    c = 11;
+                    break;
+                  case 'B':
+                    c = 11;
+                    break;
+                  case 'c':
+                    c = 12;
+                    break;
+                  case 'C':
+                    c = 12;
+                    break;
+                  case 'd':
+                    c = 13;
+                    break;
+                  case 'D':
+                    c = 13;
+                    break;
+                  case 'e':
+                    c = 14;
+                    break;
+                  case 'E':
+                    c = 14;
+                    break;
+                  case 'f':
+                    c = 15;
+                    break;
+                  case 'F':
+                    c = 15;
+                    break;
+                  default:
+                    throw new JsonParseException("Invalid hex digit in unicode escape");
                 }
                 escaped |= c << (4 * i);
               }
@@ -540,18 +596,29 @@ public class JsonUtil
         final int c = reader.read();
         switch (c)
         {
-          case '.': case 'e': case 'E':
+          case '.':
+          case 'e':
+          case 'E':
             isDouble = true;
             break;
-          case '+': case '-':
+          case '+':
+          case '-':
             if (!isDouble && !(c == '-' && buffer.length() == 0))
             {
               throw new JsonParseException("Unexpected " + (char) c +
                 " in number");
             }
             break;
-          case '0': case '1': case '2': case '3': case '4':
-          case '5': case '6': case '7': case '8': case '9':
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
             break;
           default:
             reader.unread(c);
@@ -640,10 +707,9 @@ public class JsonUtil
     }
   }
 
-
-  private static final char[] HEX_CHARACTERS_UPPER = new char[] {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    'A', 'B', 'C', 'D', 'E', 'F'};
+  private static final char[] HEX_CHARACTERS_UPPER = new char[]{
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+      'A', 'B', 'C', 'D', 'E', 'F'};
 
   private static String asHexString(final char c)
   {

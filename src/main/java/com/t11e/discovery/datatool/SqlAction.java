@@ -23,10 +23,12 @@ public class SqlAction
   {
     return filter;
   }
+
   public void setFilter(final Set<String> filter)
   {
     this.filter = filter;
   }
+
   public void setFilter(final String filters)
   {
     final String[] tokens = StringUtils.split(filters, ", ");
@@ -39,66 +41,81 @@ public class SqlAction
       filter = new HashSet<String>(Arrays.asList(tokens));
     }
   }
+
   public String getAction()
   {
     return action;
   }
+
   @Required
   public void setAction(final String action)
   {
     this.action = action;
   }
+
   public String getQuery()
   {
     return query;
   }
+
   @Required
   public void setQuery(final String query)
   {
     this.query = query;
   }
+
   @Required
   public void setIdColumn(final String idColumn)
   {
     this.idColumn = idColumn;
   }
+
   public String getIdColumn()
   {
     return idColumn;
   }
+
   public String getIdPrefix()
   {
     return idPrefix;
   }
+
   public void setIdPrefix(final String idPrefix)
   {
     this.idPrefix = idPrefix;
   }
+
   public String getIdSuffix()
   {
     return idSuffix;
   }
+
   public void setIdSuffix(final String idSuffix)
   {
     this.idSuffix = idSuffix;
   }
+
   public Set<String> getJsonColumnNames()
   {
     return jsonColumnNames;
   }
+
   public void setJsonColumnNames(final String jsonColumnNames)
   {
     this.jsonColumnNames = new HashSet<String>(
         Arrays.asList(StringUtils.split(jsonColumnNames, ", ")));
   }
+
   public void setJsonColumnNames(final Set<String> jsonColumnNames)
   {
     this.jsonColumnNames = jsonColumnNames;
   }
+
   public boolean isUseLowerCaseColumnNames()
   {
     return useLowerCaseColumnNames;
   }
+
   public void setUseLowerCaseColumnNames(final boolean useLowerCaseColumnNames)
   {
     this.useLowerCaseColumnNames = useLowerCaseColumnNames;

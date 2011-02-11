@@ -16,11 +16,11 @@ public class ConfigurationController
   @Autowired
   private ConfigurationManager configurationManager;
 
-  @RequestMapping(value="/ws/configuration", method=RequestMethod.POST)
+  @RequestMapping(value = "/ws/configuration", method = RequestMethod.POST)
   public void setConfiguration(
     final HttpServletRequest request,
     final HttpServletResponse response)
-  throws IOException
+    throws IOException
   {
     configurationManager.loadConfiguration(request.getInputStream(), true);
     response.setStatus(HttpServletResponse.SC_OK);

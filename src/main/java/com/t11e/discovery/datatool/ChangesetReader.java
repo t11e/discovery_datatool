@@ -70,7 +70,7 @@ public class ChangesetReader
   public static void parseChangesetAction(
     final XMLStreamReader reader,
     final IItemChangesetListener listener)
-  throws XMLStreamException
+    throws XMLStreamException
   {
     reader.require(XMLStreamConstants.START_ELEMENT, null, null);
     final String name = reader.getLocalName();
@@ -82,7 +82,7 @@ public class ChangesetReader
         reader.require(XMLStreamConstants.START_ELEMENT, null, "properties");
         if (reader.nextTag() == XMLStreamConstants.START_ELEMENT)
         {
-          final Map<String,Object> properties = readProperties(reader, false);
+          final Map<String, Object> properties = readProperties(reader, false);
           reader.nextTag();
           listener.onSetItem(id, properties);
         }
@@ -158,7 +158,7 @@ public class ChangesetReader
     throws XMLStreamException
   {
     final Object value = readValue(reader, allowEmpty);
-    if (value != null && !(value instanceof Map< ?, ?>))
+    if (value != null && !(value instanceof Map< ? , ? >))
     {
       throw new XMLStreamException("Properties must be a struct: " + value);
     }

@@ -11,7 +11,8 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-public class SqlChangesetExtractor implements ChangesetExtractor
+public class SqlChangesetExtractor
+  implements ChangesetExtractor
 {
   private List<SqlAction> sqlActions;
   private NamedParameterJdbcTemplate jdbcTemplate;
@@ -48,18 +49,18 @@ public class SqlChangesetExtractor implements ChangesetExtractor
     if ("create".equals(sqlAction.getAction()))
     {
       callbackHandler =
-        new CreateActionRowCallbackHandler(
-          writer,
-          sqlAction.getIdColumn(),
-          sqlAction.getIdPrefix(),
-          sqlAction.getIdSuffix(),
-          sqlAction.isUseLowerCaseColumnNames(),
-          sqlAction.getJsonColumnNames());
+          new CreateActionRowCallbackHandler(
+            writer,
+            sqlAction.getIdColumn(),
+            sqlAction.getIdPrefix(),
+            sqlAction.getIdSuffix(),
+            sqlAction.isUseLowerCaseColumnNames(),
+            sqlAction.getJsonColumnNames());
     }
     else if ("delete".equals(sqlAction.getAction()))
     {
       callbackHandler =
-        new DeleteActionRowCallbackHandler(writer, sqlAction.getIdColumn());
+          new DeleteActionRowCallbackHandler(writer, sqlAction.getIdColumn());
     }
     else
     {
@@ -73,6 +74,7 @@ public class SqlChangesetExtractor implements ChangesetExtractor
   {
     jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
+
   @Required
   public void setActions(final List<SqlAction> actions)
   {

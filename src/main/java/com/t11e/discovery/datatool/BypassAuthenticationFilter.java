@@ -22,7 +22,7 @@ public class BypassAuthenticationFilter
   extends GenericFilterBean
 {
   private static final List<GrantedAuthority> DEFAULT_ROLES =
-    Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
+      Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
   private final byte[] bypassLock = {};
   private boolean bypass = true;
 
@@ -41,7 +41,7 @@ public class BypassAuthenticationFilter
     if (doBypass && SecurityContextHolder.getContext().getAuthentication() == null)
     {
       final AnonymousAuthenticationToken auth =
-        new AnonymousAuthenticationToken("bypass_auth", "bypass_auth", DEFAULT_ROLES);
+          new AnonymousAuthenticationToken("bypass_auth", "bypass_auth", DEFAULT_ROLES);
       auth.setDetails(new User("bypass_auth", "bypass_auth", true, true, true, true, DEFAULT_ROLES));
       SecurityContextHolder.getContext().setAuthentication(auth);
     }

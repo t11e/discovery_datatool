@@ -36,7 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
-  locations={"applicationContext-test.xml"})
+    locations = {"applicationContext-test.xml"})
 public class IntegrationTest
 {
   @Autowired
@@ -86,18 +86,18 @@ public class IntegrationTest
       final Date lastUpdated = new Date(origLastRun.getTime() - (60 * 1000));
       template.update(
         "update IntegrationProfile " +
-        "set lastRun = :lastRun " +
-        "where name = 'test'",
+          "set lastRun = :lastRun " +
+          "where name = 'test'",
         CollectionsFactory.makeMap(
           "lastRun", lastUpdated));
       template.update(
         "update IntegrationContent " +
-        "set lastUpdated = :lastUpdated " +
-        "where id in (:ids)",
+          "set lastUpdated = :lastUpdated " +
+          "where id in (:ids)",
         CollectionsFactory.makeMap(
           "lastUpdated", lastUpdated,
           "ids", CollectionsFactory.makeList(1, 3)
-        ));
+          ));
     }
     assertChangeset("test", "test", "delta",
       CollectionsFactory.makeList("1", "3"),
@@ -133,16 +133,16 @@ public class IntegrationTest
       final Date lastUpdated = new Date(origLastRun.getTime() - (60 * 1000));
       template.update(
         "update IntegrationProfile " +
-        "set lastRun = :lastRun " +
-        "where name = 'test'",
+          "set lastRun = :lastRun " +
+          "where name = 'test'",
         CollectionsFactory.makeMap(
           "lastRun", lastUpdated));
       template.update(
         "insert into IntegrationDeleted " +
-        "(id, lastUpdated) " +
-        "values " +
-        "(1, :dateDeleted), " +
-        "(3, :dateDeleted)",
+          "(id, lastUpdated) " +
+          "values " +
+          "(1, :dateDeleted), " +
+          "(3, :dateDeleted)",
         CollectionsFactory.makeMap(
           "dateDeleted", lastUpdated));
     }
@@ -155,7 +155,8 @@ public class IntegrationTest
   }
 
   @Test
-  public void testXmlEscaping() throws Exception
+  public void testXmlEscaping()
+    throws Exception
   {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
@@ -181,7 +182,7 @@ public class IntegrationTest
     final Collection<String> expectedSetItemIds,
     final Collection<String> expectedRemoveItemIds,
     final boolean forceSnapshot)
-  throws XMLStreamException, IOException, DocumentException
+    throws XMLStreamException, IOException, DocumentException
   {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();

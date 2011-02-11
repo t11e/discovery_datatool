@@ -10,6 +10,7 @@ final class CountingChangesetListener
 {
   private int setItemCount;
   private int removeItemCount;
+
   @Override
   public void onStartChangeset()
   {

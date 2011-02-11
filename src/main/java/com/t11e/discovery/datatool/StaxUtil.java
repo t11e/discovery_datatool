@@ -73,9 +73,9 @@ public class StaxUtil
           if (!reader.isWhiteSpace())
           {
             throw new XMLStreamException("Received non-all-whitespace CHARACTERS" +
-            " or CDATA event in nextTagIgnoringDocType().");
+              " or CDATA event in nextTagIgnoringDocType().");
           }
-           break;
+          break;
         case XMLStreamConstants.START_ELEMENT:
         case XMLStreamConstants.END_ELEMENT:
           done = true;
@@ -202,34 +202,34 @@ public class StaxUtil
         desc = "START_ELEMENT";
         break;
       case XMLStreamConstants.END_ELEMENT:
-        desc =  "END_ELEMENT";
+        desc = "END_ELEMENT";
         break;
       case XMLStreamConstants.START_DOCUMENT:
-        desc =  "START_DOCUMENT";
+        desc = "START_DOCUMENT";
         break;
       case XMLStreamConstants.END_DOCUMENT:
-        desc =  "END_DOCUMENT";
+        desc = "END_DOCUMENT";
         break;
       case XMLStreamConstants.CHARACTERS:
-        desc =  "CHARACTERS";
+        desc = "CHARACTERS";
         break;
       case XMLStreamConstants.CDATA:
-        desc =  "CDATA";
+        desc = "CDATA";
         break;
       case XMLStreamConstants.SPACE:
-        desc =  "SPACE";
+        desc = "SPACE";
         break;
       case XMLStreamConstants.COMMENT:
-        desc =  "COMMENT";
+        desc = "COMMENT";
         break;
       case XMLStreamConstants.PROCESSING_INSTRUCTION:
-        desc =  "PROCESSING_INSTRUCTION";
+        desc = "PROCESSING_INSTRUCTION";
         break;
       case XMLStreamConstants.DTD:
-        desc =  "DTD";
+        desc = "DTD";
         break;
       case XMLStreamConstants.ENTITY_REFERENCE:
-        desc =  "ENTITY_REFERENCE";
+        desc = "ENTITY_REFERENCE";
         break;
       default:
         desc = "UNKNOWN_" + type;
@@ -258,13 +258,14 @@ public class StaxUtil
   }
 
   private static final Pattern INVALID_UTF_CHARS =
-    Pattern.compile("[^" +
-      "\\u0009" +
-      "\\u000A" +
-      "\\u000D" +
-      "\\u0020-\\uD7FF" +
-      "\\uE000-\\uFFFF" +
-      "]");
+      Pattern.compile("[^" +
+        "\\u0009" +
+        "\\u000A" +
+        "\\u000D" +
+        "\\u0020-\\uD7FF" +
+        "\\uE000-\\uFFFF" +
+        "]");
+
   public static String filterInvalidCharacters(final String content)
   {
     final String filtered = INVALID_UTF_CHARS.matcher(content).replaceAll("");

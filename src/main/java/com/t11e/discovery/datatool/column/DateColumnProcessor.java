@@ -11,7 +11,7 @@ public class DateColumnProcessor
   implements IColumnProcessor
 {
   public static final IColumnProcessor INSTANCE =
-    new DateColumnProcessor();
+      new DateColumnProcessor();
 
   private final Format format = FastDateFormat.getInstance("yyyy-MM-dd");
 

@@ -7,7 +7,7 @@ public class BooleanColumnProcessor
   implements IColumnProcessor
 {
   public static final IColumnProcessor INSTANCE =
-    new BooleanColumnProcessor();
+      new BooleanColumnProcessor();
 
   @Override
   public Object processColumn(final ResultSet rs, final int column)

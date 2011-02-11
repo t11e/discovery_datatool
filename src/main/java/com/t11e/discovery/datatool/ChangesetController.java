@@ -52,22 +52,22 @@ public class ChangesetController
     final HttpServletRequest request,
     final HttpServletResponse response,
     @PathVariable("publisherName") final String publisherName,
-    @RequestParam(value="startDate", defaultValue="", required=false) final Date startParam,
-    @RequestParam(value="endDate", defaultValue="", required=false) final Date endParam,
-    @RequestParam(value="profile", defaultValue="", required=false) final String profile,
-    @RequestParam(value="dryRun", defaultValue="false", required=false) final boolean dryRun,
-    @RequestParam(value="forceSnapshot", defaultValue="false", required=false) final boolean forceSnapshot)
+    @RequestParam(value = "startDate", defaultValue = "", required = false) final Date startParam,
+    @RequestParam(value = "endDate", defaultValue = "", required = false) final Date endParam,
+    @RequestParam(value = "profile", defaultValue = "", required = false) final String profile,
+    @RequestParam(value = "dryRun", defaultValue = "false", required = false) final boolean dryRun,
+    @RequestParam(value = "forceSnapshot", defaultValue = "false", required = false) final boolean forceSnapshot)
     throws XMLStreamException, IOException
   {
     final ChangesetPublisher changesetPublisher =
-      changesetService.getChangesetPublisher(publisherName);
+        changesetService.getChangesetPublisher(publisherName);
     if (changesetPublisher == null)
     {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
     final ChangesetProfileService changesetProfileService =
-      changesetPublisher.getChangesetProfileService();
+        changesetPublisher.getChangesetProfileService();
     final Date start;
     final Date end;
     if (StringUtils.isBlank(profile))
@@ -112,13 +112,13 @@ public class ChangesetController
     final OutputStream os = HttpUtil.getCompressedResponseStream(request, response);
     {
       final XMLStreamWriter xml =
-        StaxUtil.newOutputFactory().createXMLStreamWriter(os);
+          StaxUtil.newOutputFactory().createXMLStreamWriter(os);
       xml.writeStartDocument();
       xml.writeCharacters("\n");
       xml.writeStartElement("changeset");
       xml.writeCharacters("\n");
       changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
-        changesetType, start, end );
+        changesetType, start, end);
       xml.writeEndElement();
       xml.writeCharacters("\n");
       xml.writeEndDocument();

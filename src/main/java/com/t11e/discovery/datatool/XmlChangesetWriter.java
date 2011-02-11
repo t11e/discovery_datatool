@@ -96,7 +96,8 @@ public class XmlChangesetWriter
     writer.writeCharacters("\n");
   }
 
-  @SuppressWarnings("unchecked") void writeValue(
+  @SuppressWarnings("unchecked")
+  void writeValue(
     final String id,
     final Object object,
     final boolean allowEmpty)
@@ -106,7 +107,7 @@ public class XmlChangesetWriter
     {
       final Map struct = (Map) object;
       writer.writeStartElement("struct");
-      for (final Iterator i = struct.entrySet().iterator(); i.hasNext(); )
+      for (final Iterator i = struct.entrySet().iterator(); i.hasNext();)
       {
         final Map.Entry entry = (Map.Entry) i.next();
         final String name = entry.getKey().toString();
@@ -125,7 +126,7 @@ public class XmlChangesetWriter
     {
       final Collection array = (Collection) object;
       writer.writeStartElement("array");
-      for (final Iterator i = array.iterator(); i.hasNext(); )
+      for (final Iterator i = array.iterator(); i.hasNext();)
       {
         final Object value = i.next();
         writer.writeStartElement("element");

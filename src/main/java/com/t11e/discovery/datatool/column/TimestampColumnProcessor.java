@@ -12,7 +12,7 @@ public class TimestampColumnProcessor
   implements IColumnProcessor
 {
   public static final IColumnProcessor INSTANCE =
-    new TimestampColumnProcessor();
+      new TimestampColumnProcessor();
 
   private final Format format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
