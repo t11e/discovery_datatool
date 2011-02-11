@@ -8,19 +8,7 @@ import java.util.Map;
 public class CollectionsFactory
 {
   @SuppressWarnings("unchecked")
-  public static <K, V> Map<K, V> makeMapGeneric(final Object... keyValuePairs)
-  {
-    return makeMapFromArray(keyValuePairs);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static Map makeMap(final Object... keyValuePairs)
-  {
-    return makeMapFromArray(keyValuePairs);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static Map makeMapFromArray(final Object[] keyValuePairs)
+  public static <K, V> Map<K, V> makeMap(final Object... keyValuePairs)
   {
     final LinkedHashMap result = new LinkedHashMap();
 

@@ -41,7 +41,6 @@ public class WebServerMain
     final OptionSpec<Integer> port = parser
       .accepts("port", "Optional port on which the Discovery Data Tool will listen for HTTP requests.")
       .withRequiredArg().ofType(Integer.class);
-    ;
     final OptionSpec<Integer> httpsPort = parser
       .accepts("https-port", "Optional port on which the Discovery Data Tool will listen for HTTPS requests.")
       .withRequiredArg().ofType(Integer.class);

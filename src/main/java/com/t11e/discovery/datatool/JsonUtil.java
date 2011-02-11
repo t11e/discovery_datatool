@@ -54,7 +54,6 @@ public class JsonUtil
     return sw.toString();
   }
 
-  @SuppressWarnings("unchecked")
   public static void encode(final Writer writer, final Object obj)
     throws IOException
   {
@@ -178,7 +177,6 @@ public class JsonUtil
     writer.write("\"");
   }
 
-  @SuppressWarnings("unchecked")
   public static void encodeCollection(final Writer writer, final Collection collection)
     throws IOException
   {

@@ -331,7 +331,7 @@ public class ConfigurationManager
       throw new RuntimeException(e);
     }
     saxReader.setEntityResolver(new DataToolEntityResolver());
-    final Map<String, String> namespacesByPrefix = CollectionsFactory.makeMapGeneric(
+    final Map<String, String> namespacesByPrefix = CollectionsFactory.makeMap(
       "c1", "http://transparensee.com/schema/datatool-config-1",
       "c2", "http://transparensee.com/schema/datatool-config-2",
       "c3", "http://transparensee.com/schema/datatool-config-3");

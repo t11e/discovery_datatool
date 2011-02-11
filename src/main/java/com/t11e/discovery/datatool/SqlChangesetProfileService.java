@@ -42,7 +42,6 @@ public class SqlChangesetProfileService
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   private Date[] getChangesetProfileDateRange(final String profile)
   {
     Date[] startEnd;
@@ -50,7 +49,7 @@ public class SqlChangesetProfileService
       try
       {
         final Map<String, Object> data = jdbcTemplate.queryForMap(retrieveSql,
-          CollectionsFactory.makeMap("name", profile));
+          CollectionsFactory.<String, String> makeMap("name", profile));
         startEnd = new Date[]{
             (Date) data.get(retrieveStartColumn),
             (Date) data.get(retrieveEndColumn)
@@ -68,10 +67,9 @@ public class SqlChangesetProfileService
     return startEnd;
   }
 
-  @SuppressWarnings("unchecked")
   private void createProfile(final String profile)
   {
-    jdbcTemplate.update(createSql, CollectionsFactory.makeMap("name", profile));
+    jdbcTemplate.update(createSql, CollectionsFactory.<String, String> makeMap("name", profile));
   }
 
   @Override

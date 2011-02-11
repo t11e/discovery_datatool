@@ -3,7 +3,6 @@ package com.t11e.discovery.datatool;
 import java.util.Date;
 
 import javax.sql.DataSource;
-import javax.xml.stream.XMLStreamException;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +40,6 @@ public class SqlChangesetProfileServiceTest
 
   @Test
   public void testNoProfile()
-    throws XMLStreamException
   {
     assertNoProfile("");
     assertNoProfile("invalid");

@@ -88,13 +88,13 @@ public class IntegrationTest
         "update IntegrationProfile " +
           "set lastRun = :lastRun " +
           "where name = 'test'",
-        CollectionsFactory.makeMap(
+        CollectionsFactory.<String, String> makeMap(
           "lastRun", lastUpdated));
       template.update(
         "update IntegrationContent " +
           "set lastUpdated = :lastUpdated " +
           "where id in (:ids)",
-        CollectionsFactory.makeMap(
+        CollectionsFactory.<String, String> makeMap(
           "lastUpdated", lastUpdated,
           "ids", CollectionsFactory.makeList(1, 3)
           ));
@@ -135,7 +135,7 @@ public class IntegrationTest
         "update IntegrationProfile " +
           "set lastRun = :lastRun " +
           "where name = 'test'",
-        CollectionsFactory.makeMap(
+        CollectionsFactory.<String, String> makeMap(
           "lastRun", lastUpdated));
       template.update(
         "insert into IntegrationDeleted " +
@@ -143,7 +143,7 @@ public class IntegrationTest
           "values " +
           "(1, :dateDeleted), " +
           "(3, :dateDeleted)",
-        CollectionsFactory.makeMap(
+        CollectionsFactory.<String, String> makeMap(
           "dateDeleted", lastUpdated));
     }
     assertChangeset("test", "test", "delta",

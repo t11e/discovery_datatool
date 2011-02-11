@@ -34,7 +34,6 @@ public class SqlChangesetExtractorTest
 
   @Test
   public void testEmptyChangeset()
-    throws XMLStreamException
   {
     final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
     mockery.checking(new Expectations()
@@ -58,7 +57,6 @@ public class SqlChangesetExtractorTest
     mockery.assertIsSatisfied();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testDateRange()
     throws ParseException, XMLStreamException
@@ -70,11 +68,11 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "1"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "2"));
       }
     });
@@ -98,10 +96,9 @@ public class SqlChangesetExtractorTest
     mockery.assertIsSatisfied();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testStringColumns()
-    throws ParseException, XMLStreamException
+    throws XMLStreamException
   {
     final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
     mockery.checking(new Expectations()
@@ -110,25 +107,25 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "1"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "2",
             "col_fixed", "",
             "col_string", "",
             "col_clob", ""));
         oneOf(writer).setItem(
           "3",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "3",
             "col_fixed", "a",
             "col_string", "b",
             "col_clob", "c"));
         oneOf(writer).setItem(
           "4",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "4",
             "col_fixed", "a",
             "col_string", "b",
@@ -138,10 +135,9 @@ public class SqlChangesetExtractorTest
     testExtractor(writer, "string_column_test");
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testNumericColumns()
-    throws ParseException, XMLStreamException
+    throws XMLStreamException
   {
     final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
     mockery.checking(new Expectations()
@@ -150,17 +146,17 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "1"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "2",
             "col_int", "0",
             "col_double", "0.0"));
         oneOf(writer).setItem(
           "3",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "3",
             "col_int", "12",
             "col_double", "34.56"));
@@ -169,10 +165,9 @@ public class SqlChangesetExtractorTest
     testExtractor(writer, "numeric_column_test");
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testDateTimeColumns()
-    throws ParseException, XMLStreamException
+    throws XMLStreamException
   {
     final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
     mockery.checking(new Expectations()
@@ -181,11 +176,11 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "1"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.makeMap(
+          CollectionsFactory.<String, String> makeMap(
             "id", "2",
             "col_date", "2010-01-01",
             "col_time", "00:00:00",

@@ -96,7 +96,6 @@ public class XmlChangesetWriter
     writer.writeCharacters("\n");
   }
 
-  @SuppressWarnings("unchecked")
   void writeValue(
     final String id,
     final Object object,
