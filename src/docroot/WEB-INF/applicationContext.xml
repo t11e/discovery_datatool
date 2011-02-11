@@ -36,5 +36,6 @@
 
   <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
     <property name="exitOnInvalidConfigAtStartup" value="true"/>
+    <property name="configurationFile" value="discovery_datatool.xml"/>
   </bean>
 </beans>

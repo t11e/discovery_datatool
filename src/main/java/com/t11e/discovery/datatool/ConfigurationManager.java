@@ -49,7 +49,7 @@ public class ConfigurationManager
 {
   private static final List<GrantedAuthority> DEFAULT_ROLES =
       Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
-  private File configurationFile = new File("discovery_datatool.xml");
+  private File configurationFile;
   private File workingDirectory;
   private boolean exitOnInvalidConfigAtStartup;
   private ConfigurableApplicationContext currentContext;
@@ -59,28 +59,31 @@ public class ConfigurationManager
   @PostConstruct
   public void onPostConstruct()
   {
-    try
+    if (configurationFile != null)
     {
-      loadConfiguration(new FileInputStream(configurationFile), false);
-      if (workingDirectory == null)
+      try
       {
-        workingDirectory = new File(".").getCanonicalFile();
+        loadConfiguration(new FileInputStream(configurationFile), false);
+        if (workingDirectory == null)
+        {
+          workingDirectory = new File(".").getCanonicalFile();
+        }
       }
-    }
-    catch (final RuntimeException e)
-    {
-      exitOnStartupIfConfigured(e);
-      throw e;
-    }
-    catch (final FileNotFoundException e)
-    {
-      exitOnStartupIfConfigured(e);
-      throw new RuntimeException(e);
-    }
-    catch (final IOException e)
-    {
-      exitOnStartupIfConfigured(e);
-      throw new RuntimeException(e);
+      catch (final RuntimeException e)
+      {
+        exitOnStartupIfConfigured(e);
+        throw e;
+      }
+      catch (final FileNotFoundException e)
+      {
+        exitOnStartupIfConfigured(e);
+        throw new RuntimeException(e);
+      }
+      catch (final IOException e)
+      {
+        exitOnStartupIfConfigured(e);
+        throw new RuntimeException(e);
+      }
     }
   }
 

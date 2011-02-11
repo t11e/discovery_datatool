@@ -48,6 +48,7 @@ public class IntegrationTest
   @Before
   public void setup()
   {
+    configurationManager.loadConfiguration(getClass().getResourceAsStream("IntegrationTest.xml"), false);
     template = new NamedParameterJdbcTemplate(configurationManager.getBean(DataSource.class));
     executeSqlScripts("IntegrationTestCreate.sql");
   }

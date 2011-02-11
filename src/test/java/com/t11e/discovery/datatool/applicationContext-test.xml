@@ -41,8 +41,5 @@
     </property>
   </bean>
 
-  <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
-    <property name="configurationFile" value="src/test/java/com/t11e/discovery/datatool/IntegrationTest.xml"/>
-    <property name="exitOnInvalidConfigAtStartup" value="false"/>
-  </bean>
+  <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager"/>
 </beans>
