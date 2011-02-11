@@ -32,11 +32,11 @@ public class SqlAction
     final String[] tokens = StringUtils.split(filters, ", ");
     if (tokens == null)
     {
-      this.filter = Collections.emptySet();
+      filter = Collections.emptySet();
     }
     else
     {
-      this.filter = new HashSet<String>(Arrays.asList(tokens));
+      filter = new HashSet<String>(Arrays.asList(tokens));
     }
   }
   public String getAction()

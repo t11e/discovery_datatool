@@ -76,6 +76,6 @@ public class SqlChangesetExtractor implements ChangesetExtractor
   @Required
   public void setActions(final List<SqlAction> actions)
   {
-    this.sqlActions = actions;
+    sqlActions = actions;
   }
 }
