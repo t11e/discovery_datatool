@@ -20,7 +20,7 @@ public class XmlChangesetWriter
   @Override
   public void setItem(
     final String id,
-    final Map<String, Object> properties)
+    final Map<String, ? > properties)
     throws XMLStreamException
   {
     writer.writeStartElement("set-item");
@@ -35,7 +35,7 @@ public class XmlChangesetWriter
   @Override
   public void addToItem(
     final String id,
-    final Map<String, Object> properties)
+    final Map<String, ? > properties)
     throws XMLStreamException
   {
     writer.writeStartElement("add-to-item");
@@ -50,7 +50,7 @@ public class XmlChangesetWriter
   @Override
   public void removeFromItem(
     final String id,
-    final Map<String, Object> properties)
+    final Map<String, ? > properties)
     throws XMLStreamException
   {
     writer.writeStartElement("remove-from-item");

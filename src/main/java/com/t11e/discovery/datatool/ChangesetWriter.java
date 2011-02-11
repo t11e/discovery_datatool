@@ -6,13 +6,13 @@ import javax.xml.stream.XMLStreamException;
 
 public interface ChangesetWriter
 {
-  public void setItem(final String id, final Map<String, Object> properties)
+  public void setItem(final String id, final Map<String, ? > properties)
     throws XMLStreamException;
 
-  public void addToItem(final String id, final Map<String, Object> properties)
+  public void addToItem(final String id, final Map<String, ? > properties)
     throws XMLStreamException;
 
-  public void removeFromItem(final String id, final Map<String, Object> properties)
+  public void removeFromItem(final String id, final Map<String, ? > properties)
     throws XMLStreamException;
 
   public void removeAllFromItem(final String id)
