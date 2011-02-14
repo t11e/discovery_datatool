@@ -30,3 +30,10 @@ insert into IntegrationDeleted (id, lastUpdated) values
 
 insert into IntegrationTextContent (id, text_content) values
   (1, 'Hello & < > " '' goodbye');
+
+create procedure IntegrationContentSP(startTime timestamp, endTime timestamp)
+parameter style java
+language java
+reads sql data
+dynamic result sets 1
+external name 'com.t11e.discovery.datatool.IntegrationTest.integrationContentSP';

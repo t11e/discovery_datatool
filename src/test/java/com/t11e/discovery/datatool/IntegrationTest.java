@@ -1,6 +1,12 @@
 package com.t11e.discovery.datatool;
 
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -43,13 +49,32 @@ public class IntegrationTest
   }
 
   @Test
-  public void testProfileWithModifiedRows()
+  public void testNoProfileNoRangeStoredProc()
   {
-    // Snapshot with no lastRun date
-    assertChangeset("test", "test", "snapshot",
+    assertChangeset("test-stored-proc", "", "snapshot",
       CollectionsFactory.makeList("1", "2", "3"),
       CollectionsFactory.makeList("4", "5"), false);
-    assertChangeset("test", "test", "delta",
+  }
+
+  @Test
+  public void testStoredProcProfileWithModifiedRows()
+  {
+    testProfileWithModifiedRows("test-stored-proc");
+  }
+
+  @Test
+  public void testProfileWithModifiedRows()
+  {
+    testProfileWithModifiedRows("test");
+  }
+
+  private void testProfileWithModifiedRows(final String publisher)
+  {
+    // Snapshot with no lastRun date
+    assertChangeset(publisher, "test", "snapshot",
+      CollectionsFactory.makeList("1", "2", "3"),
+      CollectionsFactory.makeList("4", "5"), false);
+    assertChangeset(publisher, "test", "delta",
       Collections.<String> emptyList(),
       Collections.<String> emptyList(), false);
     // Touch two rows and get another delta
@@ -72,17 +97,17 @@ public class IntegrationTest
           "ids", CollectionsFactory.makeList(1, 3)
           ));
     }
-    assertChangeset("test", "test", "delta",
+    assertChangeset(publisher, "test", "delta",
       CollectionsFactory.makeList("1", "3"),
       Collections.<String> emptyList(), false);
-    assertChangeset("test", "test", "delta",
+    assertChangeset(publisher, "test", "delta",
       Collections.<String> emptyList(),
       Collections.<String> emptyList(), false);
 
-    assertChangeset("test", "test", "snapshot",
+    assertChangeset(publisher, "test", "snapshot",
       CollectionsFactory.makeList("1", "2", "3"),
       CollectionsFactory.makeList("4", "5"), true);
-    assertChangeset("test", "test", "delta",
+    assertChangeset(publisher, "test", "delta",
       Collections.<String> emptyList(),
       Collections.<String> emptyList(), false);
   }
@@ -143,5 +168,24 @@ public class IntegrationTest
     final Document doc = parseXmlResponse(response);
     Assert.assertEquals("Hello & < > \" ' goodbye", doc.valueOf(
       "/changeset/set-item[@id='1']/properties/struct/entry[@name='text_content']/string"));
+  }
+
+  public static void integrationContentSP(final Timestamp start, final Timestamp end, final ResultSet[] result)
+    throws SQLException
+  {
+    final Connection conn = DriverManager.getConnection("jdbc:default:connection");
+    final PreparedStatement ps;
+    if (start == null)
+    {
+      ps = conn.prepareStatement("select * from IntegrationContent");
+    }
+    else
+    {
+      ps = conn.prepareStatement("select * from IntegrationContent where lastUpdated >= ? and lastUpdated < ?");
+      ps.setTimestamp(1, start);
+      ps.setTimestamp(2, end);
+    }
+    result[0] = ps.executeQuery();
+    conn.close();
   }
 }
