@@ -3,6 +3,7 @@ package com.t11e.discovery.datatool;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.sql.DataSource;
@@ -50,8 +51,7 @@ public class SqlChangesetExtractorTest
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from empty_table");
-      extractor.setActions(CollectionsFactory.makeList(
-        action));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
     }
     extractor.writeChangeset(writer, "snapshot", null, null);
     mockery.assertIsSatisfied();
@@ -89,8 +89,7 @@ public class SqlChangesetExtractorTest
         "select id " +
           "from date_range_test " +
           "where last_updated >= :start and last_updated < :end");
-      extractor.setActions(CollectionsFactory.makeList(
-        action));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
     }
     extractor.writeChangeset(writer, "delta", start, end);
     mockery.assertIsSatisfied();
@@ -190,6 +189,499 @@ public class SqlChangesetExtractorTest
     testExtractor(writer, "datetime_column_test");
   }
 
+  @Test
+  public void testSubQueryDelimitedProperty()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.DELIMITED,
+        "select name from subquery_joined_test where parent_id=:id", "fish", null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fish", "redfish,bluefish"));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fish", "onefish,twofish"));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryArrayProperty()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.ARRAY,
+        "select name from subquery_joined_test where parent_id=:id", "fish", null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fish", Arrays.asList("redfish", "bluefish")));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fish", Arrays.asList("onefish", "twofish")));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryNonDelimitedProperty()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.ARRAY,
+        "select name from subquery_joined_test where parent_id=:id", "fish", null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fish", Arrays.asList("redfish", "bluefish")));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fish", Arrays.asList("onefish", "twofish")));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryDelimitedPropertyPrefix()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.DELIMITED,
+        "select name from subquery_joined_test where parent_id=:id", null, "fish_", ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fish_name", "redfish,bluefish"));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fish_name", "onefish,twofish"));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryDelimitedPropertyPrefixMultiColumns()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.DELIMITED,
+        "select parent_id as id, name from subquery_joined_test where parent_id=:id", null, "fish_", ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fish_name", "redfish,bluefish",
+            "fish_id", "1,1"));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fish_name", "onefish,twofish",
+            "fish_id", "3,3"));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSubQueryArrayPropertyMultiColumns()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.ARRAY,
+        "select parent_id as id, name from subquery_joined_test where parent_id=:id", "fish", null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fish", Arrays.asList(
+              CollectionsFactory.<String, Object> makeMap("id", "1", "name", "redfish"),
+              CollectionsFactory.<String, Object> makeMap("id", "1", "name", "bluefish"))));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fish", Arrays.asList(
+              CollectionsFactory.<String, Object> makeMap("id", "3", "name", "onefish"),
+              CollectionsFactory.<String, Object> makeMap("id", "3", "name", "twofish"))));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryDelimitedPropertyMultiColumns()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.DELIMITED,
+        "select parent_id as id, name from subquery_joined_test where parent_id=:id", "fish", null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fish", CollectionsFactory.<String, Object> makeMap("id", "1,1", "name", "redfish,bluefish")));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fish", CollectionsFactory.<String, Object> makeMap("id", "3,3", "name", "onefish,twofish")));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryNonDelimitedNoProperty()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.ARRAY,
+        "select name as fishname from subquery_joined_test where parent_id=:id", null, null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fishname", Arrays.asList("redfish", "bluefish")));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fishname", Arrays.asList("onefish", "twofish")));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryDelimitedNoProperty()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.DELIMITED,
+        "select name as fishname from subquery_joined_test where parent_id=:id", null, null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fishname", "redfish,bluefish"));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fishname", "onefish,twofish"));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryDelimitedNoPropertyMultiColumns()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.DELIMITED,
+        "select parent_id as fishid, name as fishname from subquery_joined_test where parent_id=:id", null, null, ",",
+        null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fishid", "1,1",
+            "fishname", "redfish,bluefish"));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fishid", "3,3",
+            "fishname", "onefish,twofish"));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryArrayNoProperty()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.ARRAY,
+        "select name as fishname from subquery_joined_test where parent_id=:id", null, null, ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fishname", Arrays.asList("redfish", "bluefish")));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fishname", Arrays.asList("onefish", "twofish")));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
+  @Test
+  public void testSubQueryArrayNoPropertyMultiColumns()
+    throws XMLStreamException
+  {
+    final SqlChangesetExtractor extractor = new SqlChangesetExtractor();
+    extractor.setDataSource(dataSource);
+    {
+      final SqlAction action = new SqlAction();
+      action.setAction("create");
+      action.setIdColumn("id");
+      action.setQuery("select * from subquery_test");
+      action.setSubqueries(Arrays.asList(new SubQuery(SubQuery.Type.ARRAY,
+        "select parent_id as fishfoo, name as fishname from subquery_joined_test where parent_id=:id", null, null,
+        ",", null)));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
+    }
+    final ChangesetWriter writer = mockery.mock(ChangesetWriter.class);
+    mockery.checking(new Expectations()
+    {
+      {
+        never(writer);
+        oneOf(writer).setItem(
+          "1",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "1",
+            "fishfoo", Arrays.asList("1", "1"),
+            "fishname", Arrays.asList("redfish", "bluefish")));
+        oneOf(writer).setItem(
+          "2",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "2"));
+        oneOf(writer).setItem(
+          "3",
+          CollectionsFactory.<String, Object> makeMap(
+            "id", "3",
+            "fishfoo", Arrays.asList("3", "3"),
+            "fishname", Arrays.asList("onefish", "twofish")));
+      }
+    });
+    extractor.writeChangeset(writer, "snapshot", null, null);
+    mockery.assertIsSatisfied();
+  }
+
   private void testExtractor(
     final ChangesetWriter writer,
     final String tableName)
@@ -201,8 +693,7 @@ public class SqlChangesetExtractorTest
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from " + tableName);
-      extractor.setActions(CollectionsFactory.makeList(
-        action));
+      extractor.setFilteredActions(CollectionsFactory.makeList(action));
     }
     extractor.writeChangeset(writer, "snapshot", null, null);
     mockery.assertIsSatisfied();

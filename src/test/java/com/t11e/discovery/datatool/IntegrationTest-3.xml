@@ -1,9 +1,9 @@
 <config
-  xmlns="http://transparensee.com/schema/datatool-config-2"
+  xmlns="http://transparensee.com/schema/datatool-config-3"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation=
-    "http://transparensee.com/schema/datatool-config-2
-     http://transparensee.com/schema/datatool-config-2.xsd">
+    "http://transparensee.com/schema/datatool-config-3
+     http://transparensee.com/schema/datatool-config-3.xsd">
   <dataSources>
     <driver name="dataSource"
       class="org.apache.derby.jdbc.EmbeddedDriver">
@@ -36,12 +36,12 @@
       </action>
       <action type="create" filter="snapshot" idColumn="id">
         <query><![CDATA[
-          select * from IntegrationContent where lastUpdated < :end
+          select * from IntegrationContent
         ]]></query>
       </action>
       <action type="delete" filter="snapshot" idColumn="id">
         <query><![CDATA[
-          select id from IntegrationDeleted where lastUpdated < :end
+          select id from IntegrationDeleted
         ]]></query>
       </action>
     </sqlPublisher>

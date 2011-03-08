@@ -35,7 +35,6 @@ public class ChangesetPublisher
     return changesetProfileService;
   }
 
-  @Required
   public void setChangesetProfileService(
     final ChangesetProfileService changesetProfileService)
   {

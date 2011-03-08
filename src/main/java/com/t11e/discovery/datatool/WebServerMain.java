@@ -1,6 +1,8 @@
 package com.t11e.discovery.datatool;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import joptsimple.OptionParser;
@@ -174,7 +176,15 @@ public class WebServerMain
   {
     final String resourceName = WebServerMain.class.getName().replace('.', '/') + ".class";
     final URL url = WebServerMain.class.getClassLoader().getResource(resourceName);
-    final String warPath = url.getPath().replaceFirst("^file:", "").replaceFirst("!.*$", "");
+    final String warPath;
+    try
+    {
+      warPath = new URI(url.getPath()).getPath().replaceFirst("^file:", "").replaceFirst("!.*$", "");
+    }
+    catch (final URISyntaxException e)
+    {
+      throw new RuntimeException(e);
+    }
     return warPath;
   }
 }

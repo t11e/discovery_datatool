@@ -1,9 +1,9 @@
 <config
-  xmlns="http://transparensee.com/schema/datatool-config-2"
+  xmlns="http://transparensee.com/schema/datatool-config-4"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation=
-    "http://transparensee.com/schema/datatool-config-2
-     http://transparensee.com/schema/datatool-config-2.xsd">
+    "http://transparensee.com/schema/datatool-config-4
+     http://transparensee.com/schema/datatool-config-4.xsd">
   <dataSources>
     <dataSource name="mysqlTest"
       jar="stage/mysql-connector-java-5.1.10-bin.jar"
@@ -38,9 +38,16 @@
       <action type="create" filter="delta"
               idColumn="id" jsonColumnNames="jsonColumn">
         <query><![CDATA[
-          select * from test_table
+          select * from Content
           where last_updated >= :start and last_updated < :end
         ]]></query>
+        <!-- type="delimited" must only return a single column, or the pull will fail with an exception -->
+        <subquery property="categories" type="delimited" delimiter=","><![CDATA[
+          select name from content_category inner join Content on content_category._content_id=:id
+        ]]></subquery>
+        <subquery property="categories_array" type="array"><![CDATA[
+          select name from content_category inner join Content on content_category._content_id=:id
+        ]]></subquery>
       </action>
       <action type="create" filter="snapshot"
               idColumn="id" jsonColumnNames="data">

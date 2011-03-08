@@ -243,39 +243,53 @@ public class ConfigurationManager
       builder.addPropertyValue("updateSql", node.valueOf("c:updateSql".replace("c:", ns)));
       applicationContext.registerBeanDefinition("profile-" + node.valueOf("@name"), builder.getBeanDefinition());
     }
-
     {
       final List<ChangesetPublisher> publishers = new ArrayList<ChangesetPublisher>();
-      for (final Node node : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher"
+      for (final Node sqlPublisher : (List<Node>) document.selectNodes("/c:config/c:publishers/c:sqlPublisher"
         .replace("c:", ns)))
       {
-        final List<SqlAction> actions = new ArrayList<SqlAction>();
-        for (final Node action : (List<Node>) node.selectNodes("c:action".replace("c:", ns)))
+        final List<SqlAction> filtered = new ArrayList<SqlAction>();
+        final List<SqlAction> complete = new ArrayList<SqlAction>();
+        final List<SqlAction> incremental = new ArrayList<SqlAction>();
+
+        for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:action".replace("c:", ns)))
         {
-          final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlAction.class);
-          builder.addPropertyValue("action", action.valueOf("@type"));
-          builder.addPropertyValue("filter", action.valueOf("@filter"));
-          builder
-            .addPropertyValue("query", StringUtils.trimToEmpty(action.valueOf("c:query/text()".replace("c:", ns))));
-          builder.addPropertyValue("idColumn", action.valueOf("@idColumn"));
-          builder.addPropertyValue("jsonColumnNames", action.valueOf("@jsonColumnNames"));
-          final String beanName = "SqlAction-" + System.identityHashCode(builder);
-          applicationContext.registerBeanDefinition(beanName, builder.getBeanDefinition());
-          actions.add(applicationContext.getBean(beanName, SqlAction.class));
+          defineAndInstantiateSqlAction(filtered, applicationContext, action, action.valueOf("@type"),
+            action.valueOf("@filter"), ns);
+        }
+        for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:bulk/c:set-item|c:full/c:set-item".replace("c:", ns)))
+        {
+          defineAndInstantiateSqlActionFromSetItemOrRemoveItem(complete, applicationContext, action, ns);
+        }
+        for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:snapshot/c:set-item|c:snapshot/c:remove-item"
+          .replace("c:", ns)))
+        {
+          defineAndInstantiateSqlActionFromSetItemOrRemoveItem(complete, applicationContext, action, ns);
+        }
+        for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:delta/c:set-item|c:delta/c:remove-item".replace(
+          "c:", ns)))
+        {
+          defineAndInstantiateSqlActionFromSetItemOrRemoveItem(incremental, applicationContext, action, ns);
         }
         BeanDefinition sqlChangesetExtractor;
         {
           final BeanDefinitionBuilder builder = BeanDefinitionBuilder
             .genericBeanDefinition(SqlChangesetExtractor.class);
-          builder.addPropertyReference("dataSource", "dataSource-" + node.valueOf("@dataSource"));
-          builder.addPropertyValue("actions", actions);
+          builder.addPropertyReference("dataSource", "dataSource-" + sqlPublisher.valueOf("@dataSource"));
+          builder.addPropertyValue("filteredActions", filtered);
+          builder.addPropertyValue("completeActions", complete);
+          builder.addPropertyValue("incrementalActions", incremental);
           sqlChangesetExtractor = builder.getBeanDefinition();
         }
         {
           final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ChangesetPublisher.class);
-          final String name = node.valueOf("@name");
+          final String name = sqlPublisher.valueOf("@name");
           builder.addPropertyValue("name", name);
-          builder.addPropertyReference("changesetProfileService", "profile-" + node.valueOf("@profile"));
+          final String profile = sqlPublisher.valueOf("@profile");
+          if (StringUtils.isNotBlank(profile))
+          {
+            builder.addPropertyReference("changesetProfileService", "profile-" + profile);
+          }
           builder.addPropertyValue("changesetExtractor", sqlChangesetExtractor);
           final String beanName = "Publisher-" + name;
           applicationContext.registerBeanDefinition(beanName, builder.getBeanDefinition());
@@ -291,6 +305,75 @@ public class ConfigurationManager
     }
     applicationContext.refresh();
     return applicationContext;
+  }
+
+  private void defineAndInstantiateSqlActionFromSetItemOrRemoveItem(final List<SqlAction> target,
+    final GenericApplicationContext applicationContext, final Node action, final String ns)
+  {
+    final String filter = action.getParent().getName();
+    final String type = "set-item".equals(action.getName()) ? "create" : "delete";
+    defineAndInstantiateSqlAction(target, applicationContext, action, type, filter, ns);
+  }
+
+  private void defineAndInstantiateSqlAction(final List<SqlAction> actions,
+    final GenericApplicationContext applicationContext, final Node setItem, final String action, final String filter,
+    final String ns)
+  {
+    final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlAction.class);
+    builder.addPropertyValue("action", action);
+    builder.addPropertyValue("filter", filter);
+    fillActionBeanDefinition(builder, setItem, ns);
+    instantiateAction(actions, applicationContext, registerSqlAction(applicationContext, builder));
+  }
+
+  private void instantiateAction(final List<SqlAction> target, final GenericApplicationContext applicationContext,
+    final String beanName)
+  {
+    target.add(applicationContext.getBean(beanName, SqlAction.class));
+  }
+
+  private String registerSqlAction(final GenericApplicationContext applicationContext,
+    final BeanDefinitionBuilder builder)
+  {
+    final String beanName = "SqlAction-" + System.identityHashCode(builder);
+    applicationContext.registerBeanDefinition(beanName, builder.getBeanDefinition());
+    return beanName;
+  }
+
+  @SuppressWarnings("unchecked")
+  private void fillActionBeanDefinition(final BeanDefinitionBuilder builder, final Node parentElementToQuery,
+    final String ns)
+  {
+    builder.addPropertyValue("idColumn", parentElementToQuery.valueOf("@idColumn"));
+    builder.addPropertyValue("jsonColumnNames", parentElementToQuery.valueOf("@jsonColumnNames"));
+    builder
+      .addPropertyValue("query",
+        StringUtils.trimToEmpty(parentElementToQuery.valueOf("c:query/text()".replace("c:", ns))));
+    final List<SubQuery> subqueries = new ArrayList<SubQuery>();
+    for (final Node subquery : (List<Node>) parentElementToQuery.selectNodes("c:subquery".replace("c:", ns)))
+    {
+      final String sql = subquery.getText();
+      final String property = subquery.valueOf("@property");
+      final String propertyPrefix = subquery.valueOf("@propertyPrefix");
+      if (StringUtils.isNotBlank(property) && StringUtils.isNotBlank(propertyPrefix))
+      {
+        throw new RuntimeException("Subqueries cannot specify both property and propertyPrefix: " + subquery.asXML());
+      }
+      String type = subquery.valueOf("@type");
+      if (StringUtils.isBlank(type))
+      {
+        type = SubQuery.Type.ARRAY.name();
+      }
+      String delimiter = subquery.valueOf("@delimiter");
+      if (StringUtils.isBlank(delimiter) && SubQuery.Type.DELIMITED.name().equalsIgnoreCase(type))
+      {
+        delimiter = ",";
+      }
+      final String discriminator = subquery.valueOf("@discriminator");
+      subqueries.add(new SubQuery(SubQuery.Type.valueOf(type.toUpperCase()), sql, property, propertyPrefix, delimiter,
+        discriminator));
+    }
+    builder.addPropertyValue("subqueries", subqueries);
   }
 
   @SuppressWarnings("unchecked")
@@ -337,7 +420,8 @@ public class ConfigurationManager
     final Map<String, String> namespacesByPrefix = CollectionsFactory.makeMap(
       "c1", "http://transparensee.com/schema/datatool-config-1",
       "c2", "http://transparensee.com/schema/datatool-config-2",
-      "c3", "http://transparensee.com/schema/datatool-config-3");
+      "c3", "http://transparensee.com/schema/datatool-config-3",
+      "c4", "http://transparensee.com/schema/datatool-config-4");
     final Map<String, String> namespacesByUri = MapUtils.invertMap(namespacesByPrefix);
     {
       final DocumentFactory factory = new DocumentFactory();

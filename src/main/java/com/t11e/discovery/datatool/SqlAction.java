@@ -3,6 +3,7 @@ package com.t11e.discovery.datatool;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +14,7 @@ public class SqlAction
   private Set<String> filter = Collections.singleton("any");
   private String action;
   private String query;
+  private List<SubQuery> subqueries;
   private String idColumn;
   private String idPrefix;
   private String idSuffix;
@@ -119,5 +121,15 @@ public class SqlAction
   public void setUseLowerCaseColumnNames(final boolean useLowerCaseColumnNames)
   {
     this.useLowerCaseColumnNames = useLowerCaseColumnNames;
+  }
+
+  public void setSubqueries(final List<SubQuery> subqueries)
+  {
+    this.subqueries = subqueries;
+  }
+
+  public List<SubQuery> getSubqueries()
+  {
+    return subqueries;
   }
 }

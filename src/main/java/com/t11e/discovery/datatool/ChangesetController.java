@@ -70,7 +70,7 @@ public class ChangesetController
         changesetPublisher.getChangesetProfileService();
     final Date start;
     final Date end;
-    if (StringUtils.isBlank(profile))
+    if (StringUtils.isBlank(profile) || changesetProfileService == null)
     {
       start = startParam;
       end = endParam;
@@ -90,7 +90,7 @@ public class ChangesetController
       }
     }
     publishImpl(request, response, changesetPublisher.getChangesetExtractor(), start, end);
-    if (StringUtils.isNotBlank(profile) && !dryRun)
+    if (StringUtils.isNotBlank(profile) && !dryRun && changesetProfileService != null)
     {
       changesetProfileService.saveChangesetProfileLastRun(profile, end);
     }
@@ -104,7 +104,7 @@ public class ChangesetController
     final Date end)
     throws XMLStreamException, IOException
   {
-    final String changesetType = start == null ? "snapshot" : "delta";
+    final String changesetType = changesetExtractor.determineType(start);
     response.setContentType("text/xml; charset=utf-8");
     response.setHeader("Date",
       HTTP_DATE_FORMAT.format(end != null ? end : new Date()));

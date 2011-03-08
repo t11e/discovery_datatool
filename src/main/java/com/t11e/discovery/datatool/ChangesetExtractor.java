@@ -9,4 +9,6 @@ public interface ChangesetExtractor
     String changesetType,
     Date start,
     Date end);
+
+  String determineType(Date start);
 }

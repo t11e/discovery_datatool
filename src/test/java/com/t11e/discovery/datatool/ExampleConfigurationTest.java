@@ -3,12 +3,12 @@ package com.t11e.discovery.datatool;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,16 +20,13 @@ public class ExampleConfigurationTest
   private List<File> configFiles;
 
   @Before
+  @SuppressWarnings("unchecked")
   public void setup()
   {
-    configFiles = Arrays.asList(new File("stage/examples").listFiles(new FilenameFilter()
-    {
-      @Override
-      public boolean accept(final File dir, final String filename)
-      {
-        return filename.endsWith(".xml");
-      }
-    }));
+    configFiles = new ArrayList<File>(
+        FileUtils.listFiles(new File("stage/examples"),
+          FileFilterUtils.suffixFileFilter(".xml"),
+          FileFilterUtils.prefixFileFilter("v")));
     Assert.assertFalse(configFiles.isEmpty());
   }
 

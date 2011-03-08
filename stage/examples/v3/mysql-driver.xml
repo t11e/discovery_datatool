@@ -1,0 +1,55 @@
+<config
+  xmlns="http://transparensee.com/schema/datatool-config-3"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+    "http://transparensee.com/schema/datatool-config-3
+     http://transparensee.com/schema/datatool-config-3.xsd">
+  <dataSources>
+    <driver name="production-dataSource"
+      jar="drivers/mysql-connector-java-5.1.10-bin.jar"
+      class="com.mysql.jdbc.Driver">
+      <url>jdbc:mysql://localhost/test</url>
+      <username>test</username>
+      <password>test</password>
+    </driver>
+  </dataSources>
+
+  <profiles>
+    <sqlProfile name="production-profile" dataSource="production-dataSource">
+      <retrieveSql startColumn="start" endColumn="end">
+        select last_run as start, CURRENT_TIMESTAMP as end
+        from changeset_profile
+        where name = :name
+      </retrieveSql>
+      <updateSql>
+        update changeset_profile
+        set last_run = :lastRun
+        where name = :name
+      </updateSql>
+    </sqlProfile>
+  </profiles>
+
+  <publishers>
+    <sqlPublisher name="production"
+      dataSource="production-dataSource" profile="production-profile">
+      <action type="create" filter="delta" idColumn="id">
+        <query><![CDATA[
+          select * from items
+          where last_updated >= :start and last_updated < :end
+        ]]></query>
+      </action>
+      <action type="delete" filter="delta" idColumn="id">
+        <query><![CDATA[
+          select id from deleted_items
+          where last_updated >= :start and last_updated < :end
+        ]]></query>
+      </action>
+      <action type="create" filter="snapshot" idColumn="id">
+        <query><![CDATA[
+          select * from items
+          where last_updated < :end
+        ]]></query>
+      </action>
+    </sqlPublisher>
+  </publishers>
+</config>

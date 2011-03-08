@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns="http://transparensee.com/schema/datatool-config-4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://transparensee.com/schema/datatool-config-4          http://transparensee.com/schema/datatool-config-4.xsd">
+  <dataSources>
+    <driver name="dataSource" class="org.apache.derby.jdbc.EmbeddedDriver">
+      <url>jdbc:derby:memory:test;create=true</url>
+    </driver>
+  </dataSources>
+  <!--
+
+  To test
+
+  empty publisher with no snapshot or delta should be valid
+  publisher with empty snapshot and delta should be valid
+
+  <publishers>
+    <sqlPublisher>
+    </sqlPublisher>
+    <sqlPublisher>
+      <delta/>
+    </sqlPublisher>
+    <sqlPublisher>
+      <bulk/>
+    </sqlPublisher>
+    <sqlPublisher>
+      <delta/>
+      <bulk/>
+    </sqlPublisher>
+    <sqlPublisher>
+      <bulk/>
+      <delta/>
+    </sqlPublisher>
+    failure
+        <sqlPublisher>
+      <bulk/>
+      <delta/>
+      <bulk/>
+    </sqlPublisher>
+    <sqlPublisher>
+      <bulk/>
+      <bulk/>
+    </sqlPublisher>
+    <sqlPublisher>
+      <bulk/>
+      <full/>
+    </sqlPublisher>
+    <sqlPublisher>
+      <delta/>
+      <delta/>
+    </sqlPublisher>
+   -->
+   <publishers>
+    <sqlPublisher name="test" dataSource="dataSource">
+    </sqlPublisher>
+  </publishers>
+</config>

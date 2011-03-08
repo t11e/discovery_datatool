@@ -1,0 +1,133 @@
+<config
+  xmlns="http://transparensee.com/schema/datatool-config-4"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+    "http://transparensee.com/schema/datatool-config-4
+     http://transparensee.com/schema/datatool-config-4.xsd">
+  <dataSources>
+    <driver name="dataSource"
+      class="org.apache.derby.jdbc.EmbeddedDriver">
+      <url>jdbc:derby:memory:test;create=true</url>
+    </driver>
+  </dataSources>
+
+  <profiles>
+    <sqlProfile name="sqlProfile" dataSource="dataSource">
+      <retrieveSql startColumn="startTime" endColumn="endTime">
+        select lastRun as startTime, CURRENT_TIMESTAMP as endTime from BulkAndFullChangesetTestProfile where name = :name
+      </retrieveSql>
+      <updateSql>
+        update BulkAndFullChangesetTestProfile set lastRun = :lastRun where name = :name
+      </updateSql>
+    </sqlProfile>
+  </profiles>
+
+  <publishers>
+    <sqlPublisher name="test-bulk" dataSource="dataSource" profile="sqlProfile">
+      <bulk>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            select * from IntegrationContent
+          ]]></query>
+        </set-item>
+      </bulk>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-bulk-and-delta" dataSource="dataSource" profile="sqlProfile">
+      <bulk>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            select * from IntegrationContent
+          ]]></query>
+        </set-item>
+      </bulk>
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+          select * from IntegrationContent where lastUpdated >= :start and lastUpdated < :end
+        ]]></query>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from IntegrationDeleted where lastUpdated >= :start and lastUpdated < :end
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-full" dataSource="dataSource" profile="sqlProfile">
+      <full>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            select * from IntegrationContent
+          ]]></query>
+        </set-item>
+      </full>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-full-and-delta" dataSource="dataSource" profile="sqlProfile">
+      <full>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            select * from IntegrationContent
+          ]]></query>
+        </set-item>
+      </full>
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+          select * from IntegrationContent where lastUpdated >= :start and lastUpdated < :end
+        ]]></query>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from IntegrationDeleted where lastUpdated >= :start and lastUpdated < :end
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-snapshot" dataSource="dataSource" profile="sqlProfile">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            select * from IntegrationContent
+          ]]></query>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+            select id from IntegrationDeleted
+          ]]></query>
+        </remove-item>
+      </snapshot>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-snapshot-and-delta" dataSource="dataSource" profile="sqlProfile">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            select * from IntegrationContent
+          ]]></query>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+            select id from IntegrationDeleted
+          ]]></query>
+        </remove-item>
+      </snapshot>
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+          select * from IntegrationContent where lastUpdated >= :start and lastUpdated < :end
+        ]]></query>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from IntegrationDeleted where lastUpdated >= :start and lastUpdated < :end
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+
+  </publishers>
+</config>
