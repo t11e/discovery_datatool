@@ -2,6 +2,8 @@ package com.t11e.discovery.datatool;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -110,25 +112,67 @@ public class ChangesetController
       HTTP_DATE_FORMAT.format(end != null ? end : new Date()));
     response.setHeader("X-t11e-type", changesetType);
     final OutputStream os = HttpUtil.getCompressedResponseStream(request, response);
+    final PrintWriter writer = new PrintWriter(new OutputStreamWriter(os, "utf-8"));
+    boolean success = false;
     {
       final XMLStreamWriter xml =
-          StaxUtil.newOutputFactory().createXMLStreamWriter(os);
+          StaxUtil.newOutputFactory().createXMLStreamWriter(writer);
       xml.writeStartDocument();
       xml.writeCharacters("\n");
       xml.writeStartElement("changeset");
       xml.writeCharacters("\n");
-      changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
-        changesetType, start, end);
-      xml.writeEndElement();
-      xml.writeCharacters("\n");
-      xml.writeEndDocument();
-      xml.flush();
+      try
+      {
+        changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
+          changesetType, start, end);
+        success = true;
+      }
+      catch (final RuntimeException e)
+      {
+        if (!response.isCommitted())
+        {
+          response.reset();
+          throw e;
+        }
+        xml.flush();
+        reportException(writer, e);
+      }
+      catch (final Exception e)
+      {
+        if (!response.isCommitted())
+        {
+          response.reset();
+          throw new RuntimeException(e);
+        }
+        xml.flush();
+        reportException(writer, e);
+      }
+      if (success)
+      {
+        xml.writeEndElement();
+        xml.writeCharacters("\n");
+        xml.writeEndDocument();
+        xml.flush();
+      }
     }
     if (os instanceof GZIPOutputStream)
     {
       final GZIPOutputStream gos = (GZIPOutputStream) os;
       gos.finish();
     }
+  }
+
+  private void reportException(final PrintWriter writer, final Throwable t)
+  {
+    writer.println();
+    writer.println();
+    writer.println();
+    writer.println(
+      "*** An exception occured. Since the response has already been committed, we're causing the changeset " +
+        "to be invalid, and including the exception details here. " + t.getLocalizedMessage());
+    writer.print("*** Exception was: ");
+    t.printStackTrace(writer);
+    writer.flush();
   }
 
   public void setChangesetService(final ChangesetService changesetService)
