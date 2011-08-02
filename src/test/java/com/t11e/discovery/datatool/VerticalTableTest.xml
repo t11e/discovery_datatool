@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns="http://transparensee.com/schema/datatool-config-5"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+  http://transparensee.com/schema/datatool-config-5
+  http://transparensee.com/schema/datatool-config-5.xsd">
+  <dataSources>
+    <driver name="dataSource" class="org.apache.derby.jdbc.EmbeddedDriver">
+      <url>jdbc:derby:memory:test;create=true</url>
+    </driver>
+  </dataSources>
+  <publishers>
+    <sqlPublisher name="test-simple" dataSource="dataSource">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </snapshot>
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            WHERE lastUpdated >= :start and lastUpdated < :end
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-subquery" dataSource="dataSource">
+      <bulk>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+          <subquery property="address" discriminator="discriminator"><![CDATA[
+          select discriminator, street from vertical_subquery_address where parent_id=:id order by id
+        ]]></subquery>
+        </set-item>
+      </bulk>
+    </sqlPublisher>
+  </publishers>
+</config>

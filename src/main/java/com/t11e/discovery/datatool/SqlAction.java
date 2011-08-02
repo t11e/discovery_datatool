@@ -9,12 +9,15 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Required;
 
+import com.t11e.discovery.datatool.column.MergeColumns;
+
 public class SqlAction
 {
   private Set<String> filter = Collections.singleton("any");
   private String action;
   private String query;
   private List<SubQuery> subqueries;
+  private List<MergeColumns> mergeColumns;
   private String idColumn;
   private String idPrefix;
   private String idSuffix;
@@ -121,6 +124,16 @@ public class SqlAction
   public void setUseLowerCaseColumnNames(final boolean useLowerCaseColumnNames)
   {
     this.useLowerCaseColumnNames = useLowerCaseColumnNames;
+  }
+
+  public void setMergeColumns(final List<MergeColumns> mergeColumns)
+  {
+    this.mergeColumns = mergeColumns;
+  }
+
+  public List<MergeColumns> getMergeColumns()
+  {
+    return mergeColumns;
   }
 
   public void setSubqueries(final List<SubQuery> subqueries)

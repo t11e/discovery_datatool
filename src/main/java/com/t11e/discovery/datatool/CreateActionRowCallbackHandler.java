@@ -3,8 +3,10 @@ package com.t11e.discovery.datatool;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,8 +22,10 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
+import com.t11e.discovery.datatool.column.MergeColumns;
+
 public class CreateActionRowCallbackHandler
-  implements RowCallbackHandler
+  implements CompletionAwareRowCallbackHandler
 {
   private static final Logger logger = Logger.getLogger(CreateActionRowCallbackHandler.class.getName());
   private final ChangesetWriter writer;
@@ -35,6 +39,11 @@ public class CreateActionRowCallbackHandler
   private final boolean shouldRecordTimings;
   private long totalTime;
   private int numSubQueries;
+  private final boolean mergeContiguous;
+  private final List<MergeColumns> mergeColumns;
+  private String lastId;
+  private String currentId;
+  private Map<String, Object> currentItemProperties;
 
   public CreateActionRowCallbackHandler(
     final NamedParameterJdbcOperations jdbcTemplate,
@@ -44,6 +53,7 @@ public class CreateActionRowCallbackHandler
     final String idSuffix,
     final boolean lowerCaseColumnNames,
     final Set<String> jsonColumns,
+    final List<MergeColumns> mergeColumns,
     final List<SubQuery> subqueries,
     final boolean shouldRecordTimings)
   {
@@ -52,6 +62,8 @@ public class CreateActionRowCallbackHandler
     this.idColumn = idColumn;
     this.idPrefix = idPrefix;
     this.idSuffix = idSuffix;
+    this.mergeColumns = mergeColumns != null ? mergeColumns : Collections.<MergeColumns> emptyList();
+    mergeContiguous = !this.mergeColumns.isEmpty();
     this.shouldRecordTimings = shouldRecordTimings;
     this.subqueries = subqueries != null ? subqueries : Collections.<SubQuery> emptyList();
     resultSetConvertor = new ResultSetConvertor(lowerCaseColumnNames, jsonColumns);
@@ -74,7 +86,64 @@ public class CreateActionRowCallbackHandler
     throws SQLException
   {
     final String id = getId(rs);
-    final Map<String, Object> properties = resultSetConvertor.getRowAsMap(rs);
+    final Map<String, Object> rowProps = resultSetConvertor.getRowAsMap(rs);
+    if (mergeContiguous)
+    {
+      final Set<String> mergeProperties = new LinkedHashSet<String>();
+      // pivot merged columns
+      for (final MergeColumns merge : mergeColumns)
+      {
+        final Object key = rowProps.remove(merge.getKeyColumn());
+        final Object value = rowProps.remove(merge.getValueColumn());
+        final String keyString = String.valueOf(key);
+        if (value != null && key != null && StringUtils.isNotBlank(keyString))
+        {
+          rowProps.put(keyString, value);
+          mergeProperties.add(keyString);
+        }
+      }
+
+      if (StringUtils.equals(id, lastId))
+      {
+        // combine with values from previous rows
+        for (final String key : mergeProperties)
+        {
+          final Object previousValue = currentItemProperties.get(key);
+          if (previousValue == null)
+          {
+            currentItemProperties.put(key, rowProps.get(key));
+          }
+          else if (previousValue instanceof Collection)
+          {
+            @SuppressWarnings("unchecked")
+            final Collection<Object> collection = (Collection<Object>) previousValue;
+            collection.add(rowProps.get(key));
+          }
+          else
+          {
+            final Collection<Object> collection = new ArrayList<Object>();
+            collection.add(previousValue);
+            collection.add(rowProps.get(key));
+            currentItemProperties.put(key, collection);
+          }
+        }
+      }
+      else
+      {
+        flushItem();
+        currentId = id;
+        currentItemProperties = rowProps;
+      }
+      lastId = id;
+    }
+    else
+    {
+      performSubqueriesAndStreamItem(id, rowProps);
+    }
+  }
+
+  private void performSubqueriesAndStreamItem(final String id, final Map<String, Object> properties)
+  {
     final CaseInsensitveParameterSource subqueryParams = new CaseInsensitveParameterSource(properties);
     for (int i = 0; i < subqueries.size(); ++i)
     {
@@ -246,6 +315,15 @@ public class CreateActionRowCallbackHandler
     catch (final XMLStreamException e)
     {
       throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void flushItem()
+  {
+    if (mergeContiguous && StringUtils.isNotBlank(currentId))
+    {
+      performSubqueriesAndStreamItem(currentId, currentItemProperties);
     }
   }
 

@@ -44,6 +44,8 @@ import org.springframework.security.core.userdetails.memory.UserMap;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
+import com.t11e.discovery.datatool.column.MergeColumns;
+
 @Component("ConfigurationManager")
 public class ConfigurationManager
 {
@@ -349,31 +351,46 @@ public class ConfigurationManager
     builder
       .addPropertyValue("query",
         StringUtils.trimToEmpty(parentElementToQuery.valueOf("c:query/text()".replace("c:", ns))));
-    final List<SubQuery> subqueries = new ArrayList<SubQuery>();
-    for (final Node subquery : (List<Node>) parentElementToQuery.selectNodes("c:subquery".replace("c:", ns)))
+
     {
-      final String sql = subquery.getText();
-      final String property = subquery.valueOf("@property");
-      final String propertyPrefix = subquery.valueOf("@propertyPrefix");
-      if (StringUtils.isNotBlank(property) && StringUtils.isNotBlank(propertyPrefix))
+      final List<MergeColumns> mergeColumns = new ArrayList<MergeColumns>();
+      for (final Node mergeColumnDef : (List<Node>) parentElementToQuery.selectNodes("c:merge-columns"
+        .replace("c:", ns)))
       {
-        throw new RuntimeException("Subqueries cannot specify both property and propertyPrefix: " + subquery.asXML());
+        final String keyColumn = mergeColumnDef.valueOf("@keyColumn");
+        final String valueColumn = mergeColumnDef.valueOf("@valueColumn");
+        mergeColumns.add(new MergeColumns(keyColumn, valueColumn));
       }
-      String type = subquery.valueOf("@type");
-      if (StringUtils.isBlank(type))
-      {
-        type = SubQuery.Type.ARRAY.name();
-      }
-      String delimiter = subquery.valueOf("@delimiter");
-      if (StringUtils.isBlank(delimiter) && SubQuery.Type.DELIMITED.name().equalsIgnoreCase(type))
-      {
-        delimiter = ",";
-      }
-      final String discriminator = subquery.valueOf("@discriminator");
-      subqueries.add(new SubQuery(SubQuery.Type.valueOf(type.toUpperCase()), sql, property, propertyPrefix, delimiter,
-        discriminator));
+      builder.addPropertyValue("mergeColumns", mergeColumns);
     }
-    builder.addPropertyValue("subqueries", subqueries);
+    {
+      final List<SubQuery> subqueries = new ArrayList<SubQuery>();
+      for (final Node subquery : (List<Node>) parentElementToQuery.selectNodes("c:subquery".replace("c:", ns)))
+      {
+        final String sql = subquery.getText();
+        final String property = subquery.valueOf("@property");
+        final String propertyPrefix = subquery.valueOf("@propertyPrefix");
+        if (StringUtils.isNotBlank(property) && StringUtils.isNotBlank(propertyPrefix))
+        {
+          throw new RuntimeException("Subqueries cannot specify both property and propertyPrefix: " + subquery.asXML());
+        }
+        String type = subquery.valueOf("@type");
+        if (StringUtils.isBlank(type))
+        {
+          type = SubQuery.Type.ARRAY.name();
+        }
+        String delimiter = subquery.valueOf("@delimiter");
+        if (StringUtils.isBlank(delimiter) && SubQuery.Type.DELIMITED.name().equalsIgnoreCase(type))
+        {
+          delimiter = ",";
+        }
+        final String discriminator = subquery.valueOf("@discriminator");
+        subqueries.add(new SubQuery(SubQuery.Type.valueOf(type.toUpperCase()), sql, property, propertyPrefix,
+          delimiter,
+          discriminator));
+      }
+      builder.addPropertyValue("subqueries", subqueries);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -421,7 +438,8 @@ public class ConfigurationManager
       "c1", "http://transparensee.com/schema/datatool-config-1",
       "c2", "http://transparensee.com/schema/datatool-config-2",
       "c3", "http://transparensee.com/schema/datatool-config-3",
-      "c4", "http://transparensee.com/schema/datatool-config-4");
+      "c4", "http://transparensee.com/schema/datatool-config-4",
+      "c5", "http://transparensee.com/schema/datatool-config-5");
     final Map<String, String> namespacesByUri = MapUtils.invertMap(namespacesByPrefix);
     {
       final DocumentFactory factory = new DocumentFactory();

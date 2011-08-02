@@ -140,12 +140,13 @@ public abstract class EndToEndTestBase
     {
       throw new RuntimeException(e);
     }
-    Assert.assertEquals(expectedSetItemIds.size(), doc.selectNodes("/changeset/set-item").size());
-    Assert.assertEquals(
+    final String asXml = doc.asXML();
+    Assert.assertEquals(asXml, expectedSetItemIds.size(), doc.selectNodes("/changeset/set-item").size());
+    Assert.assertEquals(asXml,
       new HashSet<String>(expectedSetItemIds),
       new HashSet<String>(nodesAsStrings(doc, "/changeset/set-item/@id")));
-    Assert.assertEquals(expectedRemoveItemIds.size(), doc.selectNodes("/changeset/remove-item").size());
-    Assert.assertEquals(
+    Assert.assertEquals(asXml, expectedRemoveItemIds.size(), doc.selectNodes("/changeset/remove-item").size());
+    Assert.assertEquals(asXml,
       new HashSet<String>(expectedRemoveItemIds),
       new HashSet<String>(nodesAsStrings(doc, "/changeset/remove-item/@id")));
     return doc;

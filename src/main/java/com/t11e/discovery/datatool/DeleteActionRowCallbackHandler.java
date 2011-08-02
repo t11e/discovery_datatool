@@ -5,10 +5,8 @@ import java.sql.SQLException;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.springframework.jdbc.core.RowCallbackHandler;
-
 public class DeleteActionRowCallbackHandler
-  implements RowCallbackHandler
+  implements CompletionAwareRowCallbackHandler
 {
   private final ChangesetWriter writer;
   private final String idColumn;
@@ -34,5 +32,11 @@ public class DeleteActionRowCallbackHandler
     {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public void flushItem()
+  {
+    // do nothing
   }
 }

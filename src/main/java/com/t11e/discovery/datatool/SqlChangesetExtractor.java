@@ -107,7 +107,7 @@ public class SqlChangesetExtractor
       .addValue("start", start)
       .addValue("end", end)
       .addValue("kind", kind);
-    final RowCallbackHandler callbackHandler;
+    final CompletionAwareRowCallbackHandler callbackHandler;
     if ("create".equals(sqlAction.getAction()))
     {
       callbackHandler =
@@ -119,6 +119,7 @@ public class SqlChangesetExtractor
             sqlAction.getIdSuffix(),
             sqlAction.isUseLowerCaseColumnNames(),
             sqlAction.getJsonColumnNames(),
+            sqlAction.getMergeColumns(),
             sqlAction.getSubqueries(),
             logTiming);
     }
@@ -134,6 +135,7 @@ public class SqlChangesetExtractor
     {
       final StopWatch watch = StopWatchHelper.startTimer(logTiming);
       jdbcTemplate.query(sqlAction.getQuery(), params, callbackHandler);
+      callbackHandler.flushItem();
       logQueryTimes(logTiming, watch, callbackHandler);
     }
   }

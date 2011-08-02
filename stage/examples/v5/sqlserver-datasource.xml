@@ -1,0 +1,118 @@
+<config
+  xmlns="http://transparensee.com/schema/datatool-config-5"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+    "http://transparensee.com/schema/datatool-config-5
+     http://transparensee.com/schema/datatool-config-5.xsd">
+  <!--
+    Please see the Discovery Engine online documentation for complete details about configuring the Data Tool:
+    https://transparensee.com/docs/discovery/current/html/data_integration/datatool.html
+  -->
+  <dataSources>
+    <dataSource name="production-dataSource"
+      jar="drivers/jtds-1.2.5.jar"
+      class="net.sourceforge.jtds.jdbcx.JtdsDataSource">
+      <!-- 1: sqlserver, 2: sybase -->
+      <serverType>1</serverType>
+      <serverName>localhost</serverName>
+      <databaseName>test</databaseName>
+      <user>test</user>
+      <password>test</password>
+    </dataSource>
+  </dataSources>
+
+  <profiles>
+    <sqlProfile name="production-profile" dataSource="production-dataSource">
+      <retrieveSql startColumn="start" endColumn="end">
+        select last_run as start, CURRENT_TIMESTAMP as end
+        from changeset_profile
+        where name = :name
+      </retrieveSql>
+      <updateSql>
+        update changeset_profile
+        set last_run = :lastRun
+        where name = :name
+      </updateSql>
+    </sqlProfile>
+  </profiles>
+
+  <publishers>
+    <!-- Vertical tables with subquery example -->
+    <sqlPublisher name="production-vertical"
+      dataSource="production-dataSource" profile="production-profile">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+          ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+          <subquery><![CDATA[
+            select name as color from SubqueryColors where parent_id=:id order by name
+          ]]></subquery>
+        </set-item>
+      </snapshot>
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+            WHERE timestamp >= :start and timestamp < :end
+          ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+          <subquery><![CDATA[
+            select name as color from SubqueryColors where parent_id=:id order by name
+          ]]></subquery>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+            select id from deleted_items
+            where last_updated >= :start and last_updated < :end
+          ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+
+    <!-- Regular horizontal table with subquery example -->
+    <sqlPublisher name="production"
+      dataSource="production-dataSource" profile="production-profile">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            select * from items
+          ]]></query>
+          <subquery property="address" discriminator="addr_type"><![CDATA[
+            select addr_type, street, city, state, zipcode from SubqueryAddress where parent_id=:id order by id
+          ]]></subquery>
+        </set-item>
+      </snapshot>
+      <delta>
+        <set-item idColumn="id">
+          <!--
+          The following bound parameters are available to the query:
+          :start - The inclusive start of the date range for this changeset as a java.util.Date.
+          :end - The exclusive end of the date range for this changeset as a java.util.Date.
+          :kind - "snapshot" or "delta"
+           -->
+          <query><![CDATA[
+            select * from items
+            where last_updated >= :start and last_updated < :end
+          ]]></query>
+          <subquery property="address" discriminator="addr_type"><![CDATA[
+            select addr_type, street, city, state, zipcode from SubqueryAddress where parent_id=:id order by id
+          ]]></subquery>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+            select id from deleted_items
+            where last_updated >= :start and last_updated < :end
+          ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+  </publishers>
+</config>

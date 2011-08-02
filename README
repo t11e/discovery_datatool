@@ -22,6 +22,45 @@ Then run the tool by executing the run.sh script.
 Release Notes
 -------------
 
+1.5 - 2011-08-04
+
+  * Adds support for "vertical" tables.
+
+1.4 - 2011-03-08
+
+  * Creates new version of Data Tool Configuration XML schema to support bulk
+    and full changesets and subqueries.
+  * Adds support for bulk and full changesets in addition to snapshots.
+  * Adds support for a wide variety of subquery types in order to better
+    support flattening complex database structures without the use of views or
+    stored procedures.
+  * Fixes WebServerMain to handle paths with spaces in directory names. Fixes
+    problem where datatool cannot be run if its path contains spaces.
+  * Updates tests to verify tool continutes to be backwards compatible in
+    parsing all versions of the configuration xml.
+  * Adds support for column aliases.
+  * Makes named SQL parameter matching case insensitive by creating and using
+    CaseInsensitveParameterSource (based on Spring's MapSqlParameterSource,
+    which unfortunately does not allow plugging in a different Map
+    implementation). All tests now pass.
+  * Updates logging.properties to log com.t11e.discovery.datatool at FINE. And
+    adds a comment explaining how to enable logging sql query execution speed.
+    Turns down default level to WARNING (which quiets Spring).
+  * Adds test to show that Discovery Data Tool can call stored procedures.
+
+1.3 - 2010-10-01
+
+  * Adds forceSnapshot boolean parameter to ChangesetController. If true, then
+    start date of null is used and a snapshot is created regardless of the
+    profile's last run time.
+
+1.2 - 2010-09-07
+
+  * Adds support for protecting incoming connections via SSL and basic
+    authentication.
+  * Adds throwing an exception in config XML does not have a root config
+    element in a recognized namespace.
+
 1.1 - 2010-06-11
 
   * Added createSql support to sqlProfile, used to auto create missing
