@@ -9,21 +9,21 @@ public class DeleteActionRowCallbackHandler
   implements CompletionAwareRowCallbackHandler
 {
   private final ChangesetWriter writer;
-  private final String idColumn;
+  private final ItemIdBuilder itemIdBuilder;
 
   public DeleteActionRowCallbackHandler(
     final ChangesetWriter writer,
     final String idColumn)
   {
     this.writer = writer;
-    this.idColumn = idColumn;
+    itemIdBuilder = new ItemIdBuilder(idColumn);
   }
 
   @Override
   public void processRow(final ResultSet rs)
     throws SQLException
   {
-    final String id = rs.getString(idColumn).trim();
+    final String id = itemIdBuilder.getId(rs);
     try
     {
       writer.removeItem(id);

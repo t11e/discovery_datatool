@@ -19,8 +19,6 @@ public class SqlAction
   private List<SubQuery> subqueries;
   private List<MergeColumns> mergeColumns;
   private String idColumn;
-  private String idPrefix;
-  private String idSuffix;
   private Set<String> jsonColumnNames = Collections.emptySet();
   private boolean useLowerCaseColumnNames = true;
 
@@ -78,26 +76,6 @@ public class SqlAction
   public String getIdColumn()
   {
     return idColumn;
-  }
-
-  public String getIdPrefix()
-  {
-    return idPrefix;
-  }
-
-  public void setIdPrefix(final String idPrefix)
-  {
-    this.idPrefix = idPrefix;
-  }
-
-  public String getIdSuffix()
-  {
-    return idSuffix;
-  }
-
-  public void setIdSuffix(final String idSuffix)
-  {
-    this.idSuffix = idSuffix;
   }
 
   public Set<String> getJsonColumnNames()
