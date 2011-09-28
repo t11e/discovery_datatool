@@ -9,6 +9,9 @@ public interface ChangesetWriter
   void setItem(final String id, final Map<String, ? > properties)
     throws XMLStreamException;
 
+  void setItem(final String id, final String provider, final String kind, final Map<String, ? > properties)
+    throws XMLStreamException;
+
   void addToItem(final String id, final Map<String, ? > properties)
     throws XMLStreamException;
 
@@ -22,5 +25,8 @@ public interface ChangesetWriter
     throws XMLStreamException;
 
   void removeItem(final String id)
+    throws XMLStreamException;
+
+  void removeItem(final String id, final String provider, final String kind)
     throws XMLStreamException;
 }

@@ -52,6 +52,21 @@ public class VerticalTableTest
   }
 
   @Test
+  public void testSnapshotProvider()
+  {
+    final Document doc = assertChangeset("test-provider", "", "snapshot", false);
+    assertEquals("red",
+      doc.selectSingleNode(
+          "/changeset/set-item[@locator='1' and @provider='p1' and @kind='k1']/properties/struct/entry[@name='color']/string/text()")
+        .getText());
+
+    assertEquals(
+      Arrays.asList("orange", "yellow"),
+      nodesAsStrings(doc,
+        "/changeset/set-item[@locator='2' and @provider='' and @kind='']/properties/struct/entry[@name='color']/array/element/string/text()"));
+  }
+
+  @Test
   public void testSnapshotWithSubquery()
   {
     final Document doc = assertChangeset("test-subquery", "", "bulk",

@@ -113,6 +113,22 @@ public abstract class EndToEndTestBase
     final Collection<String> expectedSetItemIds, final Collection<String> expectedRemoveItemIds,
     final boolean forceSnapshot)
   {
+    final Document doc = assertChangeset(publisher, profile, expectedType, forceSnapshot);
+    final String asXml = doc.asXML();
+    Assert.assertEquals(asXml, expectedSetItemIds.size(), doc.selectNodes("/changeset/set-item").size());
+    Assert.assertEquals(asXml,
+      new HashSet<String>(expectedSetItemIds),
+      new HashSet<String>(nodesAsStrings(doc, "/changeset/set-item/@id")));
+    Assert.assertEquals(asXml, expectedRemoveItemIds.size(), doc.selectNodes("/changeset/remove-item").size());
+    Assert.assertEquals(asXml,
+      new HashSet<String>(expectedRemoveItemIds),
+      new HashSet<String>(nodesAsStrings(doc, "/changeset/remove-item/@id")));
+    return doc;
+  }
+
+  protected Document assertChangeset(final String publisher, final String profile, final String expectedType,
+    final boolean forceSnapshot)
+  {
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
     try
@@ -140,15 +156,6 @@ public abstract class EndToEndTestBase
     {
       throw new RuntimeException(e);
     }
-    final String asXml = doc.asXML();
-    Assert.assertEquals(asXml, expectedSetItemIds.size(), doc.selectNodes("/changeset/set-item").size());
-    Assert.assertEquals(asXml,
-      new HashSet<String>(expectedSetItemIds),
-      new HashSet<String>(nodesAsStrings(doc, "/changeset/set-item/@id")));
-    Assert.assertEquals(asXml, expectedRemoveItemIds.size(), doc.selectNodes("/changeset/remove-item").size());
-    Assert.assertEquals(asXml,
-      new HashSet<String>(expectedRemoveItemIds),
-      new HashSet<String>(nodesAsStrings(doc, "/changeset/remove-item/@id")));
     return doc;
   }
 

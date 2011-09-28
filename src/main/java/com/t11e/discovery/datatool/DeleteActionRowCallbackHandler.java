@@ -5,17 +5,25 @@ import java.sql.SQLException;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.commons.lang.StringUtils;
+
 public class DeleteActionRowCallbackHandler
   implements CompletionAwareRowCallbackHandler
 {
   private final ChangesetWriter writer;
   private final ItemIdBuilder itemIdBuilder;
+  private final String providerColumn;
+  private final String kindColumn;
 
   public DeleteActionRowCallbackHandler(
     final ChangesetWriter writer,
-    final String idColumn)
+    final String idColumn,
+    final String providerColumn,
+    final String kindColumn)
   {
     this.writer = writer;
+    this.providerColumn = providerColumn;
+    this.kindColumn = kindColumn;
     itemIdBuilder = new ItemIdBuilder(idColumn);
   }
 
@@ -26,7 +34,16 @@ public class DeleteActionRowCallbackHandler
     final String id = itemIdBuilder.getId(rs);
     try
     {
-      writer.removeItem(id);
+      if (providerColumn != null || kindColumn != null)
+      {
+        final String provider = StringUtils.trimToEmpty(rs.getString(providerColumn));
+        final String kind = StringUtils.trimToEmpty(rs.getString(kindColumn));
+        writer.removeItem(id, provider, kind);
+      }
+      else
+      {
+        writer.removeItem(id);
+      }
     }
     catch (final XMLStreamException e)
     {

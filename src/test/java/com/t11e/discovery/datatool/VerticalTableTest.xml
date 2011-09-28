@@ -62,5 +62,41 @@
         </set-item>
       </bulk>
     </sqlPublisher>
+
+    <sqlPublisher name="test-provider" dataSource="dataSource">
+      <snapshot>
+        <set-item idColumn="id" providerColumn="provider" kindColumn="kind">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </snapshot>
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            WHERE lastUpdated >= :start and lastUpdated < :end
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+        </set-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
   </publishers>
 </config>

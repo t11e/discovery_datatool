@@ -115,6 +115,8 @@ public class SqlChangesetExtractor
             jdbcTemplate,
             writer,
             sqlAction.getIdColumn(),
+            sqlAction.getProviderColumn(),
+            sqlAction.getKindColumn(),
             sqlAction.isUseLowerCaseColumnNames(),
             sqlAction.getJsonColumnNames(),
             sqlAction.getMergeColumns(),
@@ -126,7 +128,9 @@ public class SqlChangesetExtractor
       callbackHandler =
           new DeleteActionRowCallbackHandler(
             writer,
-            sqlAction.getIdColumn());
+            sqlAction.getIdColumn(),
+            sqlAction.getProviderColumn(),
+            sqlAction.getKindColumn());
     }
     else
     {

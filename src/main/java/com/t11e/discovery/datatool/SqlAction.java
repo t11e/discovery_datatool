@@ -19,6 +19,8 @@ public class SqlAction
   private List<SubQuery> subqueries;
   private List<MergeColumns> mergeColumns;
   private String idColumn;
+  private String providerColumn;
+  private String kindColumn;
   private Set<String> jsonColumnNames = Collections.emptySet();
   private boolean useLowerCaseColumnNames = true;
 
@@ -102,6 +104,26 @@ public class SqlAction
   public void setUseLowerCaseColumnNames(final boolean useLowerCaseColumnNames)
   {
     this.useLowerCaseColumnNames = useLowerCaseColumnNames;
+  }
+
+  public String getProviderColumn()
+  {
+    return providerColumn;
+  }
+
+  public void setProviderColumn(final String providerColumn)
+  {
+    this.providerColumn = providerColumn;
+  }
+
+  public String getKindColumn()
+  {
+    return kindColumn;
+  }
+
+  public void setKindColumn(final String kindColumn)
+  {
+    this.kindColumn = kindColumn;
   }
 
   public void setMergeColumns(final List<MergeColumns> mergeColumns)

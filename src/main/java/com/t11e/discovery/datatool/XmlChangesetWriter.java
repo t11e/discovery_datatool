@@ -33,6 +33,21 @@ public class XmlChangesetWriter
   }
 
   @Override
+  public void setItem(final String id, final String provider, final String kind, final Map<String, ? > properties)
+    throws XMLStreamException
+  {
+    writer.writeStartElement("set-item");
+    writer.writeAttribute("locator", id);
+    writer.writeAttribute("provider", provider);
+    writer.writeAttribute("kind", kind);
+    writer.writeStartElement("properties");
+    writeValue(id, properties, false);
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeCharacters("\n");
+  }
+
+  @Override
   public void addToItem(
     final String id,
     final Map<String, ? > properties)
@@ -92,6 +107,18 @@ public class XmlChangesetWriter
   {
     writer.writeStartElement("remove-item");
     writer.writeAttribute("id", id);
+    writer.writeEndElement();
+    writer.writeCharacters("\n");
+  }
+
+  @Override
+  public void removeItem(final String id, final String provider, final String kind)
+    throws XMLStreamException
+  {
+    writer.writeStartElement("remove-item");
+    writer.writeAttribute("locator", id);
+    writer.writeAttribute("provider", provider);
+    writer.writeAttribute("kind", kind);
     writer.writeEndElement();
     writer.writeCharacters("\n");
   }

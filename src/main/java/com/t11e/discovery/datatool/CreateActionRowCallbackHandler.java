@@ -29,6 +29,8 @@ public class CreateActionRowCallbackHandler
 {
   private static final Logger logger = Logger.getLogger(CreateActionRowCallbackHandler.class.getName());
   private final ChangesetWriter writer;
+  private final String providerColumn;
+  private final String kindColumn;
   private final List<SubQuery> subqueries;
   private final NamedParameterJdbcOperations jdbcTemplate;
   private final ResultSetConvertor resultSetConvertor;
@@ -47,6 +49,8 @@ public class CreateActionRowCallbackHandler
     final NamedParameterJdbcOperations jdbcTemplate,
     final ChangesetWriter writer,
     final String idColumn,
+    final String providerColumn,
+    final String kindColumn,
     final boolean lowerCaseColumnNames,
     final Set<String> jsonColumns,
     final List<MergeColumns> mergeColumns,
@@ -56,6 +60,8 @@ public class CreateActionRowCallbackHandler
     this.jdbcTemplate = jdbcTemplate;
     this.writer = writer;
     itemIdBuilder = new ItemIdBuilder(idColumn);
+    this.providerColumn = providerColumn;
+    this.kindColumn = kindColumn;
     this.mergeColumns = mergeColumns != null ? mergeColumns : Collections.<MergeColumns> emptyList();
     mergeContiguous = !this.mergeColumns.isEmpty();
     this.shouldRecordTimings = shouldRecordTimings;
@@ -305,7 +311,19 @@ public class CreateActionRowCallbackHandler
     try
     {
       properties.remove(itemIdBuilder.getIdColumn());
-      writer.setItem(id, properties);
+      if (providerColumn != null || kindColumn != null)
+      {
+        final Object provider = properties.remove(providerColumn);
+        final Object kind = properties.remove(kindColumn);
+        writer.setItem(id,
+          provider instanceof String ? (String) provider : "",
+          kind instanceof String ? (String) kind : "",
+          properties);
+      }
+      else
+      {
+        writer.setItem(id, properties);
+      }
     }
     catch (final XMLStreamException e)
     {
