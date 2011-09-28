@@ -304,6 +304,7 @@ public class CreateActionRowCallbackHandler
     }
     try
     {
+      properties.remove(itemIdBuilder.getIdColumn());
       writer.setItem(id, properties);
     }
     catch (final XMLStreamException e)

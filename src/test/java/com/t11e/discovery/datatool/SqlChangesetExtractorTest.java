@@ -68,12 +68,10 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.<String, String> makeMap(
-            "id", "1"));
+          CollectionsFactory.<String, String> makeMap());
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, String> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, String> makeMap());
       }
     });
     final DateFormat format = new SimpleDateFormat("yyyy-MM-dd-hh.mm.ss.S");
@@ -106,26 +104,22 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.<String, String> makeMap(
-            "id", "1"));
+          CollectionsFactory.<String, String> makeMap());
         oneOf(writer).setItem(
           "2",
           CollectionsFactory.<String, String> makeMap(
-            "id", "2",
             "col_fixed", "",
             "col_string", "",
             "col_clob", ""));
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, String> makeMap(
-            "id", "3",
             "col_fixed", "a",
             "col_string", "b",
             "col_clob", "c"));
         oneOf(writer).setItem(
           "4",
           CollectionsFactory.<String, String> makeMap(
-            "id", "4",
             "col_fixed", "a",
             "col_string", "b",
             "col_clob", "c"));
@@ -145,18 +139,15 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.<String, String> makeMap(
-            "id", "1"));
+          CollectionsFactory.<String, String> makeMap());
         oneOf(writer).setItem(
           "2",
           CollectionsFactory.<String, String> makeMap(
-            "id", "2",
             "col_int", "0",
             "col_double", "0.0"));
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, String> makeMap(
-            "id", "3",
             "col_int", "12",
             "col_double", "34.56"));
       }
@@ -175,12 +166,10 @@ public class SqlChangesetExtractorTest
         never(writer);
         oneOf(writer).setItem(
           "1",
-          CollectionsFactory.<String, String> makeMap(
-            "id", "1"));
+          CollectionsFactory.<String, String> makeMap());
         oneOf(writer).setItem(
           "2",
           CollectionsFactory.<String, String> makeMap(
-            "id", "2",
             "col_date", "2010-01-01",
             "col_time", "00:00:00",
             "col_datetime", "2010-01-01T00:00:00.000"));
@@ -212,16 +201,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fish", "redfish,bluefish"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fish", "onefish,twofish"));
       }
     });
@@ -252,16 +238,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fish", Arrays.asList("redfish", "bluefish")));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fish", Arrays.asList("onefish", "twofish")));
       }
     });
@@ -292,16 +275,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fish", Arrays.asList("redfish", "bluefish")));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fish", Arrays.asList("onefish", "twofish")));
       }
     });
@@ -332,16 +312,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fish_name", "redfish,bluefish"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fish_name", "onefish,twofish"));
       }
     });
@@ -372,17 +349,14 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fish_name", "redfish,bluefish",
             "fish_id", "1,1"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fish_name", "onefish,twofish",
             "fish_id", "3,3"));
       }
@@ -415,18 +389,15 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fish", Arrays.asList(
               CollectionsFactory.<String, Object> makeMap("id", "1", "name", "redfish"),
               CollectionsFactory.<String, Object> makeMap("id", "1", "name", "bluefish"))));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fish", Arrays.asList(
               CollectionsFactory.<String, Object> makeMap("id", "3", "name", "onefish"),
               CollectionsFactory.<String, Object> makeMap("id", "3", "name", "twofish"))));
@@ -459,16 +430,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fish", CollectionsFactory.<String, Object> makeMap("id", "1,1", "name", "redfish,bluefish")));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fish", CollectionsFactory.<String, Object> makeMap("id", "3,3", "name", "onefish,twofish")));
       }
     });
@@ -499,16 +467,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fishname", Arrays.asList("redfish", "bluefish")));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fishname", Arrays.asList("onefish", "twofish")));
       }
     });
@@ -539,16 +504,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fishname", "redfish,bluefish"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fishname", "onefish,twofish"));
       }
     });
@@ -580,17 +542,14 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fishid", "1,1",
             "fishname", "redfish,bluefish"));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fishid", "3,3",
             "fishname", "onefish,twofish"));
       }
@@ -622,16 +581,13 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fishname", Arrays.asList("redfish", "bluefish")));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fishname", Arrays.asList("onefish", "twofish")));
       }
     });
@@ -663,17 +619,14 @@ public class SqlChangesetExtractorTest
         oneOf(writer).setItem(
           "1",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "1",
             "fishfoo", Arrays.asList("1", "1"),
             "fishname", Arrays.asList("redfish", "bluefish")));
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, Object> makeMap(
-            "id", "2"));
+          CollectionsFactory.<String, Object> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, Object> makeMap(
-            "id", "3",
             "fishfoo", Arrays.asList("3", "3"),
             "fishname", Arrays.asList("onefish", "twofish")));
       }

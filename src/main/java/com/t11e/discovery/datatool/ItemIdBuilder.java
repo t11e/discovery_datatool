@@ -19,4 +19,9 @@ public class ItemIdBuilder
   {
     return StringUtils.trimToEmpty(rs.getString(idColumn));
   }
+
+  public String getIdColumn()
+  {
+    return idColumn;
+  }
 }
