@@ -29,9 +29,8 @@ public class CreateActionRowCallbackHandler
 {
   private static final Logger logger = Logger.getLogger(CreateActionRowCallbackHandler.class.getName());
   private final ChangesetWriter writer;
-  private final String idColumn;
-  private final String idPrefix;
-  private final String idSuffix;
+  private final String providerColumn;
+  private final String kindColumn;
   private final List<SubQuery> subqueries;
   private final NamedParameterJdbcOperations jdbcTemplate;
   private final ResultSetConvertor resultSetConvertor;
@@ -44,13 +43,14 @@ public class CreateActionRowCallbackHandler
   private String lastId;
   private String currentId;
   private Map<String, Object> currentItemProperties;
+  private final ItemIdBuilder itemIdBuilder;
 
   public CreateActionRowCallbackHandler(
     final NamedParameterJdbcOperations jdbcTemplate,
     final ChangesetWriter writer,
     final String idColumn,
-    final String idPrefix,
-    final String idSuffix,
+    final String providerColumn,
+    final String kindColumn,
     final boolean lowerCaseColumnNames,
     final Set<String> jsonColumns,
     final List<MergeColumns> mergeColumns,
@@ -59,9 +59,9 @@ public class CreateActionRowCallbackHandler
   {
     this.jdbcTemplate = jdbcTemplate;
     this.writer = writer;
-    this.idColumn = idColumn;
-    this.idPrefix = idPrefix;
-    this.idSuffix = idSuffix;
+    itemIdBuilder = new ItemIdBuilder(idColumn);
+    this.providerColumn = providerColumn;
+    this.kindColumn = kindColumn;
     this.mergeColumns = mergeColumns != null ? mergeColumns : Collections.<MergeColumns> emptyList();
     mergeContiguous = !this.mergeColumns.isEmpty();
     this.shouldRecordTimings = shouldRecordTimings;
@@ -85,7 +85,7 @@ public class CreateActionRowCallbackHandler
   public void processRow(final ResultSet rs)
     throws SQLException
   {
-    final String id = getId(rs);
+    final String id = itemIdBuilder.getId(rs);
     final Map<String, Object> rowProps = resultSetConvertor.getRowAsMap(rs);
     if (mergeContiguous)
     {
@@ -310,7 +310,20 @@ public class CreateActionRowCallbackHandler
     }
     try
     {
-      writer.setItem(id, properties);
+      properties.remove(itemIdBuilder.getIdColumn());
+      if (providerColumn != null || kindColumn != null)
+      {
+        final Object provider = properties.remove(providerColumn);
+        final Object kind = properties.remove(kindColumn);
+        writer.setItem(id,
+          provider instanceof String ? (String) provider : "",
+          kind instanceof String ? (String) kind : "",
+          properties);
+      }
+      else
+      {
+        writer.setItem(id, properties);
+      }
     }
     catch (final XMLStreamException e)
     {
@@ -339,26 +352,6 @@ public class CreateActionRowCallbackHandler
         logger.finest("Subquery took [" + watch.getTime() + "]ms [" + watch + "]");
       }
     }
-  }
-
-  private String getId(final ResultSet rs)
-    throws SQLException
-  {
-    final String id;
-    {
-      final StringBuilder builder = new StringBuilder();
-      if (StringUtils.isNotBlank(idPrefix))
-      {
-        builder.append(idPrefix);
-      }
-      builder.append(rs.getString(idColumn));
-      if (StringUtils.isNotBlank(idSuffix))
-      {
-        builder.append(idSuffix);
-      }
-      id = builder.toString();
-    }
-    return id;
   }
 
   public long getTotalTime()

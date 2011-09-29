@@ -23,6 +23,8 @@ create table vertical_data (
 
 insert into vertical_data (id, name, value) values
   (1, 'color', 'red'),
+  (1, 'provider', 'p1'),
+  (1, 'kind', 'k1'),
   (2, 'color', 'orange'),
   (2, 'color', 'yellow');
 

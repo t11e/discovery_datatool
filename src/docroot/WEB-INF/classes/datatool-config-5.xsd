@@ -146,6 +146,8 @@
       </sequence>
       <attribute name="idColumn" type="string" use="required"/>
       <attribute name="jsonColumnNames" type="string"  use="optional"/>
+      <attribute name="providerColumn" use="optional" type="string"/>
+      <attribute name="kindColumn" use="optional" type="string"/>
     </complexType>
 
     <complexType name="RemoveItemType">
@@ -153,6 +155,8 @@
         <element name="query" type="string"/>
       </sequence>
       <attribute name="idColumn" type="string" use="required"/>
+      <attribute name="providerColumn" use="optional" type="string"/>
+      <attribute name="kindColumn" use="optional" type="string"/>
     </complexType>
 
     <complexType name="SubQueryType">

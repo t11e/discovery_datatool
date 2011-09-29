@@ -347,6 +347,8 @@ public class ConfigurationManager
     final String ns)
   {
     builder.addPropertyValue("idColumn", parentElementToQuery.valueOf("@idColumn"));
+    addAttributeValueIfNotNull(builder, parentElementToQuery, "providerColumn");
+    addAttributeValueIfNotNull(builder, parentElementToQuery, "kindColumn");
     builder.addPropertyValue("jsonColumnNames", parentElementToQuery.valueOf("@jsonColumnNames"));
     builder
       .addPropertyValue("query",
@@ -390,6 +392,17 @@ public class ConfigurationManager
           discriminator));
       }
       builder.addPropertyValue("subqueries", subqueries);
+    }
+  }
+
+  private void addAttributeValueIfNotNull(final BeanDefinitionBuilder builder, final Node node, final String attribute)
+  {
+
+    final Node attrNode = node.selectSingleNode("@" + attribute);
+    if (attrNode != null)
+    {
+      final String attrValue = attrNode.getText();
+      builder.addPropertyValue(attribute, attrValue);
     }
   }
 
