@@ -14,12 +14,12 @@
       <snapshot>
         <set-item idColumn="id">
           <query><![CDATA[
-            SELECT data.id, name, value
+            SELECT data.id, name as Name, value as Value
             FROM vertical_master_items master
             JOIN vertical_data data on data.id = master.id
             ORDER BY data.id, name, value
         ]]></query>
-          <merge-columns keyColumn="name" valueColumn="value"/>
+          <merge-columns keyColumn="Name" valueColumn="Value"/>
         </set-item>
         <remove-item idColumn="id">
           <query><![CDATA[
