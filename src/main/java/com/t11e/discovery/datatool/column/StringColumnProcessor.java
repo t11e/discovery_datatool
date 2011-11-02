@@ -3,6 +3,8 @@ package com.t11e.discovery.datatool.column;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.lang.StringUtils;
+
 public class StringColumnProcessor
   implements IColumnProcessor
 {
@@ -20,7 +22,7 @@ public class StringColumnProcessor
     }
     else
     {
-      value = value.trim();
+      value = StringUtils.trimToNull(value);
     }
     return value;
   }

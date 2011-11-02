@@ -184,7 +184,6 @@ public class CreateActionRowCallbackHandler
         {
           final String propertyPrefix = StringUtils.isNotBlank(subquery.getPropertyPrefix()) ? subquery.getPropertyPrefix() : "";
           if (values.size() == 1)
-
           {
             final Map<String, Object> row = values.get(0);
             for (final Entry<String, Object> entry : row.entrySet())
@@ -380,7 +379,11 @@ public class CreateActionRowCallbackHandler
     public void processRow(final ResultSet rs)
       throws SQLException
     {
-      values.add(convertor.getRowAsMap(rs));
+      final Map<String, Object> row = convertor.getRowAsMap(rs);
+      if (!row.isEmpty())
+      {
+        values.add(row);
+      }
     }
   }
 }

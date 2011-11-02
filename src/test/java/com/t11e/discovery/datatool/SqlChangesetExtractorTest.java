@@ -107,10 +107,7 @@ public class SqlChangesetExtractorTest
           CollectionsFactory.<String, String> makeMap());
         oneOf(writer).setItem(
           "2",
-          CollectionsFactory.<String, String> makeMap(
-            "col_fixed", "",
-            "col_string", "",
-            "col_clob", ""));
+          CollectionsFactory.<String, String> makeMap());
         oneOf(writer).setItem(
           "3",
           CollectionsFactory.<String, String> makeMap(

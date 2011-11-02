@@ -26,6 +26,8 @@ create table SubqueryColors (
 
 insert into SubqueryColors (parent_id, name, asnumber, asdate) values
   (1, 'red', 10, '2011-01-01-00.00.00.000000'),
+  (1, '', null, null),
+  (1, null, null, null),
   (2, 'orange', 20, '2011-01-02-00.00.00.000000'),
   (2, 'yellow', 30, '2011-01-03-00.00.00.000000');
 
