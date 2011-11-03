@@ -108,12 +108,13 @@ public class SqlChangesetExtractor
       .addValue("end", end)
       .addValue("kind", kind);
     final CompletionAwareRowCallbackHandler callbackHandler;
-    if ("create".equals(sqlAction.getAction()))
+    if ("create".equals(sqlAction.getAction()) || "add".equals(sqlAction.getAction()))
     {
       callbackHandler =
           new CreateActionRowCallbackHandler(
             jdbcTemplate,
             writer,
+            "create".equals(sqlAction.getAction()) ? ChangesetElement.SET_ITEM : ChangesetElement.ADD_TO_ITEM,
             sqlAction.getIdColumn(),
             sqlAction.getProviderColumn(),
             sqlAction.getKindColumn(),

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns="http://transparensee.com/schema/datatool-config-6"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+  http://transparensee.com/schema/datatool-config-6
+  http://transparensee.com/schema/datatool-config-6.xsd">
+  <dataSources>
+    <driver name="dataSource" class="org.apache.derby.jdbc.EmbeddedDriver">
+      <url>jdbc:derby:memory:test;create=true</url>
+    </driver>
+  </dataSources>
+
+  <profiles>
+    <sqlProfile name="profile" dataSource="dataSource">
+      <createSql>
+        insert into changeset_profile (name, last_run) values (:name, '1970-01-01-00.00.00.000000')
+      </createSql>
+      <retrieveSql startColumn="start" endColumn="endtime">
+        select last_run as start, CURRENT_TIMESTAMP as endtime
+        from changeset_profile
+        where name = :name
+      </retrieveSql>
+      <updateSql>
+        update changeset_profile
+        set last_run = :lastRun
+        where name = :name
+      </updateSql>
+    </sqlProfile>
+  </profiles>
+
+  <publishers>
+    <sqlPublisher name="test-simple" dataSource="dataSource" profile="profile">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT id, lastUpdated
+            FROM vertical_master_items master
+        ]]></query>
+        </set-item>
+        <add-to-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name as Name, value as Value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="Name" valueColumn="Value"/>
+        </add-to-item>
+      </snapshot>
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT id, lastUpdated
+            FROM vertical_master_items master
+        ]]></query>
+        </set-item>
+        <add-to-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name as Name, value as Value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="Name" valueColumn="Value"/>
+        </add-to-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-subquery" dataSource="dataSource" profile="profile">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT id,
+            FROM vertical_master_items master
+        ]]></query>
+          <subquery property="address" discriminator="discriminator"><![CDATA[
+          select discriminator, street from vertical_subquery_address where parent_id=:id order by id
+        ]]></subquery>
+        </set-item>
+        <add-to-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+          <subquery property="address" discriminator="discriminator"><![CDATA[
+          select discriminator, street from vertical_subquery_address where parent_id=:id order by id
+        ]]></subquery>
+        </add-to-item>
+      </snapshot>
+      <delta>
+        <add-to-item idColumn="id">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+          <subquery property="address" discriminator="discriminator"><![CDATA[
+          select discriminator, street from vertical_subquery_address where parent_id=:id order by id
+        ]]></subquery>
+        </add-to-item>
+      </delta>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-provider" dataSource="dataSource" profile="profile">
+      <delta>
+        <add-to-item idColumn="id" providerColumn="provider" kindColumn="kind">
+          <query><![CDATA[
+            SELECT data.id, name, value
+            FROM vertical_master_items master
+            JOIN vertical_data data on data.id = master.id
+            ORDER BY data.id, name, value
+        ]]></query>
+          <merge-columns keyColumn="name" valueColumn="value"/>
+        </add-to-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+  </publishers>
+</config>

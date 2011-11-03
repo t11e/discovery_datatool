@@ -29,6 +29,7 @@ public class CreateActionRowCallbackHandler
 {
   private static final Logger logger = Logger.getLogger(CreateActionRowCallbackHandler.class.getName());
   private final ChangesetWriter writer;
+  private final ChangesetElement action;
   private final String providerColumn;
   private final String kindColumn;
   private final List<SubQuery> subqueries;
@@ -48,6 +49,7 @@ public class CreateActionRowCallbackHandler
   public CreateActionRowCallbackHandler(
     final NamedParameterJdbcOperations jdbcTemplate,
     final ChangesetWriter writer,
+    final ChangesetElement action,
     final String idColumn,
     final String providerColumn,
     final String kindColumn,
@@ -59,6 +61,7 @@ public class CreateActionRowCallbackHandler
   {
     this.jdbcTemplate = jdbcTemplate;
     this.writer = writer;
+    this.action = action;
     itemIdBuilder = new ItemIdBuilder(idColumn);
     this.providerColumn = providerColumn;
     this.kindColumn = kindColumn;
@@ -310,23 +313,52 @@ public class CreateActionRowCallbackHandler
     try
     {
       properties.remove(itemIdBuilder.getIdColumn());
-      if (providerColumn != null || kindColumn != null)
-      {
-        final Object provider = properties.remove(providerColumn);
-        final Object kind = properties.remove(kindColumn);
-        writer.setItem(id,
-          provider instanceof String ? (String) provider : "",
-          kind instanceof String ? (String) kind : "",
-          properties);
-      }
-      else
-      {
-        writer.setItem(id, properties);
-      }
+      streamItem(id, properties);
     }
     catch (final XMLStreamException e)
     {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void streamItem(final String id, final Map<String, Object> properties)
+    throws XMLStreamException
+  {
+    if (providerColumn != null || kindColumn != null)
+    {
+      final Object provider = properties.remove(providerColumn);
+      final Object kind = properties.remove(kindColumn);
+      switch (action)
+      {
+        case SET_ITEM:
+          writer.setItem(id,
+            provider instanceof String ? (String) provider : "",
+            kind instanceof String ? (String) kind : "",
+            properties);
+          break;
+        case ADD_TO_ITEM:
+          writer.addToItem(id,
+            provider instanceof String ? (String) provider : "",
+            kind instanceof String ? (String) kind : "",
+            properties);
+          break;
+        default:
+          throw new IllegalStateException("Cannot handle action of " + action);
+      }
+    }
+    else
+    {
+      switch (action)
+      {
+        case SET_ITEM:
+          writer.setItem(id, properties);
+          break;
+        case ADD_TO_ITEM:
+          writer.addToItem(id, properties);
+          break;
+        default:
+          throw new IllegalStateException("Cannot handle action of " + action);
+      }
     }
   }
 

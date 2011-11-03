@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -113,8 +114,21 @@ public abstract class EndToEndTestBase
     final Collection<String> expectedSetItemIds, final Collection<String> expectedRemoveItemIds,
     final boolean forceSnapshot)
   {
+    return assertChangeset(publisher, profile, expectedType, expectedSetItemIds, expectedRemoveItemIds,
+      Collections.<String> emptyList(), forceSnapshot);
+  }
+
+  protected Document assertChangeset(final String publisher, final String profile, final String expectedType,
+    final Collection<String> expectedSetItemIds, final Collection<String> expectedRemoveItemIds,
+    final Collection<String> expectedAddToItemIds,
+    final boolean forceSnapshot)
+  {
     final Document doc = assertChangeset(publisher, profile, expectedType, forceSnapshot);
     final String asXml = doc.asXML();
+    Assert.assertEquals(asXml, expectedAddToItemIds.size(), doc.selectNodes("/changeset/add-to-item").size());
+    Assert.assertEquals(asXml,
+      new HashSet<String>(expectedAddToItemIds),
+      new HashSet<String>(nodesAsStrings(doc, "/changeset/add-to-item/@id")));
     Assert.assertEquals(asXml, expectedSetItemIds.size(), doc.selectNodes("/changeset/set-item").size());
     Assert.assertEquals(asXml,
       new HashSet<String>(expectedSetItemIds),

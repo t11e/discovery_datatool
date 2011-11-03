@@ -63,6 +63,21 @@ public class XmlChangesetWriter
   }
 
   @Override
+  public void addToItem(final String id, final String provider, final String kind, final Map<String, ? > properties)
+    throws XMLStreamException
+  {
+    writer.writeStartElement("add-to-item");
+    writer.writeAttribute("locator", id);
+    writer.writeAttribute("provider", provider);
+    writer.writeAttribute("kind", kind);
+    writer.writeStartElement("properties");
+    writeValue(id, properties, false);
+    writer.writeEndElement();
+    writer.writeEndElement();
+    writer.writeCharacters("\n");
+  }
+
+  @Override
   public void removeFromItem(
     final String id,
     final Map<String, ? > properties)

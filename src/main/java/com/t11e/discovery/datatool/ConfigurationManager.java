@@ -259,19 +259,23 @@ public class ConfigurationManager
           defineAndInstantiateSqlAction(filtered, applicationContext, action, action.valueOf("@type"),
             action.valueOf("@filter"), ns);
         }
-        for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:bulk/c:set-item|c:full/c:set-item".replace("c:", ns)))
-        {
-          defineAndInstantiateSqlActionFromSetItemOrRemoveItem(complete, applicationContext, action, ns);
-        }
-        for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:snapshot/c:set-item|c:snapshot/c:remove-item"
+        for (final Node action : (List<Node>) sqlPublisher.selectNodes(
+          "c:bulk/c:set-item | c:full/c:set-item"
           .replace("c:", ns)))
         {
-          defineAndInstantiateSqlActionFromSetItemOrRemoveItem(complete, applicationContext, action, ns);
+          defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, action, ns);
         }
-        for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:delta/c:set-item|c:delta/c:remove-item".replace(
-          "c:", ns)))
+        for (final Node action : (List<Node>) sqlPublisher.selectNodes(
+          "c:snapshot/c:set-item | c:snapshot/c:remove-item | c:delta/c:add-to-item"
+          .replace("c:", ns)))
         {
-          defineAndInstantiateSqlActionFromSetItemOrRemoveItem(incremental, applicationContext, action, ns);
+          defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, action, ns);
+        }
+        for (final Node action : (List<Node>) sqlPublisher.selectNodes(
+          "c:delta/c:set-item | c:delta/c:remove-item | c:delta/c:add-to-item"
+          .replace("c:", ns)))
+        {
+          defineAndInstantiateSqlActionFromItemActionNode(incremental, applicationContext, action, ns);
         }
         BeanDefinition sqlChangesetExtractor;
         {
@@ -309,11 +313,23 @@ public class ConfigurationManager
     return applicationContext;
   }
 
-  private void defineAndInstantiateSqlActionFromSetItemOrRemoveItem(final List<SqlAction> target,
+  private void defineAndInstantiateSqlActionFromItemActionNode(final List<SqlAction> target,
     final GenericApplicationContext applicationContext, final Node action, final String ns)
   {
     final String filter = action.getParent().getName();
-    final String type = "set-item".equals(action.getName()) ? "create" : "delete";
+    final String type;
+    if ("set-item".equals(action.getName()))
+    {
+      type = "create";
+    }
+    else if ("add-to-item".equals(action.getName()))
+    {
+      type = "add";
+    }
+    else
+    {
+      type = "delete";
+    }
     defineAndInstantiateSqlAction(target, applicationContext, action, type, filter, ns);
   }
 
@@ -452,7 +468,8 @@ public class ConfigurationManager
       "c2", "http://transparensee.com/schema/datatool-config-2",
       "c3", "http://transparensee.com/schema/datatool-config-3",
       "c4", "http://transparensee.com/schema/datatool-config-4",
-      "c5", "http://transparensee.com/schema/datatool-config-5");
+      "c5", "http://transparensee.com/schema/datatool-config-5",
+      "c6", "http://transparensee.com/schema/datatool-config-6");
     final Map<String, String> namespacesByUri = MapUtils.invertMap(namespacesByPrefix);
     {
       final DocumentFactory factory = new DocumentFactory();

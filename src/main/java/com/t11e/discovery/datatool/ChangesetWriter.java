@@ -15,6 +15,9 @@ public interface ChangesetWriter
   void addToItem(final String id, final Map<String, ? > properties)
     throws XMLStreamException;
 
+  void addToItem(final String id, final String provider, final String kind, final Map<String, ? > properties)
+    throws XMLStreamException;
+
   void removeFromItem(final String id, final Map<String, ? > properties)
     throws XMLStreamException;
 
