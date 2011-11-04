@@ -72,11 +72,14 @@
           <query><![CDATA[
           select * from SubqueryContent
         ]]></query>
-          <subquery property="color"><![CDATA[
+          <subquery><![CDATA[
           select name, asnumber as renamed from SubqueryColors where parent_id=:id order by name
         ]]></subquery>
           <subquery propertyPrefix="color_delimited_" delimiter="," type="delimited"><![CDATA[
         select name, asnumber as renamed from SubqueryColors where parent_id=:id order by name
+        ]]></subquery>
+          <subquery property="color"><![CDATA[
+          select name, asnumber as renamed from SubqueryColors where parent_id=:id order by name
         ]]></subquery>
         </set-item>
         <remove-item idColumn="id">

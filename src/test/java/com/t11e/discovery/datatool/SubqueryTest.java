@@ -123,6 +123,14 @@ public class SubqueryTest
       false);
     Assert.assertEquals("red",
       doc.selectSingleNode(
+      "/changeset/set-item[@id='1']/properties/struct/entry[@name='name']/string/text()")
+      .getText());
+    Assert.assertEquals("10",
+      doc.selectSingleNode(
+      "/changeset/set-item[@id='1']/properties/struct/entry[@name='renamed']/string/text()")
+      .getText());
+    Assert.assertEquals("red",
+      doc.selectSingleNode(
       "/changeset/set-item[@id='1']/properties/struct/entry[@name='color']/struct/entry[@name='name']/string/text()")
       .getText());
     Assert.assertEquals("10",
@@ -136,6 +144,29 @@ public class SubqueryTest
     Assert.assertEquals("10",
       doc.selectSingleNode(
         "/changeset/set-item[@id='1']/properties/struct/entry[@name='color_delimited_renamed']/string/text()")
+        .getText());
+
+    Assert.assertEquals(2,
+      doc.selectNodes("/changeset/set-item[@id='2']/properties/struct/entry[@name='name']/array/element").size());
+    Assert.assertEquals(2,
+      doc.selectNodes("/changeset/set-item[@id='2']/properties/struct/entry[@name='renamed']/array/element").size());
+
+    Assert.assertEquals("orange",
+      doc.selectSingleNode(
+        "/changeset/set-item[@id='2']/properties/struct/entry[@name='name']/array/element[1]/string/text()")
+        .getText());
+    Assert.assertEquals("yellow",
+      doc.selectSingleNode(
+        "/changeset/set-item[@id='2']/properties/struct/entry[@name='name']/array/element[2]/string/text()")
+        .getText());
+
+    Assert.assertEquals("20",
+      doc.selectSingleNode(
+        "/changeset/set-item[@id='2']/properties/struct/entry[@name='renamed']/array/element[1]/string/text()")
+        .getText());
+    Assert.assertEquals("30",
+      doc.selectSingleNode(
+        "/changeset/set-item[@id='2']/properties/struct/entry[@name='renamed']/array/element[2]/string/text()")
         .getText());
 
     Assert.assertEquals(2,
