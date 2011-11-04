@@ -22,6 +22,22 @@ Then run the tool by executing the run.sh script.
 Release Notes
 -------------
 
+1.7 - 2011-11-04
+  * Adds support for add-to-item for deltas and snapshots (the Discovery Engine does not support add-to-item for bulk or full
+    changesets). The add-to-item configuration element supports the same attributes and child configuration elements as set-item.
+  * Adds another subquery test scenario.
+  * Fixes Data Tool Outputs Empty Strings: If a column returns an empty string, the data tool still outputs the column value.
+    Empty strings should not be output.
+  * Fixes merge-columns should not be case sensitive.
+
+1.6 - 2011-09-28
+
+  * Adds support for provider and kind to Discovery Data Tool. The configuration elements can now take optional attributes
+    providerColumn and kindColumn. If either of these are specified, then the resulting changeset set-item and remove-item
+    elements will not have an id attribute, and instead will have locator, provider and kind attributes.
+    The providerColumn and kindColumn are not included in the resulting set-item properties, since that would be redundant.
+  * No longer includes id column in set-item properties, since it is redundant to the set-item id attribute.
+
 1.5 - 2011-08-04
 
   * Adds support for "vertical" tables.
