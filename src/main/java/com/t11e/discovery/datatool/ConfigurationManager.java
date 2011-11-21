@@ -254,28 +254,36 @@ public class ConfigurationManager
         final List<SqlAction> complete = new ArrayList<SqlAction>();
         final List<SqlAction> incremental = new ArrayList<SqlAction>();
 
+        final PropertyCase propertyCase;
+        {
+          final String propCase = sqlPublisher.valueOf("@propertyCase");
+          propertyCase = StringUtils.isBlank(propCase)
+            ? PropertyCase.LEGACY
+            : PropertyCase.valueOf(propCase.toUpperCase());
+        }
+
         for (final Node action : (List<Node>) sqlPublisher.selectNodes("c:action".replace("c:", ns)))
         {
           defineAndInstantiateSqlAction(filtered, applicationContext, action, action.valueOf("@type"),
-            action.valueOf("@filter"), ns);
+            action.valueOf("@filter"), propertyCase, ns);
         }
         for (final Node action : (List<Node>) sqlPublisher.selectNodes(
           "c:bulk/c:set-item | c:full/c:set-item"
           .replace("c:", ns)))
         {
-          defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, action, ns);
+          defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, propertyCase, action, ns);
         }
         for (final Node action : (List<Node>) sqlPublisher.selectNodes(
           "c:snapshot/c:set-item | c:snapshot/c:remove-item | c:delta/c:add-to-item"
           .replace("c:", ns)))
         {
-          defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, action, ns);
+          defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, propertyCase, action, ns);
         }
         for (final Node action : (List<Node>) sqlPublisher.selectNodes(
           "c:delta/c:set-item | c:delta/c:remove-item | c:delta/c:add-to-item"
           .replace("c:", ns)))
         {
-          defineAndInstantiateSqlActionFromItemActionNode(incremental, applicationContext, action, ns);
+          defineAndInstantiateSqlActionFromItemActionNode(incremental, applicationContext, propertyCase, action, ns);
         }
         BeanDefinition sqlChangesetExtractor;
         {
@@ -314,7 +322,8 @@ public class ConfigurationManager
   }
 
   private void defineAndInstantiateSqlActionFromItemActionNode(final List<SqlAction> target,
-    final GenericApplicationContext applicationContext, final Node action, final String ns)
+    final GenericApplicationContext applicationContext, final PropertyCase propertyCase, final Node action,
+    final String ns)
   {
     final String filter = action.getParent().getName();
     final String type;
@@ -330,17 +339,18 @@ public class ConfigurationManager
     {
       type = "delete";
     }
-    defineAndInstantiateSqlAction(target, applicationContext, action, type, filter, ns);
+    defineAndInstantiateSqlAction(target, applicationContext, action, type, filter, propertyCase, ns);
   }
 
   private void defineAndInstantiateSqlAction(final List<SqlAction> actions,
     final GenericApplicationContext applicationContext, final Node setItem, final String action, final String filter,
-    final String ns)
+    final PropertyCase propertyCase, final String ns)
   {
     final BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SqlAction.class);
     builder.addPropertyValue("action", action);
     builder.addPropertyValue("filter", filter);
-    fillActionBeanDefinition(builder, setItem, ns);
+    builder.addPropertyValue("propertyCase", propertyCase);
+    fillActionBeanDefinition(builder, setItem, propertyCase, ns);
     instantiateAction(actions, applicationContext, registerSqlAction(applicationContext, builder));
   }
 
@@ -360,7 +370,7 @@ public class ConfigurationManager
 
   @SuppressWarnings("unchecked")
   private void fillActionBeanDefinition(final BeanDefinitionBuilder builder, final Node parentElementToQuery,
-    final String ns)
+    final PropertyCase propertyCase, final String ns)
   {
     builder.addPropertyValue("idColumn", parentElementToQuery.valueOf("@idColumn"));
     addAttributeValueIfNotNull(builder, parentElementToQuery, "providerColumn");
@@ -386,8 +396,8 @@ public class ConfigurationManager
       for (final Node subquery : (List<Node>) parentElementToQuery.selectNodes("c:subquery".replace("c:", ns)))
       {
         final String sql = subquery.getText();
-        final String property = subquery.valueOf("@property");
-        final String propertyPrefix = subquery.valueOf("@propertyPrefix");
+        final String property = propertyCase.convert(subquery.valueOf("@property"));
+        final String propertyPrefix = propertyCase.convert(subquery.valueOf("@propertyPrefix"));
         if (StringUtils.isNotBlank(property) && StringUtils.isNotBlank(propertyPrefix))
         {
           throw new RuntimeException("Subqueries cannot specify both property and propertyPrefix: " + subquery.asXML());
@@ -402,7 +412,7 @@ public class ConfigurationManager
         {
           delimiter = ",";
         }
-        final String discriminator = subquery.valueOf("@discriminator");
+        final String discriminator = propertyCase.convert(subquery.valueOf("@discriminator"));
         subqueries.add(new SubQuery(SubQuery.Type.valueOf(type.toUpperCase()), sql, property, propertyPrefix,
           delimiter,
           discriminator));
@@ -469,7 +479,8 @@ public class ConfigurationManager
       "c3", "http://transparensee.com/schema/datatool-config-3",
       "c4", "http://transparensee.com/schema/datatool-config-4",
       "c5", "http://transparensee.com/schema/datatool-config-5",
-      "c6", "http://transparensee.com/schema/datatool-config-6");
+      "c6", "http://transparensee.com/schema/datatool-config-6",
+      "c7", "http://transparensee.com/schema/datatool-config-7");
     final Map<String, String> namespacesByUri = MapUtils.invertMap(namespacesByPrefix);
     {
       final DocumentFactory factory = new DocumentFactory();

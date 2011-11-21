@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 public class StringColumnProcessor
   implements IColumnProcessor
 {
-  public static final IColumnProcessor INSTANCE =
+  public static final StringColumnProcessor INSTANCE =
       new StringColumnProcessor();
 
   @Override

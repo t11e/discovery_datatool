@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -12,20 +13,36 @@ import com.t11e.discovery.datatool.column.BooleanColumnProcessor;
 import com.t11e.discovery.datatool.column.DateColumnProcessor;
 import com.t11e.discovery.datatool.column.IColumnProcessor;
 import com.t11e.discovery.datatool.column.JsonColumnProcessor;
+import com.t11e.discovery.datatool.column.LowerCaseStringColumnProcessor;
 import com.t11e.discovery.datatool.column.StringColumnProcessor;
 import com.t11e.discovery.datatool.column.TimeColumnProcessor;
 import com.t11e.discovery.datatool.column.TimestampColumnProcessor;
+import com.t11e.discovery.datatool.column.UpperCaseStringColumnProcessor;
 
 public class ResultSetConvertor
 {
-  private final boolean lowerCaseColumnNames;
+  private final PropertyCase propertyCase;
   private final Set<String> jsonColumns;
+  private final Set<String> changeValueCaseColumns;
   private IColumnProcessor[] columnProcessors;
   private String[] columnNames;
 
-  public ResultSetConvertor(final boolean lowerCaseColumnNames, final Set<String> jsonColumns)
+  public ResultSetConvertor(final PropertyCase propertyCase, final Set<String> jsonColumns,
+    final Set<String> potentialChangeValueCaseColumns)
   {
-    this.lowerCaseColumnNames = lowerCaseColumnNames;
+    this.propertyCase = propertyCase;
+    if (PropertyCase.LEGACY != propertyCase && PropertyCase.PRESERVE != propertyCase && potentialChangeValueCaseColumns != null)
+    {
+      changeValueCaseColumns = new HashSet<String>(potentialChangeValueCaseColumns.size());
+      for (final String columnLabel : potentialChangeValueCaseColumns)
+      {
+        changeValueCaseColumns.add(propertyCase.convert(columnLabel));
+      }
+    }
+    else
+    {
+      changeValueCaseColumns = Collections.emptySet();
+    }
     this.jsonColumns = jsonColumns != null ? jsonColumns : Collections.<String> emptySet();
   }
 
@@ -63,9 +80,9 @@ public class ResultSetConvertor
       for (int idx = 0; idx < processors.length; idx++)
       {
         final int column = idx + 1;
-        processors[idx] = getColumnProcessor(metaData, column);
         final String columnName = metaData.getColumnLabel(column);
-        names[idx] = lowerCaseColumnNames ? columnName.toLowerCase() : columnName;
+        names[idx] = propertyCase.convert(columnName);
+        processors[idx] = getColumnProcessor(metaData, column, names[idx]);
       }
       columnProcessors = processors;
       columnNames = names;
@@ -74,7 +91,8 @@ public class ResultSetConvertor
 
   private IColumnProcessor getColumnProcessor(
     final ResultSetMetaData md,
-    final int column)
+    final int column,
+    final String columnLabel)
     throws SQLException
   {
     IColumnProcessor output;
@@ -100,10 +118,24 @@ public class ResultSetConvertor
       case java.sql.Types.LONGVARCHAR:
       case java.sql.Types.CLOB:
       {
-        final String columnName = md.getColumnName(column);
-        if (columnName != null && jsonColumns.contains(columnName.toLowerCase()))
+        if (columnLabel != null && jsonColumns.contains(columnLabel))
         {
           output = JsonColumnProcessor.INSTANCE;
+        }
+        else if (columnLabel != null && changeValueCaseColumns.contains(columnLabel))
+        {
+          switch (propertyCase)
+          {
+            case LOWER:
+              output = LowerCaseStringColumnProcessor.INSTANCE;
+              break;
+            case UPPER:
+              output = UpperCaseStringColumnProcessor.INSTANCE;
+              break;
+            default:
+              output = StringColumnProcessor.INSTANCE;
+              break;
+          }
         }
         else
         {

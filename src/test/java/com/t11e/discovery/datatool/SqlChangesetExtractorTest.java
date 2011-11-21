@@ -48,6 +48,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from empty_table");
@@ -81,6 +82,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery(
@@ -183,6 +185,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -220,6 +223,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -257,6 +261,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -294,6 +299,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -331,6 +337,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -371,6 +378,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -412,6 +420,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -449,6 +458,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -486,6 +496,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -523,6 +534,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -563,6 +575,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -600,6 +613,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from subquery_test");
@@ -640,6 +654,7 @@ public class SqlChangesetExtractorTest
     extractor.setDataSource(dataSource);
     {
       final SqlAction action = new SqlAction();
+      action.setPropertyCase(PropertyCase.LEGACY);
       action.setAction("create");
       action.setIdColumn("id");
       action.setQuery("select * from " + tableName);

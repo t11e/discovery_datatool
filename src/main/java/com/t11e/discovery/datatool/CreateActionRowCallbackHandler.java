@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,7 +54,7 @@ public class CreateActionRowCallbackHandler
     final String idColumn,
     final String providerColumn,
     final String kindColumn,
-    final boolean lowerCaseColumnNames,
+    final PropertyCase propertyCase,
     final Set<String> jsonColumns,
     final List<MergeColumns> mergeColumns,
     final List<SubQuery> subqueries,
@@ -69,7 +70,22 @@ public class CreateActionRowCallbackHandler
     mergeContiguous = !this.mergeColumns.isEmpty();
     this.shouldRecordTimings = shouldRecordTimings;
     this.subqueries = subqueries != null ? subqueries : Collections.<SubQuery> emptyList();
-    resultSetConvertor = new ResultSetConvertor(lowerCaseColumnNames, jsonColumns);
+    {
+      Set<String> changeValueCaseColumns;
+      if (mergeColumns != null)
+      {
+        changeValueCaseColumns = new HashSet<String>(mergeColumns.size());
+        for (final MergeColumns i : mergeColumns)
+        {
+          changeValueCaseColumns.add(i.getKeyColumn());
+        }
+      }
+      else
+      {
+        changeValueCaseColumns = Collections.emptySet();
+      }
+      resultSetConvertor = new ResultSetConvertor(propertyCase, jsonColumns, changeValueCaseColumns);
+    }
     if (this.subqueries.isEmpty())
     {
       subqueryConvertors = Collections.emptyList();
@@ -77,9 +93,13 @@ public class CreateActionRowCallbackHandler
     else
     {
       subqueryConvertors = new ArrayList<ResultSetConvertor>(this.subqueries.size());
-      for (int i = 0; i < this.subqueries.size(); ++i)
+      for (final SubQuery subquery : this.subqueries)
       {
-        subqueryConvertors.add(new ResultSetConvertor(lowerCaseColumnNames, Collections.<String> emptySet()));
+        final Set<String> changeValueCaseColumns = StringUtils.isBlank(subquery.getDiscriminator())
+          ? Collections.<String> emptySet()
+          : Collections.singleton(subquery.getDiscriminator());
+        subqueryConvertors.add(
+          new ResultSetConvertor(propertyCase, Collections.<String> emptySet(), changeValueCaseColumns));
       }
     }
   }

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
@@ -25,20 +27,28 @@ public class SqlAction
   private String providerColumn;
   private String kindColumn;
   private Set<String> jsonColumnNames = Collections.emptySet();
-  private boolean useLowerCaseColumnNames = true;
+  private PropertyCase propertyCase;
 
   @Override
   public void afterPropertiesSet()
     throws Exception
   {
-    if (useLowerCaseColumnNames && mergeColumns != null)
+    if (mergeColumns != null)
     {
       for (final ListIterator<MergeColumns> it = mergeColumns.listIterator(); it.hasNext();)
       {
         final MergeColumns merge = it.next();
-        it.set(new MergeColumns(merge.getKeyColumn().toLowerCase(), merge.getValueColumn().toLowerCase()));
+        it.set(new MergeColumns(propertyCase.convert(merge.getKeyColumn()), propertyCase.convert(merge.getValueColumn())));
       }
     }
+    CollectionUtils.transform(jsonColumnNames, new Transformer()
+    {
+      @Override
+      public String transform(final Object in)
+      {
+        return propertyCase.convert((String) in);
+      }
+    });
   }
 
   public Set<String> getFilter()
@@ -113,14 +123,14 @@ public class SqlAction
     this.jsonColumnNames = jsonColumnNames;
   }
 
-  public boolean isUseLowerCaseColumnNames()
+  public PropertyCase getPropertyCase()
   {
-    return useLowerCaseColumnNames;
+    return propertyCase;
   }
 
-  public void setUseLowerCaseColumnNames(final boolean useLowerCaseColumnNames)
+  public void setPropertyCase(final PropertyCase propertyCase)
   {
-    this.useLowerCaseColumnNames = useLowerCaseColumnNames;
+    this.propertyCase = propertyCase;
   }
 
   public String getProviderColumn()

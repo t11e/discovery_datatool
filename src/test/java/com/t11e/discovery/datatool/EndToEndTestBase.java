@@ -93,7 +93,7 @@ public abstract class EndToEndTestBase
     }
   }
 
-  protected List<String> nodesAsStrings(final Document doc, final String xpath)
+  protected List<String> nodesAsStrings(final Node doc, final String xpath)
   {
     final List<String> result = new ArrayList<String>();
     for (final Object node : doc.selectNodes(xpath))
@@ -171,6 +171,21 @@ public abstract class EndToEndTestBase
       throw new RuntimeException(e);
     }
     return doc;
+  }
+
+  protected void assertXpath(final String expectedValue, final Node node, final String xpath)
+  {
+    Object actual = node.selectObject(xpath);
+    if (actual instanceof Node)
+    {
+      actual = ((Node) actual).getText();
+    }
+    Assert.assertEquals(expectedValue, actual);
+  }
+
+  protected void assertXpath(final List<String> expectedValues, final Node node, final String xpath)
+  {
+    Assert.assertEquals(expectedValues, nodesAsStrings(node, xpath));
   }
 
 }

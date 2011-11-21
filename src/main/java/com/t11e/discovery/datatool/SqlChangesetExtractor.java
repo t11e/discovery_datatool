@@ -118,7 +118,7 @@ public class SqlChangesetExtractor
             sqlAction.getIdColumn(),
             sqlAction.getProviderColumn(),
             sqlAction.getKindColumn(),
-            sqlAction.isUseLowerCaseColumnNames(),
+            sqlAction.getPropertyCase(),
             sqlAction.getJsonColumnNames(),
             sqlAction.getMergeColumns(),
             sqlAction.getSubqueries(),
