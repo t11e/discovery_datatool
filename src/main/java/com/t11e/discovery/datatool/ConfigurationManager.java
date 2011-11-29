@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -49,6 +50,7 @@ import com.t11e.discovery.datatool.column.MergeColumns;
 @Component("ConfigurationManager")
 public class ConfigurationManager
 {
+  private static final Logger logger = Logger.getLogger(ConfigurationManager.class.getName());
   private static final List<GrantedAuthority> DEFAULT_ROLES =
       Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
   private File configurationFile;
@@ -413,9 +415,18 @@ public class ConfigurationManager
           delimiter = ",";
         }
         final String discriminator = propertyCase.convert(subquery.valueOf("@discriminator"));
-        subqueries.add(new SubQuery(SubQuery.Type.valueOf(type.toUpperCase()), sql, property, propertyPrefix,
-          delimiter,
-          discriminator));
+        if (StringUtils.isBlank(sql))
+        {
+          final Node publisher = subquery.selectSingleNode("../../..");
+          logger.warning("Ignoring empty subquery element"
+            + (publisher != null ? " in " + publisher.getName() + ": " + publisher.asXML() : ""));
+        }
+        else
+        {
+          subqueries.add(new SubQuery(SubQuery.Type.valueOf(type.toUpperCase()), sql, property, propertyPrefix,
+            delimiter,
+            discriminator));
+        }
       }
       builder.addPropertyValue("subqueries", subqueries);
     }

@@ -1,5 +1,7 @@
 package com.t11e.discovery.datatool;
 
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -8,6 +10,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.jdbc.BadSqlGrammarException;
 
 public class SubqueryTest
   extends EndToEndTestBase
@@ -228,6 +231,32 @@ public class SubqueryTest
       .getText());
 
     Assert.assertNull(doc.selectSingleNode("/changeset/set-item[@id='3']/properties/struct/entry[@name='address']"));
+  }
+
+  @Test
+  public void testEmptySubQuery()
+  {
+    final Document doc = assertChangeset("test-snapshot-empty-subquery", "", "snapshot",
+      Arrays.asList("1", "2", "3"),
+      Arrays.asList("4", "5"),
+      false);
+  }
+
+  @Test
+  public void testCommentedSubQuery()
+  {
+    try
+    {
+      final Document doc = assertChangeset("test-snapshot-commented-subquery", "", "snapshot",
+        Arrays.asList("1", "2", "3"),
+        Arrays.asList("4", "5"),
+        false);
+      fail("Expected BadSqlGrammarException");
+    }
+    catch (final BadSqlGrammarException e)
+    {
+      // success
+    }
   }
 
 }
