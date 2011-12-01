@@ -3,6 +3,7 @@ package com.t11e.discovery.datatool;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -26,7 +27,8 @@ public class SqlAction
   private String idColumn;
   private String providerColumn;
   private String kindColumn;
-  private Set<String> jsonColumnNames = Collections.emptySet();
+  private Set<String> scopedJsonColumns = Collections.emptySet();
+  private Set<String> unscopedJsonColumns = Collections.emptySet();
   private PropertyCase propertyCase;
 
   @Override
@@ -41,14 +43,16 @@ public class SqlAction
         it.set(new MergeColumns(propertyCase.convert(merge.getKeyColumn()), propertyCase.convert(merge.getValueColumn())));
       }
     }
-    CollectionUtils.transform(jsonColumnNames, new Transformer()
+    final Transformer transformer = new Transformer()
     {
       @Override
       public String transform(final Object in)
       {
-        return propertyCase.convert((String) in);
+        return StringUtils.lowerCase((String) in);
       }
-    });
+    };
+    CollectionUtils.transform(scopedJsonColumns, transformer);
+    CollectionUtils.transform(unscopedJsonColumns, transformer);
   }
 
   public Set<String> getFilter()
@@ -107,20 +111,24 @@ public class SqlAction
     return idColumn;
   }
 
-  public Set<String> getJsonColumnNames()
+  public Set<String> getScopedJsonColumnsSet()
   {
-    return jsonColumnNames;
+    return scopedJsonColumns;
   }
 
-  public void setJsonColumnNames(final String jsonColumnNames)
+  public void setScopedJsonColumns(final String scopedJsonColumns)
   {
-    this.jsonColumnNames = new HashSet<String>(
-        Arrays.asList(StringUtils.split(jsonColumnNames, ", ")));
+    this.scopedJsonColumns = new LinkedHashSet<String>(Arrays.asList(StringUtils.split(scopedJsonColumns, ", ")));
   }
 
-  public void setJsonColumnNames(final Set<String> jsonColumnNames)
+  public Set<String> getUnscopedJsonColumnsSet()
   {
-    this.jsonColumnNames = jsonColumnNames;
+    return unscopedJsonColumns;
+  }
+
+  public void setUnscopedJsonColumns(final String unscopedJsonColumns)
+  {
+    this.unscopedJsonColumns = new LinkedHashSet<String>(Arrays.asList(StringUtils.split(unscopedJsonColumns, ", ")));
   }
 
   public PropertyCase getPropertyCase()

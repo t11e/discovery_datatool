@@ -8,7 +8,7 @@ import com.t11e.discovery.datatool.JsonUtil;
 public class JsonColumnProcessor
   implements IColumnProcessor
 {
-  public static final IColumnProcessor INSTANCE = new JsonColumnProcessor();
+  public static final JsonColumnProcessor INSTANCE = new JsonColumnProcessor();
 
   @Override
   public Object processColumn(final ResultSet rs, final int column)

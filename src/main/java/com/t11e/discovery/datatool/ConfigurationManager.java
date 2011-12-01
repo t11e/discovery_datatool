@@ -377,7 +377,17 @@ public class ConfigurationManager
     builder.addPropertyValue("idColumn", parentElementToQuery.valueOf("@idColumn"));
     addAttributeValueIfNotNull(builder, parentElementToQuery, "providerColumn");
     addAttributeValueIfNotNull(builder, parentElementToQuery, "kindColumn");
-    builder.addPropertyValue("jsonColumnNames", parentElementToQuery.valueOf("@jsonColumnNames"));
+    {
+      final String legacyScopedJsonColums = parentElementToQuery.valueOf("@jsonColumnNames");
+      final String scopedJsonColumns = parentElementToQuery.valueOf("@scopedJsonColumns");
+      if (StringUtils.isNotBlank(legacyScopedJsonColums) && StringUtils.isNotBlank(scopedJsonColumns))
+      {
+        throw new RuntimeException("You cannot specify both jsonColumnNames and scopedJsonColumnNames. Please just use scopedJsonColumnNames.");
+      }
+      final String columns = StringUtils.isNotBlank(scopedJsonColumns) ? scopedJsonColumns : legacyScopedJsonColums;
+      builder.addPropertyValue("scopedJsonColumns", columns);
+    }
+    builder.addPropertyValue("unscopedJsonColumns", parentElementToQuery.valueOf("@unscopedJsonColumns"));
     builder
       .addPropertyValue("query",
         StringUtils.trimToEmpty(parentElementToQuery.valueOf("c:query/text()".replace("c:", ns))));

@@ -55,7 +55,8 @@ public class CreateActionRowCallbackHandler
     final String providerColumn,
     final String kindColumn,
     final PropertyCase propertyCase,
-    final Set<String> jsonColumns,
+    final Set<String> scopedJsonColumns,
+    final Set<String> unscopedJsonColumns,
     final List<MergeColumns> mergeColumns,
     final List<SubQuery> subqueries,
     final boolean shouldRecordTimings)
@@ -84,7 +85,7 @@ public class CreateActionRowCallbackHandler
       {
         changeValueCaseColumns = Collections.emptySet();
       }
-      resultSetConvertor = new ResultSetConvertor(propertyCase, jsonColumns, changeValueCaseColumns);
+      resultSetConvertor = new ResultSetConvertor(propertyCase, scopedJsonColumns, unscopedJsonColumns, changeValueCaseColumns);
     }
     if (this.subqueries.isEmpty())
     {
@@ -99,7 +100,8 @@ public class CreateActionRowCallbackHandler
           ? Collections.<String> emptySet()
           : Collections.singleton(subquery.getDiscriminator());
         subqueryConvertors.add(
-          new ResultSetConvertor(propertyCase, Collections.<String> emptySet(), changeValueCaseColumns));
+          new ResultSetConvertor(propertyCase, Collections.<String> emptySet(), Collections.<String> emptySet(),
+            changeValueCaseColumns));
       }
     }
   }

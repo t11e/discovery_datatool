@@ -119,7 +119,8 @@ public class SqlChangesetExtractor
             sqlAction.getProviderColumn(),
             sqlAction.getKindColumn(),
             sqlAction.getPropertyCase(),
-            sqlAction.getJsonColumnNames(),
+            sqlAction.getScopedJsonColumnsSet(),
+            sqlAction.getUnscopedJsonColumnsSet(),
             sqlAction.getMergeColumns(),
             sqlAction.getSubqueries(),
             logTiming);

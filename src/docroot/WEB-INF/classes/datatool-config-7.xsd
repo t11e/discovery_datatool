@@ -147,7 +147,15 @@
         <element name="subquery" type="tns:SubQueryType" minOccurs="0" maxOccurs="unbounded"/>
       </sequence>
       <attribute name="idColumn" type="string" use="required"/>
-      <attribute name="jsonColumnNames" type="string"  use="optional"/>
+      <attribute name="jsonColumnNames" type="string"  use="optional">
+        <annotation>
+          <documentation>
+            Deprecated. Used scopedJsonColumns for the same functionality.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="scopedJsonColumns" type="string"  use="optional"/>
+      <attribute name="unscopedJsonColumns" type="string"  use="optional"/>
       <attribute name="providerColumn" use="optional" type="string"/>
       <attribute name="kindColumn" use="optional" type="string"/>
     </complexType>
