@@ -169,7 +169,7 @@ public class CreateActionRowCallbackHandler
 
   private void performSubqueriesAndStreamItem(final String id, final Map<String, Object> properties)
   {
-    final CaseInsensitveParameterSource subqueryParams = new CaseInsensitveParameterSource(properties);
+    final CaseInsensitveParameterSource subqueryParams = new NullDefaultCaseInsensitiveParameterSource(properties);
     for (int i = 0; i < subqueries.size(); ++i)
     {
       final SubQuery subquery = subqueries.get(i);

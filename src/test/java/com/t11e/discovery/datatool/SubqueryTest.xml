@@ -36,10 +36,13 @@
       <snapshot>
         <set-item idColumn="id">
           <query><![CDATA[
-          select * from SubqueryContent
+          select c.*, '' as "bound" from SubqueryContent c
         ]]></query>
           <subquery property="color" type="delimited"><![CDATA[
           select asnumber from SubqueryColors where parent_id=:id order by name
+        ]]></subquery>
+          <subquery property="sometimes_has_bound" ><![CDATA[
+          select 'hello' as "greeting" from SubqueryColors where parent_id=:id and '' != :bound
         ]]></subquery>
         </set-item>
         <remove-item idColumn="id">
