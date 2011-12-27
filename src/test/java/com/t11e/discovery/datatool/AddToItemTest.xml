@@ -129,5 +129,49 @@
         </remove-item>
       </delta>
     </sqlPublisher>
+
+    <sqlPublisher name="test-delta-only-set-add-remove" dataSource="dataSource" profile="profile">
+      <delta>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT id, lastUpdated
+            FROM vertical_master_items master
+        ]]></query>
+        </set-item>
+        <add-to-item idColumn="id">
+          <query><![CDATA[
+            SELECT id, first_name
+            FROM vertical_master_items master
+        ]]></query>
+        </add-to-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </delta>
+    </sqlPublisher>
+
+    <sqlPublisher name="test-snapshot-only-set-add-remove" dataSource="dataSource" profile="profile">
+      <snapshot>
+        <set-item idColumn="id">
+          <query><![CDATA[
+            SELECT id, lastUpdated
+            FROM vertical_master_items master
+        ]]></query>
+        </set-item>
+        <add-to-item idColumn="id">
+          <query><![CDATA[
+            SELECT id, first_name
+            FROM vertical_master_items master
+        ]]></query>
+        </add-to-item>
+        <remove-item idColumn="id">
+          <query><![CDATA[
+          select id from vertical_deleted
+        ]]></query>
+        </remove-item>
+      </snapshot>
+    </sqlPublisher>
   </publishers>
 </config>

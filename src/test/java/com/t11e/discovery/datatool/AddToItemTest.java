@@ -141,6 +141,66 @@ public class AddToItemTest
         .getText());
   }
 
+  @Test
+  public void deltaOnly()
+  {
+    assertChangeset("test-delta-only-set-add-remove", null, "snapshot",
+      Collections.<String> emptyList(),
+      Collections.<String> emptyList(),
+      Collections.<String> emptyList(),
+      false);
+
+    assertChangeset("test-delta-only-set-add-remove", null, "snapshot",
+      Collections.<String> emptyList(),
+      Collections.<String> emptyList(),
+      Collections.<String> emptyList(),
+      true);
+  }
+
+  @Test
+  public void deltaOnlyWithProfile()
+  {
+    final Document doc = assertChangeset("test-delta-only-set-add-remove", newProfile(), "delta",
+      Arrays.asList("1", "2", "3"),
+      Arrays.asList("4", "5"),
+      Arrays.asList("1", "2", "3"),
+      false);
+    assertXpath("2010-01-01T00:00:00.000", doc,
+      "/changeset/set-item[@id='1']/properties/struct/entry[@name='lastupdated']/string/text()");
+    assertXpath("2010-01-01T00:00:00.000", doc,
+      "/changeset/set-item[@id='2']/properties/struct/entry[@name='lastupdated']/string/text()");
+    assertXpath("2010-01-01T00:00:00.000", doc,
+      "/changeset/set-item[@id='3']/properties/struct/entry[@name='lastupdated']/string/text()");
+    assertXpath("billy", doc,
+      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='first_name']/string/text()");
+    assertXpath("joe", doc,
+      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='first_name']/string/text()");
+    assertXpath("bob", doc,
+      "/changeset/add-to-item[@id='3']/properties/struct/entry[@name='first_name']/string/text()");
+  }
+
+  @Test
+  public void snapshotOnly()
+  {
+    final Document doc = assertChangeset("test-snapshot-only-set-add-remove", null, "snapshot",
+      Arrays.asList("1", "2", "3"),
+      Arrays.asList("4", "5"),
+      Arrays.asList("1", "2", "3"),
+      false);
+    assertXpath("2010-01-01T00:00:00.000", doc,
+      "/changeset/set-item[@id='1']/properties/struct/entry[@name='lastupdated']/string/text()");
+    assertXpath("2010-01-01T00:00:00.000", doc,
+      "/changeset/set-item[@id='2']/properties/struct/entry[@name='lastupdated']/string/text()");
+    assertXpath("2010-01-01T00:00:00.000", doc,
+      "/changeset/set-item[@id='3']/properties/struct/entry[@name='lastupdated']/string/text()");
+    assertXpath("billy", doc,
+      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='first_name']/string/text()");
+    assertXpath("joe", doc,
+      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='first_name']/string/text()");
+    assertXpath("bob", doc,
+      "/changeset/add-to-item[@id='3']/properties/struct/entry[@name='first_name']/string/text()");
+  }
+
   private String newProfile()
   {
     return "test-" + new Random(System.currentTimeMillis()).nextLong();

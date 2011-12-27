@@ -21,6 +21,13 @@ Then run the tool by executing the run.sh script.
 
 Release Notes
 -------------
+1.9 - 2011-12-26
+
+  * Fixes defect in add-to-item configuration parsing: add-to-item was only
+    read from delta configuration elements. add-to-item elements in snapshots
+    were ignored. delta add-to-item elements were incorrectly used by the
+    publisher's snapshots.
+
 1.8 - 2011-12-08
 
   * Adds configuration attribute for item property-case (preserve, lower, upper

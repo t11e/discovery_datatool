@@ -276,7 +276,7 @@ public class ConfigurationManager
           defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, propertyCase, action, ns);
         }
         for (final Node action : (List<Node>) sqlPublisher.selectNodes(
-          "c:snapshot/c:set-item | c:snapshot/c:remove-item | c:delta/c:add-to-item"
+          "c:snapshot/c:set-item | c:snapshot/c:remove-item | c:snapshot/c:add-to-item"
           .replace("c:", ns)))
         {
           defineAndInstantiateSqlActionFromItemActionNode(complete, applicationContext, propertyCase, action, ns);
