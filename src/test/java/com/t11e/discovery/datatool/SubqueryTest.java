@@ -236,7 +236,7 @@ public class SubqueryTest
   @Test
   public void testEmptySubQuery()
   {
-    final Document doc = assertChangeset("test-snapshot-empty-subquery", "", "snapshot",
+    assertChangeset("test-snapshot-empty-subquery", "", "snapshot",
       Arrays.asList("1", "2", "3"),
       Arrays.asList("4", "5"),
       false);
@@ -247,7 +247,7 @@ public class SubqueryTest
   {
     try
     {
-      final Document doc = assertChangeset("test-snapshot-commented-subquery", "", "snapshot",
+      assertChangeset("test-snapshot-commented-subquery", "", "snapshot",
         Arrays.asList("1", "2", "3"),
         Arrays.asList("4", "5"),
         false);
