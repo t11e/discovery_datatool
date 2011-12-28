@@ -16,19 +16,19 @@
     <target name="compile"
         description="Compile the Java sources.">
         <mkdir dir="build.ant/main"/>
-        <javac destdir="build.ant/main" target="1.6" debug="true">
+        <javac destdir="build.ant/main" target="1.6" debug="true" includeantruntime="false">
             <src path="src/main/java"/>
             <classpath refid="build.classpath"/>
         </javac>
         <mkdir dir="build.ant/test"/>
-        <javac destdir="build.ant/test" target="1.6" debug="true">
+        <javac destdir="build.ant/test" target="1.6" debug="true" includeantruntime="false">
             <src path="src/test/java"/>
             <classpath path="build.ant/main"/>
             <classpath refid="build.classpath"/>
         </javac>
     </target>
 
-    <target name="test" depends="compile"
+    <target name="test" depends="compile" unless="skip_tests"
         description="Run the unit tests.">
         <delete dir="build.ant/junit"/>
         <delete dir="build.ant/report"/>
