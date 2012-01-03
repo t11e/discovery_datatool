@@ -1,0 +1,37 @@
+This directory contains a standard init script wrapper for the data tool.
+
+To install:
+
+1) Copy init.d/discovery_datatool to /etc/init.d/discovery_datatool.
+2) Copy sysconfig/discovery_datatool file to /etc/sysconfig/discovery_datatool.
+3) Edit /etc/sysconfig/discovery_datatool and set the RELEASE_DIR variable.
+
+The default settings require a datatool user. The default run directory
+the is /opt/discovery/engines/feed.
+
+Archived release zip files should be stored in /opt/discovery/archives
+and the unzipped releases should be in /opt/discovery/releases.
+
+Once configured you can start/stop the data tool by running
+/etc/init.d/discovery_datatool.
+
+If you require multiple data tool installs on a single box just copy the
+discovery_datatool scripts in /etc/init.d and /etc/sysconfig and give each install
+a different name.
+
+If you wish to start multiple discovery data tool instances automatically on
+startup you will need to make multiple copies of the /etc/init.d/discovery_datatool
+script and tie it to a configuration file in /etc/sysconfig/discovery_datatool via
+setting of the CONF_FILE variable in the script.
+
+It is recommended that you use a suffix that helps identify which data tool is
+starting and synchronize the init.d script name with the configuration file
+name. For example, /etc/init.d/discovery_datatool-testing would have the CONF_FILE
+variable set to /etc/sysconfig/discovery_datatool-testing which would be created from
+/etc/sysconfig/discovery_datatool and set the correct DATATOOL_DIR to use.
+
+DEBIAN
+------
+
+Debian users should follow the previous instructions but replace all
+references to /etc/sysconfig with /etc/default.

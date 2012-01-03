@@ -218,8 +218,8 @@
       description="Build the distribution ZIP. Can set external.version if building from a tag.">
       <delete file="build.ant/discovery_datatool.zip"/>
       <zip destfile="build.ant/discovery_datatool-${external.version}.zip">
-        <zipfileset prefix="discovery_datatool-${external.version}/" dir="stage" excludes="*.sh"/>
-        <zipfileset prefix="discovery_datatool-${external.version}/" dir="stage" includes="*.sh" filemode="755"/>
+        <zipfileset prefix="discovery_datatool-${external.version}/" dir="stage" excludes="bin/**,init-script/init.d/**,*.sh"/>
+        <zipfileset prefix="discovery_datatool-${external.version}/" dir="stage" includes="bin/**,init-script/init.d/**,*.sh" filemode="755"/>
         <zipfileset prefix="discovery_datatool-${external.version}/" file="build.ant/discovery_datatool_standalone.jar"/>
       </zip>
     </target>

@@ -1,0 +1,174 @@
+#!/bin/bash
+#
+# Script called from the discovery_datatool init script that runs a new
+# datatool in the background, storing the pid and piping the output
+# to a log file.
+#
+
+set -e
+
+#
+# Sanity check input variables
+#
+
+if [ -z "$RELEASE_DIR" ]; then
+  echo "RELEASE_DIR must be set" >&2
+  exit 1
+fi
+if [ ! -d "$RELEASE_DIR" ]; then
+  echo "RELEASE_DIR must be a directory: $RELEASE_DIR" >&2
+  exit 1
+fi
+if [ -z "$DATATOOL_DIR" ]; then
+  echo "DATATOOL_DIR must be set" >&2
+  exit 1
+fi
+if [ ! -d "$DATATOOL_DIR" ]; then
+  echo "DATATOOL_DIR must be a directory: $DATATOOL_DIR" >&2
+  exit 1
+fi
+
+# rotate  logs
+function log_rotate {
+  LOG_NAME=$1
+  LOG_MAX=${2:- 30}
+  LOG_NUM=$LOG_MAX
+  while [ $LOG_NUM -ge 0 ]; do
+    if [ $LOG_NUM -eq 0 ]; then
+      SOURCE="$LOG_NAME"
+    else
+      SOURCE="$LOG_NAME.$LOG_NUM"
+    fi
+    if [ $LOG_NUM -eq $LOG_MAX ]; then
+      TARGET=
+    else
+      TARGET="$LOG_NAME.$((LOG_NUM + 1))"
+    fi
+    if [ -f "$SOURCE" ]; then
+      if [ -z "$TARGET" ]; then
+        rm -f "$SOURCE"
+      else
+        mv -f "$SOURCE" "$TARGET"
+      fi
+    fi
+    LOG_NUM=$((LOG_NUM - 1))
+  done
+  unset LOG_NAME LOG_MAX LOG_NUM
+}
+
+# obtain discovery_datatool property values
+function get_property() {
+  if [ $(grep -c "^ *$1 *=" datatool.properties ) -gt 0 ]; then
+    grep "^ *$1 *=" datatool.properties | sed "s/^ *$1 *= *\([^ ]*\)/\1/"
+  fi
+}
+#
+# Enter the datatool working directory and remain there for the
+# rest of this script.
+#
+
+cd "$DATATOOL_DIR"
+
+if [ ! -f datatool.properties ]; then
+  echo "The datatool.properties file is missing from $(pwd)" >&2
+  exit 1
+fi
+
+#
+# Before we continue, make sure the datatool isn't already running
+#
+
+if [ -f datatool.pid ]; then
+  CMD=$(ps "$(cat datatool.pid)" | tail -n +2 | awk '{print $5}')
+  if [ "$CMD" = "java" ]; then
+    # There is a process with our last recorded pid that looks like
+    # a java process, this is likely our datatool.
+    echo "The datatool is already running with the pid: $(cat datatool.pid)" >&2
+    exit 1
+  fi
+  unset CMD
+fi
+
+#
+# Set some sensible defaults
+#
+
+# jvm.cmd JVM to use
+JVM_CMD="$(get_property jvm\\.cmd)"
+if [ -z "$JAVA_CMD" ]; then
+  JVM_CMD="java"
+fi
+
+# jvm.args Arguments to pass to the jvm
+JVM_ARGS="$(get_property jvm\\.args)"
+if [ -z "$JVM_ARGS" ]; then
+  JVM_ARGS="-showversion"
+fi
+
+LOGGING_ARGS="$(get_property jvm\\.logging)"
+if [ -z "$LOGGING_ARGS" ]; then
+  LOGGING_PROPERTIES="$RELEASE_DIR"/logging.properties
+  if [ -f "$DATATOOL_DIR"/logging.properties ]; then
+    LOGGING_PROPERTIES="$DATATOOL_DIR"/logging.properties
+  fi
+  LOGGING_ARGS="-Djava.util.logging.config.file=$LOGGING_PROPERTIES"
+  unset LOGGING_PROPERTIES
+fi
+
+# jvm.memory = Maximum amount of memory (in MB) the engine can use
+JVM_MEMORY="$(get_property jvm\\.memory)"
+if [ -n "$JVM_MEMORY" ]; then
+  JVM_ARGS="$JVM_ARGS -Xmx${JVM_MEMORY}m"
+fi
+unset JVM_MEMORY
+
+
+datatool_http_port=$(get_property http_port)
+datatool_bind_address=$(get_property bind_address)
+datatool_https_port=$(get_property https_port)
+datatool_keystore_file=$(get_property keystore_file)
+datatool_keystore_pass=$(get_property keystore_pass)
+datatool_key_pass=$(get_property key_pass)
+datatool_truststore_file=$(get_property truststore_file)
+datatool_truststore_pass=$(get_property truststore_pass)
+
+# Build command line arguments
+if [ -n "$datatool_bind_address" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --bind-address $datatool_bind_address"
+fi
+if [ -n "$datatool_http_port" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --port $datatool_http_port"
+fi
+if [ -n "$datatool_https_port" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --https-port $datatool_https_port"
+fi
+if [ -n "$datatool_keystore_file" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --keystore-file $datatool_keystore_file"
+fi
+if [ -n "$datatool_keystore_pass" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --keystore-pass $datatool_keystore_pass"
+fi
+if [ -n "$datatool_key_pass" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --key-pass $datatool_key_pass"
+fi
+if [ -n "$datatool_truststore_file" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --truststore-file $datatool_truststore_file"
+fi
+if [ -n "$datatool_truststore_pass" ]; then
+  DATATOOL_ARGS="$DATATOOL_ARGS --truststore-pass $datatool_truststore_pass"
+fi
+
+
+mkdir -p log
+
+log_rotate log/datatool.out
+
+#
+# Finally run the datatool, storing the pid
+#
+
+rm -f datatool.pid datatool.state
+"$JVM_CMD" $JVM_ARGS $JAVA_OPTIONS $LOGGING_ARGS \
+  -jar "$RELEASE_DIR"/discovery_datatool_standalone.jar $DATATOOL_ARGS \
+  >& log/datatool.out &
+echo $! >datatool.pid

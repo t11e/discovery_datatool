@@ -1,0 +1,18 @@
+# You may customize the startup of the discovery
+# data tool by specifying variables in this
+# file, RELEASE_DIR is required
+#
+# DATATOOL_USER
+#   Which user account to use when running the data tool
+#
+# DATATOOL_DIR
+#   The directory used for the configuration
+#   files for startup of the data tool. The default is
+#   /opt/discovery/engines/feed
+#
+# RELEASE_DIR
+#   Determines which version of the data tool is started
+
+RELEASE_DIR=
+# DATATOOL_USER=
+# DATATOOL_DIR=

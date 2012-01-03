@@ -1,0 +1,177 @@
+#!/bin/bash
+
+############################################################################
+#
+# A startup script for the Discovery Data Tool.
+#
+# This script is designed to work when called directly from the
+# discovery_datatool init script and when symlinked from an install directory
+# like /opt/discovery_datatool-1.9/
+#
+############################################################################
+
+set -e
+
+# Find the real location of this file by resolving any symlinks in $0
+PRG="$0"
+while [ -h "$PRG" ] ; do
+  link="$(expr "$(ls -ld "$PRG")" : '.*-> \(.*\)$')"
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG="$(dirname "$PRG")"/"$link"
+  fi
+done
+
+if [ -z "$RELEASE_DIR" ]; then
+  # Assume this script is linked from the original one in the release
+  # and use that as the current release directory.
+  RELEASE_DIR="$(cd "$(dirname "$PRG")"/.. && pwd)"
+fi
+
+if [ -z "$DATATOOL_DIR" ]; then
+  # Try and automatically determine DATATOOL_DIR
+  RUN_DIR="$(dirname $0)"
+  if [ -f "$RUN_DIR"/datatool.properties ]; then
+    DATATOOL_DIR="$RUN_DIR"
+  elif [ "$(basename "$RUN_DIR")" = "bin" -a \
+         -f "$RUN_DIR"/../datatool.properties ]; then
+    DATATOOL_DIR="$RUN_DIR"/..
+  else
+    cat >&2 <<EOF
+Unable to automatically determine the data tool working directory.
+
+To fix this problem you can set a value for the variable named
+DATATOOL_DIR in the environment before executing this script.
+EOF
+    exit 1
+  fi
+  unset RUN_DIR
+  DATATOOL_DIR="$(cd "$DATATOOL_DIR" && pwd)"
+
+  CURRENT_DIR="$(pwd)"
+  if [ -f "$CURRENT_DIR"/datatool.properties -a \
+       "$CURRENT_DIR" != "$DATATOOL_DIR" ]; then
+    cat >&2 <<EOF
+Ambiguous choice for data tool working directory:
+
+  1. $DATATOOL_DIR
+  2. $CURRENT_DIR
+
+If you wish to run the data tool located in the current working directory,
+then perform these commands:
+
+  $ ln -s $DATATOOL_DIR/bin/discovery_datatool ./discovery_datatool
+  $ ./discovery_datatool start
+EOF
+    exit 1
+  fi
+  unset CURRENT_DIR
+fi
+unset PRG
+export RELEASE_DIR DATATOOL_DIR
+
+DESC="discovery datatool"
+NAME=discovery_datatool
+DAEMON="$RELEASE_DIR"/bin/datatool-spawner
+PIDFILE="$DATATOOL_DIR"/datatool.pid
+SCRIPTNAME="$0"
+
+# Gracefully exit if the package has been removed.
+test -x "$DAEMON" || (echo "Daemon not available: $DAEMON"; exit 0)
+
+#
+# Function that gets the pid of the daemon with a little verification.
+#
+d_get_pid() {
+  local PID=
+  if [ -f "$DATATOOL_DIR"/datatool.pid ]; then
+    PID=$(cat "$DATATOOL_DIR"/datatool.pid)
+    # Sanity check that the PID looks like our daemon
+    if [ -z "$(ps $PID | tail -n +2 | grep 'discovery_datatool_standalone\.jar')"  ]; then
+      PID=
+    fi
+  fi
+  echo $PID
+}
+
+#
+# Function that starts the daemon/service.
+#
+d_start() {
+  local PID="$(d_get_pid)"
+  if [ -n "$PID" ]; then
+    echo " (already running with pid $PID)"
+    exit 1
+  fi
+  cd "$DATATOOL_DIR"
+  nohup "$DAEMON" >& /dev/null &
+}
+
+#
+# Function that sends a signal to the daemon/service.
+#
+d_signal() {
+  local PID="$(d_get_pid)"
+  local SIGNAL=$1
+  if [ -z "$PID" ]; then
+    echo " (not running)"
+  else
+    kill -$SIGNAL $PID
+  fi
+}
+
+#
+# Function that prints the current status of the daemon/service.
+#
+d_status() {
+  local PID="$(d_get_pid)"
+  if [ -z "$PID" ]; then
+    echo -n " is not running"
+  else
+    echo -n " is running"
+  fi
+}
+
+case "$1" in
+  start)
+    echo -n "Starting $DESC: $NAME"
+    d_start
+    echo "."
+    ;;
+  stop)
+    echo -n "Stopping $DESC: $NAME"
+    d_signal TERM
+    echo "."
+    ;;
+  kill)
+    echo -n "Killing $DESC: $NAME"
+    d_signal KILL
+    echo "."
+    ;;
+  restart)
+    echo -n "Stopping $DESC: $NAME"
+    d_signal TERM
+    echo "."
+    sleep 5
+    echo -n "Restarting $DESC: $NAME"
+    d_start
+    echo "."
+    ;;
+  status)
+    echo -n "Status of $DESC: $NAME"
+    d_status
+    echo "."
+    ;;
+  threads)
+    echo -n "Logging thread dump of $DESC: $NAME"
+    d_signal QUIT
+    echo "."
+    ;;
+  *)
+    echo "Usage: $SCRIPTNAME {start|stop|restart|status|threads|kill}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
