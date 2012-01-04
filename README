@@ -21,6 +21,15 @@ Then run the tool by executing the run.sh script.
 
 Release Notes
 -------------
+1.10 - 2012-01-03
+
+  * Simplifies process of setting up init.d script. Startup options are largely
+    specified in datatool.properties. See init-script/README for detailed
+    instructions. Removes use of jakarta-commons-daemon (jsvc).
+
+  * Changes logging.properties to log to a file with rotation at 10mb keeping
+    up to 30 files.
+
 1.9 - 2011-12-26
 
   * Fixes defect in add-to-item configuration parsing: add-to-item was only
