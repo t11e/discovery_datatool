@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -99,7 +100,8 @@ public class ConfigurationManager
   {
     if (exitOnInvalidConfigAtStartup)
     {
-      System.err.println(e.getMessage());
+      logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+      System.err.println(e.getLocalizedMessage());
       System.exit(1);
     }
   }

@@ -1,9 +1,12 @@
 package com.t11e.discovery.datatool;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -18,6 +21,8 @@ import org.mortbay.jetty.webapp.WebAppContext;
 
 public class WebServerMain
 {
+  private static final Logger logger = Logger.getLogger(WebServerMain.class.getName());
+
   public static void main(final String[] args)
     throws IOException
   {
@@ -29,8 +34,12 @@ public class WebServerMain
     }
     catch (final Exception e)
     {
+      final StringWriter helpMsg = new StringWriter();
+      parser.printHelpOn(helpMsg);
       System.err.println(e.getLocalizedMessage());
-      parser.printHelpOn(System.err);
+      System.err.println(helpMsg);
+      logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+      logger.log(Level.SEVERE, helpMsg.toString());
       System.exit(1);
     }
   }
