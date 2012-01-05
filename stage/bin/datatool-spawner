@@ -132,6 +132,10 @@ datatool_key_pass=$(get_property key_pass)
 datatool_truststore_file=$(get_property truststore_file)
 datatool_truststore_pass=$(get_property truststore_pass)
 
+# default http_port to 8089 if not set and no https_port
+if [ -z "$datatool_http_port$datatool_https_port" ]; then
+  datatool_http_port=8089
+fi
 # Build command line arguments
 if [ -n "$datatool_bind_address" ]; then
   DATATOOL_ARGS="$DATATOOL_ARGS --bind-address $datatool_bind_address"
