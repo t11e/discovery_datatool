@@ -44,21 +44,24 @@ public class CustomLogFormatter
       final String message = record.getMessage();
       final int prefixLength = buffer.length();
       int start = 0;
-      final int length = message.length();
-      while (start < length)
+      final int length = message != null ? message.length() : 0;
+      if (message != null)
       {
-        int eol = message.indexOf('\n', start);
-        if (eol == -1)
+        while (start < length)
         {
-          eol = message.length();
+          int eol = message.indexOf('\n', start);
+          if (eol == -1)
+          {
+            eol = message.length();
+          }
+          if (start > 0)
+          {
+            buffer.append(buffer.substring(0, prefixLength));
+          }
+          buffer.append(message.substring(start, eol));
+          buffer.append('\n');
+          start = eol + 1;
         }
-        if (start > 0)
-        {
-          buffer.append(buffer.substring(0, prefixLength));
-        }
-        buffer.append(message.substring(start, eol));
-        buffer.append('\n');
-        start = eol + 1;
       }
     }
     final Throwable t = record.getThrown();
