@@ -53,6 +53,7 @@ public class ConfigurationManager
   private static final Logger logger = Logger.getLogger(ConfigurationManager.class.getName());
   private static final List<GrantedAuthority> DEFAULT_ROLES =
       Arrays.asList((GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
+  private final byte[] configuration_lock = new byte[0];
   private File configurationFile;
   private File workingDirectory;
   private boolean exitOnInvalidConfigAtStartup;
@@ -120,7 +121,7 @@ public class ConfigurationManager
     IOUtils.closeQuietly(is);
     final GenericApplicationContext newContext = createApplicationContext(new ByteArrayInputStream(config));
     newContext.start();
-    synchronized (this)
+    synchronized (configuration_lock)
     {
       if (persist)
       {
@@ -174,7 +175,7 @@ public class ConfigurationManager
   public <T> T getBean(final Class<T> klass)
     throws BeansException
   {
-    synchronized (this)
+    synchronized (configuration_lock)
     {
       return currentContext.getBean(klass);
     }
