@@ -5,6 +5,9 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -150,6 +153,14 @@ public class WebServerMain
     final WebAppContext webapp = new WebAppContext();
     webapp.setWar(warPath);
     webapp.setContextPath("/");
+    {
+      // Allow SLF4J to leak through from system classpath into web app classpath so that we can exclude SLF4J from the web-inf/lib
+      // and avoid the SLF4J warning that "Multiple bindings were found on the class path"
+      // See http://www.slf4j.org/codes.html#multiple_bindings and http://docs.codehaus.org/display/JETTY/Classloading for details.
+      final List<String> serverClasses = new ArrayList<String>(Arrays.asList(webapp.getServerClasses()));
+      serverClasses.remove("org.slf4j.");
+      webapp.setServerClasses(serverClasses.toArray(new String[serverClasses.size()]));
+    }
     contexts.addHandler(webapp);
   }
 

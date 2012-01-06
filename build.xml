@@ -94,6 +94,7 @@
                 <exclude name="jetty/**"/>
                 <exclude name="**/*-sources.jar"/>
                 <exclude name="**/*-src.jar"/>
+                <exclude name="**/slf4j-*.jar"/>
             </fileset>
             <fileset file="build.ant/discovery_datatool.jar"/>
         </copy>
