@@ -167,6 +167,12 @@ public class WebServerMain
     throws Exception
   {
     server.start();
+    final String msg = "Discovery Data Tool"
+      + (StringUtils.isNotBlank(address) ? " bound to " + address : "")
+      + " listening"
+      + (httpPort != null ? " for HTTP on " + httpPort : "")
+      + (httpsPort != null ? (httpPort != null ? " and" : "") + " for HTTPS on " + httpsPort : "");
+    logger.info(msg);
   }
 
   public void stop()
