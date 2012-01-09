@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -65,8 +66,8 @@ public class CreateActionRowCallbackHandler
     this.writer = writer;
     this.action = action;
     itemIdBuilder = new ItemIdBuilder(idColumn);
-    this.providerColumn = providerColumn;
-    this.kindColumn = kindColumn;
+    this.providerColumn = StringUtils.lowerCase(providerColumn);
+    this.kindColumn = StringUtils.lowerCase(kindColumn);
     this.mergeColumns = mergeColumns != null ? mergeColumns : Collections.<MergeColumns> emptyList();
     mergeContiguous = !this.mergeColumns.isEmpty();
     this.shouldRecordTimings = shouldRecordTimings;
@@ -349,8 +350,13 @@ public class CreateActionRowCallbackHandler
   {
     if (providerColumn != null || kindColumn != null)
     {
-      final Object provider = properties.remove(providerColumn);
-      final Object kind = properties.remove(kindColumn);
+      final Map<String, String> lowercaseKeyToKey = new HashMap<String, String>();
+      for (final String key:properties.keySet())
+      {
+        lowercaseKeyToKey.put(StringUtils.lowerCase(key), key);
+      }
+      final Object provider = properties.remove(lowercaseKeyToKey.get(providerColumn));
+      final Object kind = properties.remove(lowercaseKeyToKey.get(kindColumn));
       switch (action)
       {
         case SET_ITEM:
