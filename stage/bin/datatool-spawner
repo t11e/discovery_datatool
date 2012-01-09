@@ -158,7 +158,6 @@ if [ -n "$datatool_truststore_pass" ]; then
   DATATOOL_ARGS="$DATATOOL_ARGS --truststore-pass $datatool_truststore_pass"
 fi
 
-
 mkdir -p log
 
 log_rotate log/datatool.out
@@ -168,7 +167,7 @@ log_rotate log/datatool.out
 #
 
 rm -f datatool.pid datatool.state
-"$JVM_CMD" $JVM_ARGS $JAVA_OPTIONS $LOGGING_ARGS \
+"$JVM_CMD" $JVM_ARGS $LOGGING_ARGS \
   -jar "$RELEASE_DIR"/discovery_datatool_standalone.jar $DATATOOL_ARGS \
   >& log/datatool.out &
 echo $! >datatool.pid
