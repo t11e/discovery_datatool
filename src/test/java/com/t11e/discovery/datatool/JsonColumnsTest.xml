@@ -24,7 +24,7 @@
 
     <sqlPublisher name="legacy" dataSource="dataSource">
       <snapshot>
-        <set-item idColumn="id" jsonColumnNames="json">
+        <set-item idColumn="iD" jsonColumnNames="jSOn">
           <query><![CDATA[
             SELECT id as "id", name as "name", json
             FROM Content
@@ -36,9 +36,9 @@
 
     <sqlPublisher name="scoped" dataSource="dataSource">
       <snapshot>
-        <set-item idColumn="id" scopedJsonColumns="json">
+        <set-item idColumn="Id" scopedJsonColumns="jSOn">
           <query><![CDATA[
-            SELECT id as "id", name as "name", json
+            SELECT id as "id", name as "name", json as "JSON"
             FROM Content
             ORDER BY id
         ]]></query>
@@ -48,7 +48,7 @@
 
     <sqlPublisher name="unscoped" dataSource="dataSource">
       <snapshot>
-        <set-item idColumn="id" unscopedJsonColumns="json">
+        <set-item idColumn="ID" unscopedJsonColumns="jSOn">
           <query><![CDATA[
             SELECT id as "id", name as "name", json
             FROM Content

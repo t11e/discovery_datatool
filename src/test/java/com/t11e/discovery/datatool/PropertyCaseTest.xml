@@ -23,7 +23,7 @@
           <subquery><![CDATA[
           select * from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
-          <subquery property="address" discriminator="discriminator"><![CDATA[
+          <subquery property="address" discriminator="diSCRIMinator"><![CDATA[
           select discriminator as "discriminator", street as "street" from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
         </set-item>
@@ -43,7 +43,7 @@
           <subquery><![CDATA[
           select * from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
-          <subquery property="address" discriminator="discriminator"><![CDATA[
+          <subquery property="address" discriminator="diSCRIMinator"><![CDATA[
           select discriminator as "discriminator", street as "street" from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
         </set-item>
@@ -63,7 +63,7 @@
           <subquery><![CDATA[
           select * from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
-          <subquery property="address" discriminator="discriminator"><![CDATA[
+          <subquery property="address" discriminator="diSCRIMinator"><![CDATA[
           select discriminator, street from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
         </set-item>
@@ -83,7 +83,7 @@
           <subquery><![CDATA[
           select * from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
-          <subquery property="address" discriminator="discriminator"><![CDATA[
+          <subquery property="address" discriminator="diSCRIMinator"><![CDATA[
           select discriminator, street from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
         </set-item>
@@ -103,7 +103,7 @@
           <subquery><![CDATA[
           select * from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
-          <subquery property="address" discriminator="discriminator"><![CDATA[
+          <subquery property="address" discriminator="diSCRIMinator"><![CDATA[
           select discriminator, street from vertical_subquery_address where parent_id=:id order by id
         ]]></subquery>
         </set-item>

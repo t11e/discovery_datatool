@@ -27,11 +27,11 @@ public class SqlChangesetProfileServiceTest
     profileService = new SqlChangesetProfileService();
     profileService.setDataSource(dataSource);
     profileService.setRetrieveSql(
-      "select last_run as startTime, CURRENT_TIME as endTime " +
+      "select last_run as \"startTime\", CURRENT_TIME as \"endTime\" " +
         "from profile_table " +
         "where name = :name");
-    profileService.setRetrieveStartColumn("startTime");
-    profileService.setRetrieveEndColumn("endTime");
+    profileService.setRetrieveStartColumn("StartTimE");
+    profileService.setRetrieveEndColumn("endtime");
     profileService.setUpdateSql(
       "update profile_table " +
         "set last_run = :lastRun " +
