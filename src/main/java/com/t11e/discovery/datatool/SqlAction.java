@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -35,14 +34,6 @@ public class SqlAction
   public void afterPropertiesSet()
     throws Exception
   {
-    if (mergeColumns != null)
-    {
-      for (final ListIterator<MergeColumns> it = mergeColumns.listIterator(); it.hasNext();)
-      {
-        final MergeColumns merge = it.next();
-        it.set(new MergeColumns(propertyCase.convert(merge.getKeyColumn()), propertyCase.convert(merge.getValueColumn())));
-      }
-    }
     final Transformer transformer = new Transformer()
     {
       @Override

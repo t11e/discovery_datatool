@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ public class ResultSetConvertor
   private final Set<String> changeValueCaseColumns;
   private IItemPropertiesFromColumnProcessor[][] columnProcessors;
   private String[] columnNames;
+  private Map<String, String> lowercaseKeyToActualKey = Collections.emptyMap();
 
   public ResultSetConvertor(final PropertyCase propertyCase, final Set<String> scopedJsonColumns,
     final Set<String> unscopedJsonColumns,
@@ -74,8 +76,7 @@ public class ResultSetConvertor
     throws SQLException
   {
     lazyInitialize(rs);
-    final Map<String, Object> properties;
-    properties = new LinkedHashMap<String, Object>();
+    final Map<String, Object> properties = new LinkedHashMap<String, Object>();
     for (int idx = 0; idx < columnProcessors.length; ++idx)
     {
       final int column = idx + 1;
@@ -92,6 +93,15 @@ public class ResultSetConvertor
     return properties;
   }
 
+  /**
+   * Given a potential column alias, return the actual column alias if a match is found ignoring case in the available column aliases.
+   * Can only be called after getRowAsMap().
+   */
+  public String getKey(final String potentialKey)
+  {
+    return lowercaseKeyToActualKey.get(StringUtils.lowerCase(potentialKey));
+  }
+
   private void lazyInitialize(final ResultSet rs)
     throws SQLException
   {
@@ -100,12 +110,15 @@ public class ResultSetConvertor
       final ResultSetMetaData metaData = rs.getMetaData();
       final IItemPropertiesFromColumnProcessor[][] processors = new IItemPropertiesFromColumnProcessor[metaData.getColumnCount()][];
       final String[] names = new String[processors.length];
+      lowercaseKeyToActualKey = new HashMap<String, String>();
       for (int idx = 0; idx < processors.length; idx++)
       {
         final int column = idx + 1;
         final String columnName = metaData.getColumnLabel(column);
-        names[idx] = propertyCase.convert(columnName);
-        processors[idx] = getColumnProcessor(metaData, column, names[idx]);
+        final String convertedName = propertyCase.convert(columnName);
+        names[idx] = convertedName;
+        processors[idx] = getColumnProcessor(metaData, column, convertedName);
+        lowercaseKeyToActualKey.put(StringUtils.lowerCase(convertedName), convertedName);
       }
       columnProcessors = processors;
       columnNames = names;

@@ -118,8 +118,8 @@ public class CreateActionRowCallbackHandler
       // pivot merged columns
       for (final MergeColumns merge : mergeColumns)
       {
-        final Object key = rowProps.remove(merge.getKeyColumn());
-        final Object value = rowProps.remove(merge.getValueColumn());
+        final Object key = rowProps.remove(resultSetConvertor.getKey(merge.getKeyColumn()));
+        final Object value = rowProps.remove(resultSetConvertor.getKey(merge.getValueColumn()));
         final String keyString = String.valueOf(key);
         if (value != null && key != null && StringUtils.isNotBlank(keyString))
         {
@@ -173,13 +173,14 @@ public class CreateActionRowCallbackHandler
     for (int i = 0; i < subqueries.size(); ++i)
     {
       final SubQuery subquery = subqueries.get(i);
+      final ResultSetConvertor subqueryConverter = subqueryConvertors.get(i);
       final List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
       {
         final StopWatch watch = StopWatchHelper.startTimer(shouldRecordTimings);
         try
         {
           jdbcTemplate.query(subquery.getQuery(), subqueryParams,
-            new SubqueryRowCallbackHandler(values, subqueryConvertors.get(i)));
+            new SubqueryRowCallbackHandler(values, subqueryConverter));
         }
         catch (final InvalidDataAccessApiUsageException e)
         {
@@ -194,7 +195,7 @@ public class CreateActionRowCallbackHandler
           final Map<String, Object> groupedbyDiscriminator = new LinkedHashMap<String, Object>();
           for (final Map<String, Object> row : values)
           {
-            final String discriminatorValue = (String) row.remove(subquery.getDiscriminator());
+            final String discriminatorValue = (String) row.remove(subqueryConverter.getKey(subquery.getDiscriminator()));
             if (discriminatorValue != null)
             {
               groupedbyDiscriminator.put(discriminatorValue, row);
@@ -334,7 +335,7 @@ public class CreateActionRowCallbackHandler
     }
     try
     {
-      properties.remove(itemIdBuilder.getIdColumn());
+      properties.remove(resultSetConvertor.getKey(itemIdBuilder.getIdColumn()));
       streamItem(id, properties);
     }
     catch (final XMLStreamException e)

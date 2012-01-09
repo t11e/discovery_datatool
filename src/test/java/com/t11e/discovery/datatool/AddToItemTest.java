@@ -113,11 +113,11 @@ public class AddToItemTest
       "1 main st",
       doc
         .selectSingleNode(
-          "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='street']/string/text()")
+          "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='STREET']/string/text()")
         .getText());
     assertNull(doc
       .selectSingleNode(
-      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='discriminator']"));
+      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='DISCRIMINATOR']"));
 
     assertEquals(2,
       doc.selectNodes("/changeset/add-to-item[@id='2']/properties/struct/entry[@name='address']/struct/entry").size());
@@ -126,18 +126,18 @@ public class AddToItemTest
       "123 main st",
       doc
         .selectSingleNode(
-          "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='street']/string/text()")
+          "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='STREET']/string/text()")
         .getText());
 
     assertNull(doc
       .selectSingleNode(
-      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='discriminator']"));
+      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='address']/struct/entry[@name='biz']/struct/entry[@name='DISCRIMINATOR']"));
 
     assertEquals(
       "456 main st",
       doc
         .selectSingleNode(
-          "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='address']/struct/entry[@name='per']/struct/entry[@name='street']/string/text()")
+          "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='address']/struct/entry[@name='per']/struct/entry[@name='STREET']/string/text()")
         .getText());
   }
 
@@ -166,17 +166,17 @@ public class AddToItemTest
       Arrays.asList("1", "2", "3"),
       false);
     assertXpath("2010-01-01T00:00:00.000", doc,
-      "/changeset/set-item[@id='1']/properties/struct/entry[@name='lastupdated']/string/text()");
+      "/changeset/set-item[@id='1']/properties/struct/entry[@name='LASTUPDATED']/string/text()");
     assertXpath("2010-01-01T00:00:00.000", doc,
-      "/changeset/set-item[@id='2']/properties/struct/entry[@name='lastupdated']/string/text()");
+      "/changeset/set-item[@id='2']/properties/struct/entry[@name='LASTUPDATED']/string/text()");
     assertXpath("2010-01-01T00:00:00.000", doc,
-      "/changeset/set-item[@id='3']/properties/struct/entry[@name='lastupdated']/string/text()");
+      "/changeset/set-item[@id='3']/properties/struct/entry[@name='LASTUPDATED']/string/text()");
     assertXpath("billy", doc,
-      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='first_name']/string/text()");
+      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='FIRST_NAME']/string/text()");
     assertXpath("joe", doc,
-      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='first_name']/string/text()");
+      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='FIRST_NAME']/string/text()");
     assertXpath("bob", doc,
-      "/changeset/add-to-item[@id='3']/properties/struct/entry[@name='first_name']/string/text()");
+      "/changeset/add-to-item[@id='3']/properties/struct/entry[@name='FIRST_NAME']/string/text()");
   }
 
   @Test
@@ -188,17 +188,17 @@ public class AddToItemTest
       Arrays.asList("1", "2", "3"),
       false);
     assertXpath("2010-01-01T00:00:00.000", doc,
-      "/changeset/set-item[@id='1']/properties/struct/entry[@name='lastupdated']/string/text()");
+      "/changeset/set-item[@id='1']/properties/struct/entry[@name='LASTUPDATED']/string/text()");
     assertXpath("2010-01-01T00:00:00.000", doc,
-      "/changeset/set-item[@id='2']/properties/struct/entry[@name='lastupdated']/string/text()");
+      "/changeset/set-item[@id='2']/properties/struct/entry[@name='LASTUPDATED']/string/text()");
     assertXpath("2010-01-01T00:00:00.000", doc,
-      "/changeset/set-item[@id='3']/properties/struct/entry[@name='lastupdated']/string/text()");
+      "/changeset/set-item[@id='3']/properties/struct/entry[@name='LASTUPDATED']/string/text()");
     assertXpath("billy", doc,
-      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='first_name']/string/text()");
+      "/changeset/add-to-item[@id='1']/properties/struct/entry[@name='First_name']/string/text()");
     assertXpath("joe", doc,
-      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='first_name']/string/text()");
+      "/changeset/add-to-item[@id='2']/properties/struct/entry[@name='First_name']/string/text()");
     assertXpath("bob", doc,
-      "/changeset/add-to-item[@id='3']/properties/struct/entry[@name='first_name']/string/text()");
+      "/changeset/add-to-item[@id='3']/properties/struct/entry[@name='First_name']/string/text()");
   }
 
   private String newProfile()
