@@ -36,7 +36,7 @@
 
   <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
     <property name="exitOnInvalidConfigAtStartup" value="true"/>
-    <property name="configurationFile" value="discovery_datatool.xml"/>
+    <property name="configurationFile" value="${configuration_file}"/>
     <property name="validateSql" value="${validate_sql}"/>
   </bean>
 
@@ -45,7 +45,10 @@
     <property name="ignoreResourceNotFound" value="true"/>
     <property name="searchSystemEnvironment" value="false"/>
     <property name="properties">
-        <value>validate_sql=true</value>
+      <props>
+        <prop key="validate_sql">true</prop>
+        <prop key="configuration_file">discovery_datatool.xml</prop>
+      </props>
     </property>
   </bean>
 </beans>
