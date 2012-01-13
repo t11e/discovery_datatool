@@ -47,6 +47,7 @@ public class CreateActionRowCallbackHandler
   private String currentId;
   private Map<String, Object> currentItemProperties;
   private final ItemIdBuilder itemIdBuilder;
+  private final ProgressLogger progress;
 
   public CreateActionRowCallbackHandler(
     final NamedParameterJdbcOperations jdbcTemplate,
@@ -60,11 +61,13 @@ public class CreateActionRowCallbackHandler
     final Set<String> unscopedJsonColumns,
     final List<MergeColumns> mergeColumns,
     final List<SubQuery> subqueries,
-    final boolean shouldRecordTimings)
+    final boolean shouldRecordTimings,
+    final ProgressLogger progress)
   {
     this.jdbcTemplate = jdbcTemplate;
     this.writer = writer;
     this.action = action;
+    this.progress = progress;
     itemIdBuilder = new ItemIdBuilder(idColumn);
     this.providerColumn = StringUtils.lowerCase(providerColumn);
     this.kindColumn = StringUtils.lowerCase(kindColumn);
@@ -389,6 +392,7 @@ public class CreateActionRowCallbackHandler
           throw new IllegalStateException("Cannot handle action of " + action);
       }
     }
+    progress.worked(1);
   }
 
   @Override

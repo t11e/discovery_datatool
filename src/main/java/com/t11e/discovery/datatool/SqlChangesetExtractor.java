@@ -8,11 +8,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
@@ -45,25 +50,42 @@ public class SqlChangesetExtractor
     final Date start,
     final Date end)
   {
+    @SuppressWarnings("unchecked")
+    final Collection<SqlAction> realizedFilteredActions = CollectionUtils.select(filteredActions, new Predicate()
+    {
+      @Override
+      public boolean evaluate(final Object arg)
+      {
+        final SqlAction action = (SqlAction) arg;
+        final Set<String> filters = action.getFilter();
+        return filters.contains("any") || filters.contains(changesetType);
+      }
+    });
+    final ProgressLogger progress = new ProgressLoggerSimpleJavaUtil(logger, Level.INFO,
+      TimeUnit.MILLISECONDS.convert(10, TimeUnit.SECONDS));
+    progress
+      .setEstimatedWork(
+        realizedFilteredActions.size() + (start == null ? completeActions.size() : incrementalActions.size()),
+        "*-item configuration element",
+        "*-item configuration elements");
+    progress.begin("configuration elements");
     Connection conn = null;
     try
     {
       conn = dataSource.getConnection();
       final NamedParameterJdbcOperations jdbcTemplate =
           new NamedParameterJdbcTemplate(new SingleConnectionDataSource(conn, true));
-      for (final SqlAction action : filteredActions)
+      for (final SqlAction action : realizedFilteredActions)
       {
-        final Set<String> filters = action.getFilter();
-        if (filters.contains("any") || filters.contains(changesetType))
-        {
           process(jdbcTemplate, writer, action, changesetType, start, end);
-        }
+        progress.worked(1);
       }
       if (start == null)
       {
         for (final SqlAction action : completeActions)
         {
           process(jdbcTemplate, writer, action, changesetType, start, end);
+          progress.worked(1);
         }
       }
       else
@@ -71,6 +93,7 @@ public class SqlChangesetExtractor
         for (final SqlAction action : incrementalActions)
         {
           process(jdbcTemplate, writer, action, changesetType, start, end);
+          progress.worked(1);
         }
       }
     }
@@ -81,6 +104,7 @@ public class SqlChangesetExtractor
     finally
     {
       JdbcUtils.closeConnection(conn);
+      progress.done();
     }
   }
 
@@ -110,6 +134,10 @@ public class SqlChangesetExtractor
     final Date start,
     final Date end)
   {
+    final ProgressLogger progress = new ProgressLoggerSimpleJavaUtil(logger, Level.INFO,
+      TimeUnit.MILLISECONDS.convert(3, TimeUnit.SECONDS))
+      .setUnits("item", "items");
+
     final boolean logTiming = logger.isLoggable(Level.FINEST);
     final SqlParameterSource params = new CaseInsensitveParameterSource()
       .addValue("start", start)
@@ -131,7 +159,8 @@ public class SqlChangesetExtractor
             sqlAction.getUnscopedJsonColumnsSet(),
             sqlAction.getMergeColumns(),
             sqlAction.getSubqueries(),
-            logTiming);
+            logTiming,
+            progress);
     }
     else if ("delete".equals(sqlAction.getAction()))
     {
@@ -140,7 +169,8 @@ public class SqlChangesetExtractor
             writer,
             sqlAction.getIdColumn(),
             sqlAction.getProviderColumn(),
-            sqlAction.getKindColumn());
+            sqlAction.getKindColumn(),
+            progress);
     }
     else
     {
@@ -148,10 +178,27 @@ public class SqlChangesetExtractor
     }
     {
       final StopWatch watch = StopWatchHelper.startTimer(logTiming);
-      jdbcTemplate.query(sqlAction.getQuery(), params, callbackHandler);
-      callbackHandler.flushItem();
+      progress.begin(StringUtils.rightPad(sqlAction.getChangesetElementType(), "add-to-item".length()) + " " +
+        abbreviateSql(sqlAction));
+      try
+      {
+        jdbcTemplate.query(sqlAction.getQuery(), params, callbackHandler);
+        callbackHandler.flushItem();
+      }
+      finally
+      {
+        progress.done();
+      }
       logQueryTimes(logTiming, watch, callbackHandler);
     }
+  }
+
+  private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+
+  private String abbreviateSql(final SqlAction sqlAction)
+  {
+    final String sql = WHITESPACE.matcher(sqlAction.getQuery()).replaceAll(" ");
+    return StringUtils.abbreviate(sql, 40);
   }
 
   private void logQueryTimes(final boolean shouldLog, final StopWatch watch, final RowCallbackHandler callbackHandler)

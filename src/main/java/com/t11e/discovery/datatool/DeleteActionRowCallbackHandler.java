@@ -14,16 +14,19 @@ public class DeleteActionRowCallbackHandler
   private final ItemIdBuilder itemIdBuilder;
   private final String providerColumn;
   private final String kindColumn;
+  private final ProgressLogger progress;
 
   public DeleteActionRowCallbackHandler(
     final ChangesetWriter writer,
     final String idColumn,
     final String providerColumn,
-    final String kindColumn)
+    final String kindColumn,
+    final ProgressLogger progress)
   {
     this.writer = writer;
     this.providerColumn = providerColumn;
     this.kindColumn = kindColumn;
+    this.progress = progress;
     itemIdBuilder = new ItemIdBuilder(idColumn);
   }
 
@@ -44,6 +47,7 @@ public class DeleteActionRowCallbackHandler
       {
         writer.removeItem(id);
       }
+      progress.worked(1);
     }
     catch (final XMLStreamException e)
     {

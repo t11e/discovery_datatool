@@ -46,6 +46,28 @@ public class SqlAction
     CollectionUtils.transform(unscopedJsonColumns, transformer);
   }
 
+  public String getChangesetElementType()
+  {
+    final String result;
+    if ("create".equals(action))
+    {
+      result = "set-item";
+    }
+    else if ("add".equals(action))
+    {
+      result = "add-to-item";
+    }
+    else if ("delete".equals(action))
+    {
+      result = "remove-item";
+    }
+    else
+    {
+      result = action;
+    }
+    return result;
+  }
+
   public Set<String> getFilter()
   {
     return filter;
