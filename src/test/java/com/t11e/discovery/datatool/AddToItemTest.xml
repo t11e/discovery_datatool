@@ -75,7 +75,7 @@
       <snapshot>
         <set-item idColumn="id">
           <query><![CDATA[
-            SELECT id,
+            SELECT id
             FROM vertical_master_items master
         ]]></query>
           <subquery property="address" discriminator="discriminator"><![CDATA[

@@ -1,7 +1,9 @@
 package com.t11e.discovery.datatool;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -13,15 +15,21 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterUtils;
+import org.springframework.jdbc.core.namedparam.ParsedSql;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
 
 public class SqlChangesetExtractor
-  implements ChangesetExtractor
+  implements ChangesetExtractor, Validatable
 {
   private static final Logger logger = Logger.getLogger(SqlChangesetExtractor.class.getName());
   private Collection<SqlAction> filteredActions = Collections.emptyList();
@@ -161,6 +169,88 @@ public class SqlChangesetExtractor
           + (watch.getTime() - carch.getTotalTime()));
       }
     }
+  }
+
+  @Override
+  public Collection<String> checkValid(final String context)
+  {
+    final Collection<String> result = new ArrayList<String>();
+    Connection conn = null;
+    try
+    {
+      conn = dataSource.getConnection();
+      final JdbcTemplate jdbcTemplate =
+          new JdbcTemplate(new SingleConnectionDataSource(conn, true));
+      jdbcTemplate.setMaxRows(1);
+      jdbcTemplate.setFetchSize(1);
+      for (final SqlAction action : filteredActions)
+      {
+        validateAction(result, context, jdbcTemplate, action);
+      }
+      for (final SqlAction action : completeActions)
+      {
+        validateAction(result, context, jdbcTemplate, action);
+      }
+      for (final SqlAction action : incrementalActions)
+      {
+        validateAction(result, context, jdbcTemplate, action);
+      }
+    }
+    catch (final SQLException e)
+    {
+      throw new RuntimeException("Unable to obtain database connection.", e);
+    }
+    finally
+    {
+      JdbcUtils.closeConnection(conn);
+    }
+
+    return result;
+  }
+
+  private void validateAction(final Collection<String> result, final String context,
+    final JdbcOperations jdbcTemplate, final SqlAction action)
+  {
+    {
+      final SqlParameterSource params = new CaseInsensitveParameterSource()
+        .addValue("kind", "delta")
+        .addValue("start", new Date())
+        .addValue("end", new Date());
+      checkValidSql(result, context, jdbcTemplate, action.getQuery(), params);
+    }
+    for (final SubQuery subquery : action.getSubqueries())
+    {
+      checkValidSql(result, context, jdbcTemplate, subquery.getQuery(),
+        new NullDefaultCaseInsensitiveParameterSource());
+    }
+  }
+
+  private void checkValidSql(final Collection<String> result, final String context,
+    final JdbcOperations jdbcTemplate, final String sql, final SqlParameterSource params)
+  {
+    final long start = System.nanoTime();
+    try
+    {
+      final ParsedSql parsedSql = NamedParameterUtils.parseSqlStatement(sql);
+      final Object[] values = NamedParameterUtils.buildValueArray(parsedSql, params, null);
+      jdbcTemplate.query(NamedParameterUtils.substituteNamedParameters(sql, params), values,
+        new ResultSetExtractor<Void>()
+      {
+        @Override
+        public Void extractData(final ResultSet rs)
+          throws SQLException, DataAccessException
+        {
+          return null;
+        }
+      });
+    }
+    catch (final DataAccessException e)
+    {
+      result.add(context + ": problem with \n" + sql + "\n" + e.getLocalizedMessage());
+    }
+    final long end = System.nanoTime();
+    final long elapsedNs = end - start;
+    logger.finest("Checking validity took " + (elapsedNs / 1000000.0) + " ms for\n" + sql);
   }
 
   @Required

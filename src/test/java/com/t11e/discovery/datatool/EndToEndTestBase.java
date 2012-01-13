@@ -50,6 +50,15 @@ public abstract class EndToEndTestBase
     configurationManager.loadConfiguration(getConfigurationXml(), false);
     template = new NamedParameterJdbcTemplate(configurationManager.getBean(DataSource.class));
     executeSqlScripts(getSetupScripts());
+    if (shouldValidateSql())
+    {
+      configurationManager.checkValid();
+    }
+  }
+
+  protected boolean shouldValidateSql()
+  {
+    return true;
   }
 
   @After

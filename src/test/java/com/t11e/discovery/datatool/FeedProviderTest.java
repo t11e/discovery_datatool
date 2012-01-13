@@ -7,8 +7,6 @@ import java.io.InputStream;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class FeedProviderTest
@@ -21,16 +19,16 @@ public class FeedProviderTest
     return getClass().getResourceAsStream("FeedProviderTest.xml");
   }
 
-  @Before
-  public void setup()
+  @Override
+  protected String[] getSetupScripts()
   {
-    executeSqlScripts("FeedProviderTestCreate.sql");
+    return new String[]{"FeedProviderTestCreate.sql"};
   }
 
-  @After
-  public void teardown()
+  @Override
+  protected String[] getCleanupScripts()
   {
-    executeSqlScripts("FeedProviderTestDrop.sql");
+    return new String[]{"FeedProviderTestDrop.sql"};
   }
 
   @Test

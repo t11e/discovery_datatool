@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.dom4j.Document;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class VerticalTableTest
@@ -21,16 +19,16 @@ public class VerticalTableTest
     return getClass().getResourceAsStream("VerticalTableTest.xml");
   }
 
-  @Before
-  public void setup()
+  @Override
+  protected String[] getSetupScripts()
   {
-    executeSqlScripts("VerticalTableTestCreate.sql");
+    return new String[]{"VerticalTableTestCreate.sql"};
   }
 
-  @After
-  public void teardown()
+  @Override
+  protected String[] getCleanupScripts()
   {
-    executeSqlScripts("VerticalTableTestDrop.sql");
+    return new String[]{"VerticalTableTestDrop.sql"};
   }
 
   @Test

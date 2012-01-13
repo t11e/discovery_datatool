@@ -12,6 +12,7 @@ import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class ConfigurationManager
   private ConfigurableApplicationContext currentContext;
   private BypassAuthenticationFilter bypassAuthenticationFilter;
   private InMemoryDaoImpl userDetailsService;
+  private boolean validateSql;
 
   @PostConstruct
   public void onPostConstruct()
@@ -123,6 +125,14 @@ public class ConfigurationManager
     IOUtils.closeQuietly(is);
     final GenericApplicationContext newContext = createApplicationContext(new ByteArrayInputStream(config));
     newContext.start();
+    if (validateSql)
+    {
+      checkValid(newContext);
+    }
+    else
+    {
+      logger.info("Skipping extended configuration validation.");
+    }
     synchronized (configuration_lock)
     {
       if (persist)
@@ -139,6 +149,36 @@ public class ConfigurationManager
       currentContext = newContext;
     }
     return persisted;
+  }
+
+  public void checkValid()
+  {
+    synchronized (configuration_lock)
+    {
+      checkValid(currentContext);
+    }
+  }
+
+  private void checkValid(final ConfigurableApplicationContext context)
+  {
+    {
+      final long start = System.nanoTime();
+      logger.info("Checking that the configuration is valid...");
+      final Collection<String> validation = context.getBean(ChangesetPublisherManager.class).checkValid("");
+      final long end = System.nanoTime();
+      final long elapsedNs = end - start;
+      logger.finest("Checking validity took " + (elapsedNs / 1000000.0) + " ms");
+      if (!validation.isEmpty())
+      {
+        logger.warning("Configuration is not valid.");
+        for (final String msg : validation)
+        {
+          logger.warning(msg);
+        }
+        throw new RuntimeException("Configuration is not valid.");
+      }
+      logger.info("Configuration is valid.");
+    }
   }
 
   private boolean swapConfigFiles(final byte[] config)
@@ -630,5 +670,10 @@ public class ConfigurationManager
   public void setInMemoryDaoImpl(final InMemoryDaoImpl inMemoryDaoImpl)
   {
     userDetailsService = inMemoryDaoImpl;
+  }
+
+  public void setValidateSql(final boolean validateSql)
+  {
+    this.validateSql = validateSql;
   }
 }

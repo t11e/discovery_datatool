@@ -1,10 +1,12 @@
 package com.t11e.discovery.datatool;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChangesetPublisherManager
+  implements Validatable
 {
   private Map<String, ChangesetPublisher> publishers;
 
@@ -25,5 +27,16 @@ public class ChangesetPublisherManager
       }
       this.publishers.put(name, publisher);
     }
+  }
+
+  @Override
+  public Collection<String> checkValid(final String context)
+  {
+    final Collection<String> result = new ArrayList<String>();
+    for (final ChangesetPublisher publisher : publishers.values())
+    {
+      result.addAll(publisher.checkValid(context));
+    }
+    return result;
   }
 }

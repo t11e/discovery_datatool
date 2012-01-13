@@ -8,8 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.dom4j.Document;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class PropertyCaseTest
@@ -21,16 +19,16 @@ public class PropertyCaseTest
     return getClass().getResourceAsStream("PropertyCaseTest.xml");
   }
 
-  @Before
-  public void setup()
+  @Override
+  protected String[] getSetupScripts()
   {
-    executeSqlScripts("PropertyCaseTestCreate.sql");
+    return new String[]{"PropertyCaseTestCreate.sql",};
   }
 
-  @After
-  public void teardown()
+  @Override
+  protected String[] getCleanupScripts()
   {
-    executeSqlScripts("PropertyCaseTestDrop.sql");
+    return new String[]{"PropertyCaseTestDrop.sql",};
   }
 
   @Test

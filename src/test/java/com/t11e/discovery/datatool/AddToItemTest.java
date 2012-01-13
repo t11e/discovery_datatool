@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.Random;
 
 import org.dom4j.Document;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class AddToItemTest
@@ -22,16 +20,16 @@ public class AddToItemTest
     return getClass().getResourceAsStream("AddToItemTest.xml");
   }
 
-  @Before
-  public void setup()
+  @Override
+  protected String[] getSetupScripts()
   {
-    executeSqlScripts("VerticalTableTestCreate.sql", "changeset_profile_create.sql");
+    return new String[]{"VerticalTableTestCreate.sql", "changeset_profile_create.sql"};
   }
 
-  @After
-  public void teardown()
+  @Override
+  protected String[] getCleanupScripts()
   {
-    executeSqlScripts("VerticalTableTestDrop.sql", "changeset_profile_drop.sql");
+    return new String[]{"VerticalTableTestDrop.sql", "changeset_profile_drop.sql"};
   }
 
   @Test

@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.dom4j.Document;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class JsonColumnsTest
@@ -19,16 +17,16 @@ public class JsonColumnsTest
     return getClass().getResourceAsStream("JsonColumnsTest.xml");
   }
 
-  @Before
-  public void setup()
+  @Override
+  protected String[] getSetupScripts()
   {
-    executeSqlScripts("JsonColumnsTestCreate.sql");
+    return new String[]{"JsonColumnsTestCreate.sql"};
   }
 
-  @After
-  public void teardown()
+  @Override
+  protected String[] getCleanupScripts()
   {
-    executeSqlScripts("JsonColumnsTestDrop.sql");
+    return new String[]{"JsonColumnsTestDrop.sql"};
   }
 
   @Test

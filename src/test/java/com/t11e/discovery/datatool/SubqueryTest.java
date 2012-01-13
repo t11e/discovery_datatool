@@ -1,16 +1,11 @@
 package com.t11e.discovery.datatool;
 
-import static org.junit.Assert.fail;
-
 import java.io.InputStream;
 import java.util.Arrays;
 
 import org.dom4j.Document;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.BadSqlGrammarException;
 
 public class SubqueryTest
   extends EndToEndTestBase
@@ -21,16 +16,16 @@ public class SubqueryTest
     return getClass().getResourceAsStream("SubqueryTest.xml");
   }
 
-  @Before
-  public void setup()
+  @Override
+  protected String[] getSetupScripts()
   {
-    executeSqlScripts("SubqueryTestCreate.sql");
+    return new String[]{"SubqueryTestCreate.sql"};
   }
 
-  @After
-  public void teardown()
+  @Override
+  protected String[] getCleanupScripts()
   {
-    executeSqlScripts("SubqueryTestDrop.sql");
+    return new String[]{"SubqueryTestDrop.sql"};
   }
 
   @Test
@@ -241,22 +236,4 @@ public class SubqueryTest
       Arrays.asList("4", "5"),
       false);
   }
-
-  @Test
-  public void testCommentedSubQuery()
-  {
-    try
-    {
-      assertChangeset("test-snapshot-commented-subquery", "", "snapshot",
-        Arrays.asList("1", "2", "3"),
-        Arrays.asList("4", "5"),
-        false);
-      fail("Expected BadSqlGrammarException");
-    }
-    catch (final BadSqlGrammarException e)
-    {
-      // success
-    }
-  }
-
 }

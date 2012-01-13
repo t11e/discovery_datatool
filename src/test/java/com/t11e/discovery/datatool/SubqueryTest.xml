@@ -126,22 +126,5 @@
         </remove-item>
       </snapshot>
     </sqlPublisher>
-    <sqlPublisher name="test-snapshot-commented-subquery" dataSource="dataSource">
-      <snapshot>
-        <set-item idColumn="id">
-          <query><![CDATA[
-          select * from SubqueryContent
-        ]]></query>
-          <subquery><![CDATA[
-          -- do nothing
-        ]]></subquery>
-        </set-item>
-        <remove-item idColumn="id">
-          <query><![CDATA[
-          select id from SubqueryDeleted
-        ]]></query>
-        </remove-item>
-      </snapshot>
-    </sqlPublisher>
   </publishers>
 </config>

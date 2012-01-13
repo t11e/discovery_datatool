@@ -41,5 +41,7 @@
     </property>
   </bean>
 
-  <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager"/>
+  <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
+    <property name="validateSql" value="false"/>
+  </bean>
 </beans>

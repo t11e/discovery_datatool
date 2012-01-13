@@ -37,5 +37,15 @@
   <bean name="ConfigurationManager" class="com.t11e.discovery.datatool.ConfigurationManager">
     <property name="exitOnInvalidConfigAtStartup" value="true"/>
     <property name="configurationFile" value="discovery_datatool.xml"/>
+    <property name="validateSql" value="${validate_sql}"/>
+  </bean>
+
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="locations" value="file:datatool.properties"/>
+    <property name="ignoreResourceNotFound" value="true"/>
+    <property name="searchSystemEnvironment" value="false"/>
+    <property name="properties">
+        <value>validate_sql=true</value>
+    </property>
   </bean>
 </beans>
