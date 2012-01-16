@@ -21,6 +21,25 @@ Then run the tool by executing the run.sh script.
 
 Release Notes
 -------------
+1.11 - 2012-01-16
+
+  * Adds validation of changeset SQL against the database on startup. May be
+    skipped by setting validate_sql=false in datatool.properties.
+
+  * Adds progress logging of changeset creation. Uses same progress log message
+    formatting as Discovery Engine.
+
+  * Makes all references to columns in XML configuration attributes
+    case-insensitive (e.g. idColumn, provider, kind, discriminator,
+    jsonColumns, jsonColumnNames, scopedJsonColumnNames, mergeColumns/@name and
+    mergeColumns/@value).
+
+  * Updates discovery_datatool shell script to default the http port to 8089.
+    Note that if you want to listen for both HTTP and HTTPS, then you need to
+    specify both http_port and https_port in datatool.properties.
+
+  * Removes extraneous chatter and warnings from log output.
+
 1.10 - 2012-01-03
 
   * Simplifies process of setting up init.d script. Startup options are largely
