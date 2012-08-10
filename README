@@ -21,6 +21,12 @@ Then run the tool by executing the run.sh script.
 
 Release Notes
 -------------
+1.12 - 2012-08-10
+
+  * Updates writing of changeset XML to all item properties to be empty.
+    Previously, a null value would cause a runtime exception while generating
+    the cahngeset, and the resulting changeset XML would be invalid.
+
 1.11 - 2012-01-16
 
   * Adds validation of changeset SQL against the database on startup. May be
