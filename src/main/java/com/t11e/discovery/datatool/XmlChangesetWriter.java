@@ -26,7 +26,7 @@ public class XmlChangesetWriter
     writer.writeStartElement("set-item");
     writer.writeAttribute("id", id);
     writer.writeStartElement("properties");
-    writeValue(id, properties, false);
+    writeValue(id, properties, true);
     writer.writeEndElement();
     writer.writeEndElement();
     writer.writeCharacters("\n");
@@ -41,7 +41,7 @@ public class XmlChangesetWriter
     writer.writeAttribute("provider", provider);
     writer.writeAttribute("kind", kind);
     writer.writeStartElement("properties");
-    writeValue(id, properties, false);
+    writeValue(id, properties, true);
     writer.writeEndElement();
     writer.writeEndElement();
     writer.writeCharacters("\n");
