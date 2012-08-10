@@ -1,6 +1,5 @@
 package com.t11e.discovery.datatool;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -10,25 +9,6 @@ import org.junit.Test;
 public class JsonColumnsTest
   extends EndToEndTestBase
 {
-
-  @Override
-  protected InputStream getConfigurationXml()
-  {
-    return getClass().getResourceAsStream("JsonColumnsTest.xml");
-  }
-
-  @Override
-  protected String[] getSetupScripts()
-  {
-    return new String[]{"JsonColumnsTestCreate.sql"};
-  }
-
-  @Override
-  protected String[] getCleanupScripts()
-  {
-    return new String[]{"JsonColumnsTestDrop.sql"};
-  }
-
   @Test
   public void testDefault()
   {

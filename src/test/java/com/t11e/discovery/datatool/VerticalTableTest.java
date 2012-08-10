@@ -3,7 +3,6 @@ package com.t11e.discovery.datatool;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -13,24 +12,6 @@ import org.junit.Test;
 public class VerticalTableTest
   extends EndToEndTestBase
 {
-  @Override
-  protected InputStream getConfigurationXml()
-  {
-    return getClass().getResourceAsStream("VerticalTableTest.xml");
-  }
-
-  @Override
-  protected String[] getSetupScripts()
-  {
-    return new String[]{"VerticalTableTestCreate.sql"};
-  }
-
-  @Override
-  protected String[] getCleanupScripts()
-  {
-    return new String[]{"VerticalTableTestDrop.sql"};
-  }
-
   @Test
   public void testSnapshot()
   {

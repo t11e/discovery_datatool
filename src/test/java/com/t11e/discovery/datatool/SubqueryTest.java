@@ -1,6 +1,5 @@
 package com.t11e.discovery.datatool;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 import org.dom4j.Document;
@@ -10,24 +9,6 @@ import org.junit.Test;
 public class SubqueryTest
   extends EndToEndTestBase
 {
-  @Override
-  protected InputStream getConfigurationXml()
-  {
-    return getClass().getResourceAsStream("SubqueryTest.xml");
-  }
-
-  @Override
-  protected String[] getSetupScripts()
-  {
-    return new String[]{"SubqueryTestCreate.sql"};
-  }
-
-  @Override
-  protected String[] getCleanupScripts()
-  {
-    return new String[]{"SubqueryTestDrop.sql"};
-  }
-
   @Test
   public void testSnapshotWithVarcharSubquery()
   {

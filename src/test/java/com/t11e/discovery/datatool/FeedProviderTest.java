@@ -3,8 +3,6 @@ package com.t11e.discovery.datatool;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.InputStream;
-
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.junit.Test;
@@ -12,25 +10,6 @@ import org.junit.Test;
 public class FeedProviderTest
   extends EndToEndTestBase
 {
-
-  @Override
-  protected InputStream getConfigurationXml()
-  {
-    return getClass().getResourceAsStream("FeedProviderTest.xml");
-  }
-
-  @Override
-  protected String[] getSetupScripts()
-  {
-    return new String[]{"FeedProviderTestCreate.sql"};
-  }
-
-  @Override
-  protected String[] getCleanupScripts()
-  {
-    return new String[]{"FeedProviderTestDrop.sql"};
-  }
-
   @Test
   public void simple()
   {

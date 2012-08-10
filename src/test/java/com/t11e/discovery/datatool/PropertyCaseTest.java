@@ -3,7 +3,6 @@ package com.t11e.discovery.datatool;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -13,24 +12,6 @@ import org.junit.Test;
 public class PropertyCaseTest
   extends EndToEndTestBase
 {
-  @Override
-  protected InputStream getConfigurationXml()
-  {
-    return getClass().getResourceAsStream("PropertyCaseTest.xml");
-  }
-
-  @Override
-  protected String[] getSetupScripts()
-  {
-    return new String[]{"PropertyCaseTestCreate.sql",};
-  }
-
-  @Override
-  protected String[] getCleanupScripts()
-  {
-    return new String[]{"PropertyCaseTestDrop.sql",};
-  }
-
   @Test
   public void testDefaultPerserve()
   {

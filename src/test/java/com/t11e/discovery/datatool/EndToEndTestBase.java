@@ -67,18 +67,40 @@ public abstract class EndToEndTestBase
     executeSqlScripts(getCleanupScripts());
   }
 
-  protected abstract InputStream getConfigurationXml();
+  protected InputStream getConfigurationXml()
+  {
+    return getClass().getResourceAsStream(getClass().getSimpleName() + ".xml");
+  }
 
   protected String[] getCleanupScripts()
   {
-    return new String[]{};
+    return getDefaultCleanupScripts();
   }
 
   protected String[] getSetupScripts()
   {
-    return new String[]{};
+    return getDefaultSetupScripts();
   }
 
+  protected final String[] getDefaultSetupScripts()
+  {
+    return new String[]{getDefaultSetupScript()};
+  }
+
+  protected final String getDefaultSetupScript()
+  {
+    return getClass().getSimpleName() + "Create.sql";
+  }
+
+  protected String[] getDefaultCleanupScripts()
+  {
+    return new String[]{getDefaultCleanupScript()};
+  }
+
+  protected final String getDefaultCleanupScript()
+  {
+    return getClass().getSimpleName() + "Drop.sql";
+  }
 
   protected void executeSqlScripts(final String... scriptNames)
   {
