@@ -23,9 +23,11 @@ Release Notes
 -------------
 1.12 - 2012-08-10
 
-  * Updates writing of changeset XML to all item properties to be empty.
-    Previously, a null value would cause a runtime exception while generating
-    the cahngeset, and the resulting changeset XML would be invalid.
+  * Updates writing of changeset XML to allow item properties to be empty.
+    Specifically impacts handling of JSON columns with null values.
+    Previously, a null value in a JSON map value would cause a runtime
+    exception while generating the changeset, and the changeset XML would be
+    invalid.
 
 1.11 - 2012-01-16
 
