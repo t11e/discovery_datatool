@@ -1,27 +1,4 @@
-The Discovery Data Tool provides a cross-platform implementation of a Changeset
-Publisher. It uses JDBC to connect to the database and is thus compatible
-with most major databases.
-
-Documentation can be found at:
-
-  https://transparensee.com/docs
-
-To build the release run:
-
-  ant clean release
-
-To use the release, get the built zip from
-
-  build.ant/discovery_datatool.zip
-
-Unpack it and create a discovery_datatool.xml configuration file. The release
-includes example configuration files in the examples directory of the zip file.
-
-Then run the tool by executing the run.sh script.
-
-Release Notes
--------------
-1.12 - 2012-08-10
+# 1.12 - 2012-08-10
 
   * Updates writing of changeset XML to allow item properties to be empty.
     Specifically impacts handling of JSON columns with null values.
@@ -29,7 +6,7 @@ Release Notes
     exception while generating the changeset, and the changeset XML would be
     invalid.
 
-1.11 - 2012-01-16
+# 1.11 - 2012-01-16
 
   * Adds validation of changeset SQL against the database on startup. May be
     skipped by setting validate_sql=false in datatool.properties.
@@ -48,7 +25,7 @@ Release Notes
 
   * Removes extraneous chatter and warnings from log output.
 
-1.10 - 2012-01-03
+# 1.10 - 2012-01-03
 
   * Simplifies process of setting up init.d script. Startup options are largely
     specified in datatool.properties. See init-script/README for detailed
@@ -57,14 +34,14 @@ Release Notes
   * Changes logging.properties to log to a file with rotation at 10mb keeping
     up to 30 files.
 
-1.9 - 2011-12-26
+# 1.9 - 2011-12-26
 
   * Fixes defect in add-to-item configuration parsing: add-to-item was only
     read from delta configuration elements. add-to-item elements in snapshots
     were ignored. delta add-to-item elements were incorrectly used by the
     publisher's snapshots.
 
-1.8 - 2011-12-08
+# 1.8 - 2011-12-08
 
   * Adds configuration attribute for item property-case (preserve, lower, upper
     and legacy). Starting with new schema version 7, the default is preserve. Older
@@ -90,7 +67,7 @@ Release Notes
     uses a bound parameter that is not present in the main item properties, then
     null is used for the parameter value.
 
-1.7 - 2011-11-04
+# 1.7 - 2011-11-04
   * Adds support for add-to-item for deltas and snapshots (the Discovery Engine
     does not support add-to-item for bulk or full changesets). The add-to-item
     configuration element supports the same attributes and child configuration
@@ -101,7 +78,7 @@ Release Notes
     output.
   * Fixes merge-columns should not be case sensitive.
 
-1.6 - 2011-09-28
+# 1.6 - 2011-09-28
 
   * Adds support for provider and kind to Discovery Data Tool. The
     configuration elements can now take optional attributes providerColumn and
@@ -113,11 +90,11 @@ Release Notes
   * No longer includes id column in set-item properties, since it is redundant
     to the set-item id attribute.
 
-1.5 - 2011-08-04
+# 1.5 - 2011-08-04
 
   * Adds support for "vertical" tables.
 
-1.4 - 2011-03-08
+# 1.4 - 2011-03-08
 
   * Creates new version of Data Tool Configuration XML schema to support bulk
     and full changesets and subqueries.
@@ -139,20 +116,20 @@ Release Notes
     Turns down default level to WARNING (which quiets Spring).
   * Adds test to show that Discovery Data Tool can call stored procedures.
 
-1.3 - 2010-10-01
+# 1.3 - 2010-10-01
 
   * Adds forceSnapshot boolean parameter to ChangesetController. If true, then
     start date of null is used and a snapshot is created regardless of the
     profile's last run time.
 
-1.2 - 2010-09-07
+# 1.2 - 2010-09-07
 
   * Adds support for protecting incoming connections via SSL and basic
     authentication.
   * Adds throwing an exception in config XML does not have a root config
     element in a recognized namespace.
 
-1.1 - 2010-06-11
+# 1.1 - 2010-06-11
 
   * Added createSql support to sqlProfile, used to auto create missing
     changeset profiles.
@@ -163,6 +140,6 @@ Release Notes
   * Fixed Configuration parsing issue where long text elements in the XML
     were being truncated.
 
-1.0 - 2010-06-03
+# 1.0 - 2010-06-03
 
   * Initial release
