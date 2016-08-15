@@ -44,6 +44,7 @@
                 <path path="build.ant/test"/>
             </classpath>
             <formatter type="xml"/>
+            <sysproperty key="java.awt.headless" value="true"/>
             <sysproperty key="java.util.logging.config.file"
                 value="src/test/java/logging.properties"/>
             <batchtest todir="build.ant/junit">
@@ -144,6 +145,7 @@
               <path refid="jetty.classpath"/>
               <fileset file="lib/jakarta/commons-lang-2.4.jar"/>
           </classpath>
+          <sysproperty key="java.awt.headless" value="true"/>
 <!--
           <sysproperty key="java.util.logging.config.file"
               value="src/java/test/logging.properties"/>
@@ -168,6 +170,7 @@
                 <path path="build.ant/main"/>
                 <path path="build.ant/test"/>
             </classpath>
+            <sysproperty key="java.awt.headless" value="true"/>
             <sysproperty key="java.util.logging.config.file"
                 value="src/test/java/logging.properties"/>
             <test name="${test.class}"/>
