@@ -2,19 +2,9 @@ The Discovery Data Tool provides a cross-platform implementation of a Changeset
 Publisher. It uses JDBC to connect to the database and is thus compatible
 with most major databases.
 
-Documentation can be found at:
+Documentation can be found at: http://docs.discoverysearchengine.com/data_integration/datatool.html
 
-  https://transparensee.com/docs
+Releases can be downloaded from: https://github.com/t11e/discovery_datatool/releases
 
-To build the release run:
-
-  ant clean release
-
-To use the release, get the built zip from
-
-  build.ant/discovery_datatool.zip
-
-Unpack it and create a discovery_datatool.xml configuration file. The release
-includes example configuration files in the examples directory of the zip file.
-
-Then run the tool by executing the run.sh script.
+To run, you will need to create a `discovery_datatool.xml` configuration file and then execute the `run.sh` script. The `examples/` directory contains some example configuration files to
+help you get started.
