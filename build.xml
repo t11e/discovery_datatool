@@ -146,10 +146,8 @@
               <fileset file="lib/jakarta/commons-lang-2.4.jar"/>
           </classpath>
           <sysproperty key="java.awt.headless" value="true"/>
-<!--
           <sysproperty key="java.util.logging.config.file"
-              value="src/java/test/logging.properties"/>
--->
+              value="src/test/java/logging.properties"/>
           <sysproperty key="jetty.port" value="${server.port}"/>
 <!--
           <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,address=8081,suspend=n"/>
