@@ -8,16 +8,13 @@
         </New>
     </Arg>
   </Call>
+  <!--
   <Call name="addConnector">
     <Arg>
-      <!--
-      nio class not found
-      <New class="org.mortbay.jetty.security.SslSelectChannelConnector">
-        -->
       <New class="org.mortbay.jetty.security.SslSocketConnector">
         <Set name="Port"><SystemProperty name="jetty.ssl.port" default="8443"/></Set>
         <Set name="maxIdleTime">30000</Set>
-        <Set name="keystore"><SystemProperty name="jetty.keystore" default="./datatool" /></Set>
+        <Set name="keystore"><SystemProperty name="jetty.keystore" default="src/test/webapp/WEB-INF/datatool" /></Set>
         <Set name="password">datatool</Set>
         <Set name="keyPassword">datatool</Set>
         <Set name="truststore"><SystemProperty name="jetty.truststore" default="./datatool" /></Set>
@@ -25,6 +22,7 @@
       </New>
     </Arg>
   </Call>
+  -->
   <Array id="plusConfig" type="java.lang.String">
     <Item>org.mortbay.jetty.webapp.WebInfConfiguration</Item>
     <Item>org.mortbay.jetty.plus.webapp.EnvConfiguration</Item>
