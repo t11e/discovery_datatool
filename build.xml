@@ -38,15 +38,15 @@
           printsummary="true">
             <classpath>
                 <path refid="build.classpath"/>
-                <path path="src/docroot/WEB-INF/classes"/>
-                <path path="src/test/java"/>
+                <path path="src/main/webapp/WEB-INF/classes"/>
+                <path path="src/test/resources"/>
                 <path path="build.ant/main"/>
                 <path path="build.ant/test"/>
             </classpath>
             <formatter type="xml"/>
             <sysproperty key="java.awt.headless" value="true"/>
             <sysproperty key="java.util.logging.config.file"
-                value="src/test/java/logging.properties"/>
+                value="src/test/resources/logging.properties"/>
             <batchtest todir="build.ant/junit">
                 <fileset dir="src/test/java">
                     <include name="**/*Test.java"/>
@@ -99,12 +99,12 @@
             </fileset>
             <fileset file="build.ant/discovery_datatool.jar"/>
         </copy>
-        <war destfile="build.ant/discovery_datatool.war" webxml="src/docroot/WEB-INF/web.xml">
+        <war destfile="build.ant/discovery_datatool.war" webxml="src/main/webapp/WEB-INF/web.xml">
             <lib dir="build.ant/war.lib">
                 <include name="*.jar"/>
             </lib>
-            <webinf dir="src/docroot/WEB-INF"/>
-            <fileset dir="src/docroot">
+            <webinf dir="src/main/webapp/WEB-INF"/>
+            <fileset dir="src/main/webapp">
                 <exclude name="WEB-INF/**"/>
             </fileset>
         </war>
@@ -121,11 +121,10 @@
               <exclude name="**/*-src.jar"/>
           </fileset>
         <path path="build.ant/main"/>
-        <path path="src/docroot/WEB-INF/classes"/>
+        <path path="src/main/webapp/WEB-INF/classes"/>
       </path>
       <antcall target="jetty">
-          <param name="argline"
-              value="src/config/jetty.xml src/config/jetty-dev.xml"/>
+          <param name="argline" value="src/test/webapp/WEB-INF/jetty.xml"/>
           <reference refid="jetty.classpath.dev" torefid="jetty.classpath"/>
       </antcall>
   </target>
@@ -139,15 +138,12 @@
                   <include name="*.jar"/>
                   <exclude name="*-sources.jar"/>
               </fileset>
-              <fileset file="lib/javax/servlet-2.5.jar"/>
-              <fileset file="lib/c3p0-0.9.1.2.jar"/>
-              <fileset file="lib/mysql-connector-java-5.1.10-bin.jar"/>
               <path refid="jetty.classpath"/>
               <fileset file="lib/jakarta/commons-lang-2.4.jar"/>
           </classpath>
           <sysproperty key="java.awt.headless" value="true"/>
           <sysproperty key="java.util.logging.config.file"
-              value="src/test/java/logging.properties"/>
+              value="src/test/resources/logging.properties"/>
           <sysproperty key="jetty.port" value="${server.port}"/>
 <!--
           <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,address=8088,suspend=n"/>
@@ -162,15 +158,14 @@
         <junit showoutput="true" fork="true">
             <classpath>
                 <path refid="build.classpath"/>
-                <path path="src/docroot"/>
-                <path path="src/main/java"/>
-                <path path="src/test/java"/>
+                <path path="src/main/webapp/WEB-INF/classes"/>
+                <path path="src/test/resources"/>
                 <path path="build.ant/main"/>
                 <path path="build.ant/test"/>
             </classpath>
             <sysproperty key="java.awt.headless" value="true"/>
             <sysproperty key="java.util.logging.config.file"
-                value="src/test/java/logging.properties"/>
+                value="src/test/resources/logging.properties"/>
             <test name="${test.class}"/>
             <formatter usefile="no" type="plain"/>
         </junit>

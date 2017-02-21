@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
-<Configure id="WebAppContext" class="org.mortbay.jetty.webapp.WebAppContext">
-  <Set name="war">src/docroot</Set>
-  <Set name="extractWAR">false</Set>
-  <Set name="tempDirectory">build.ant/jetty-dev</Set>
-</Configure>

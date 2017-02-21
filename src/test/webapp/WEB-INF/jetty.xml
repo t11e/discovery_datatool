@@ -37,6 +37,9 @@
        <Array type="org.mortbay.jetty.Handler">
          <Item>
            <New id="WebAppContext" class="org.mortbay.jetty.webapp.WebAppContext">
+            <Set name="war">src/main/webapp</Set>
+            <Set name="extractWAR">false</Set>
+            <Set name="tempDirectory">build.ant/jetty-dev</Set>
             <Set name="contextPath">/</Set>
             <Set name="configurationClasses"><Ref id="plusConfig"/></Set>
            </New>

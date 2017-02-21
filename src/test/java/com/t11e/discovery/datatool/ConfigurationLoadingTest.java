@@ -51,14 +51,14 @@ public class ConfigurationLoadingTest
   {
     @SuppressWarnings("unchecked")
     final ArrayList<File> validConfigFiles = new ArrayList<File>(
-        FileUtils.listFiles(new File("src/test/java/com/t11e/discovery/datatool/configuration_loading"),
+        FileUtils.listFiles(new File("src/test/resources/com/t11e/discovery/datatool/configuration_loading"),
           FileFilterUtils.suffixFileFilter("-valid.xml"),
           FileFilterUtils.prefixFileFilter("v")));
     Assert.assertFalse(validConfigFiles.isEmpty());
 
     @SuppressWarnings("unchecked")
     final ArrayList<File> invalidConfigFiles = new ArrayList<File>(
-        FileUtils.listFiles(new File("src/test/java/com/t11e/discovery/datatool/configuration_loading"),
+        FileUtils.listFiles(new File("src/test/resources/com/t11e/discovery/datatool/configuration_loading"),
           FileFilterUtils.suffixFileFilter("-invalid.xml"),
           FileFilterUtils.prefixFileFilter("v")));
     Assert.assertFalse(invalidConfigFiles.isEmpty());

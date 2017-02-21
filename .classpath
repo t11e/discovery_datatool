@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="lib" path="src/docroot/WEB-INF/classes"/>
+    <classpathentry kind="src" path="src/test/java"/>
+    <classpathentry kind="lib" path="src/test/resources"/>
+    <classpathentry kind="lib" path="src/main/webapp/WEB-INF/classes"/>
 	<classpathentry kind="lib" path="lib/deps/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/deps/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/deps/asm-3.2.jar"/>
