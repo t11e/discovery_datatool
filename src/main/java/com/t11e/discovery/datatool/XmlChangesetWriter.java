@@ -11,10 +11,49 @@ public class XmlChangesetWriter
   implements ChangesetWriter
 {
   private final XMLStreamWriter writer;
+  private int numSetItem;
+  private int numSetItemProviderKind;
+  private int numAddToItem;
+  private int numAddToItemProviderKind;
+  private int numRemoveFromItem;
+  private int numRemoveAllFromItem;
+  private int numAddItem;
+  private int numRemoveItem;
+  private int numRemoveItemProviderKind;
 
   public XmlChangesetWriter(final XMLStreamWriter writer)
   {
     this.writer = writer;
+  }
+
+  public String summarizeActions()
+  {
+    final StringBuilder builder = new StringBuilder();
+    summarizeAction(builder, "set-item", numSetItem);
+    summarizeAction(builder, "set-item-provider-kind", numSetItemProviderKind);
+    summarizeAction(builder, "add-to-item", numAddToItem);
+    summarizeAction(builder, "add-to-item-provider-kind", numAddToItemProviderKind);
+    summarizeAction(builder, "remove-from-item", numRemoveFromItem);
+    summarizeAction(builder, "remove-from-item-all", numRemoveAllFromItem);
+    summarizeAction(builder, "add-item", numAddItem);
+    summarizeAction(builder, "remove-item", numRemoveItem);
+    summarizeAction(builder, "remove-item-provider-kind", numRemoveItemProviderKind);
+    if (builder.length() == 0) {
+      return "empty changeset";
+    }
+    return builder.toString();
+  }
+
+  private static void summarizeAction(final StringBuilder builder, final String desc, final int count)
+  {
+    if (count != 0)
+    {
+      if (builder.length() > 0)
+      {
+        builder.append(" ");
+      }
+      builder.append(desc).append("=").append(count);
+    }
   }
 
   @Override
@@ -23,6 +62,7 @@ public class XmlChangesetWriter
     final Map<String, ? > properties)
     throws XMLStreamException
   {
+    numSetItem++;
     writer.writeStartElement("set-item");
     writer.writeAttribute("id", id);
     writer.writeStartElement("properties");
@@ -36,6 +76,7 @@ public class XmlChangesetWriter
   public void setItem(final String id, final String provider, final String kind, final Map<String, ? > properties)
     throws XMLStreamException
   {
+    numSetItemProviderKind++;
     writer.writeStartElement("set-item");
     writer.writeAttribute("locator", id);
     writer.writeAttribute("provider", provider);
@@ -53,6 +94,7 @@ public class XmlChangesetWriter
     final Map<String, ? > properties)
     throws XMLStreamException
   {
+    numAddToItem++;
     writer.writeStartElement("add-to-item");
     writer.writeAttribute("id", id);
     writer.writeStartElement("properties");
@@ -66,6 +108,7 @@ public class XmlChangesetWriter
   public void addToItem(final String id, final String provider, final String kind, final Map<String, ? > properties)
     throws XMLStreamException
   {
+    numAddToItemProviderKind++;
     writer.writeStartElement("add-to-item");
     writer.writeAttribute("locator", id);
     writer.writeAttribute("provider", provider);
@@ -83,6 +126,7 @@ public class XmlChangesetWriter
     final Map<String, ? > properties)
     throws XMLStreamException
   {
+    numRemoveFromItem++;
     writer.writeStartElement("remove-from-item");
     writer.writeAttribute("id", id);
     writer.writeStartElement("properties");
@@ -97,6 +141,7 @@ public class XmlChangesetWriter
     final String id)
     throws XMLStreamException
   {
+    numRemoveAllFromItem++;
     writer.writeStartElement("remove-from-item");
     writer.writeAttribute("id", id);
     writer.writeEmptyElement("all");
@@ -109,6 +154,7 @@ public class XmlChangesetWriter
     final String id)
     throws XMLStreamException
   {
+    numAddItem++;
     writer.writeStartElement("add-item");
     writer.writeAttribute("id", id);
     writer.writeEndElement();
@@ -120,6 +166,7 @@ public class XmlChangesetWriter
     final String id)
     throws XMLStreamException
   {
+    numRemoveItem++;
     writer.writeStartElement("remove-item");
     writer.writeAttribute("id", id);
     writer.writeEndElement();
@@ -130,6 +177,7 @@ public class XmlChangesetWriter
   public void removeItem(final String id, final String provider, final String kind)
     throws XMLStreamException
   {
+    numRemoveItemProviderKind++;
     writer.writeStartElement("remove-item");
     writer.writeAttribute("locator", id);
     writer.writeAttribute("provider", provider);

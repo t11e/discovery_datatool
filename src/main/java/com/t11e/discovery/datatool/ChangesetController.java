@@ -1,6 +1,5 @@
 package com.t11e.discovery.datatool;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -10,11 +9,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ChangesetController
 {
+  private static final Logger logger = Logger.getLogger(ChangesetController.class.getName());
+
   @Autowired
   private ChangesetService changesetService;
 
@@ -59,12 +60,16 @@ public class ChangesetController
     @RequestParam(value = "profile", defaultValue = "", required = false) final String profile,
     @RequestParam(value = "dryRun", defaultValue = "false", required = false) final boolean dryRun,
     @RequestParam(value = "forceSnapshot", defaultValue = "false", required = false) final boolean forceSnapshot)
-    throws XMLStreamException, IOException
+    throws Exception
   {
+    logger.info("Processing changeset request from " + request.getRemoteAddr() + " for publisher '" + publisherName
+      + "' with parameters:" + " startDate=" + startParam + " endDate=" + endParam + " profile=" + profile
+      + " dryRun=" + dryRun + " forceSnapshot=" + forceSnapshot);
     final ChangesetPublisher changesetPublisher =
         changesetService.getChangesetPublisher(publisherName);
     if (changesetPublisher == null)
     {
+      logger.warning("Changeset publisher does not exist: " + publisherName);
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
@@ -74,37 +79,57 @@ public class ChangesetController
     final Date end;
     if (StringUtils.isBlank(profile) || changesetProfileService == null)
     {
+      logger.fine("Running without a changeset profile: start=" + startParam + " end=" + endParam);
       start = startParam;
       end = endParam;
     }
     else
     {
+      logger.fine("Will use changeset profile: " + profile);
       try
       {
         final Date[] range = changesetProfileService.getChangesetProfileDateRange(profile, dryRun);
+        logger.fine("Loaded changeset profile: start=" + range[0] + " end=" + range[1]);
         start = forceSnapshot ? null : range[0];
         end = range[1];
+        if (forceSnapshot && range[0] != null)
+        {
+          logger.fine("Ignoring lastRun from changeset profile because of forceSnapshot query parameter");
         }
+      }
       catch (final NoSuchProfileException e)
       {
+        logger.warning("Missing changeset profile: " + profile);
         response.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         return;
       }
     }
-    publishImpl(request, response, changesetPublisher.getChangesetExtractor(), start, end);
-    if (StringUtils.isNotBlank(profile) && !dryRun && changesetProfileService != null)
+    logger.fine("Generating changeset: start=" + start + " end=" + end);
+    final String summary = publishImpl(request, response, changesetPublisher.getChangesetExtractor(), start, end);
+    logger.fine("Changeset successfully generated");
+    if (StringUtils.isBlank(profile) || changesetProfileService == null)
     {
+      // No profile in play
+    }
+    else if (dryRun)
+    {
+      logger.warning("Will not update changeset profile because of dryRun query parameter");
+    }
+    else
+    {
+      logger.fine("Saving changeset profile '" + profile + "' with lastRun " + end);
       changesetProfileService.saveChangesetProfileLastRun(profile, end);
     }
+    logger.info("Successfully finished processing changeset request: " + summary + " start=" + start + " end=" + end);
   }
 
-  public void publishImpl(
+  public String publishImpl(
     final HttpServletRequest request,
     final HttpServletResponse response,
     final ChangesetExtractor changesetExtractor,
     final Date start,
     final Date end)
-    throws XMLStreamException, IOException
+    throws Exception
   {
     final String changesetType = changesetExtractor.determineType(start);
     response.setContentType("text/xml; charset=utf-8");
@@ -113,19 +138,17 @@ public class ChangesetController
     response.setHeader("X-t11e-type", changesetType);
     final OutputStream os = HttpUtil.getCompressedResponseStream(request, response);
     final PrintWriter writer = new PrintWriter(new OutputStreamWriter(os, "utf-8"));
-    boolean success = false;
+    final XMLStreamWriter xml = StaxUtil.newOutputFactory().createXMLStreamWriter(writer);
+    try
     {
-      final XMLStreamWriter xml =
-          StaxUtil.newOutputFactory().createXMLStreamWriter(writer);
       xml.writeStartDocument();
       xml.writeCharacters("\n");
       xml.writeStartElement("changeset");
       xml.writeCharacters("\n");
+      final XmlChangesetWriter changesetWriter = new XmlChangesetWriter(xml);
       try
       {
-        changesetExtractor.writeChangeset(new XmlChangesetWriter(xml),
-          changesetType, start, end);
-        success = true;
+        changesetExtractor.writeChangeset(changesetWriter, changesetType, start, end);
       }
       catch (final RuntimeException e)
       {
@@ -135,7 +158,7 @@ public class ChangesetController
           throw e;
         }
         xml.flush();
-        reportException(writer, e);
+        reportAndRethrowException(writer, e);
       }
       catch (final Exception e)
       {
@@ -145,34 +168,37 @@ public class ChangesetController
           throw new RuntimeException(e);
         }
         xml.flush();
-        reportException(writer, e);
+        reportAndRethrowException(writer, e);
       }
-      if (success)
-      {
       xml.writeEndElement();
       xml.writeCharacters("\n");
       xml.writeEndDocument();
       xml.flush();
+      return "type=" + changesetType + " summary={" + changesetWriter.summarizeActions() + "}";
     }
-    }
+    finally
+    {
       if (os instanceof GZIPOutputStream)
       {
         final GZIPOutputStream gos = (GZIPOutputStream) os;
         gos.finish();
       }
     }
+  }
 
-  private static void reportException(final PrintWriter writer, final Throwable t)
+  private static void reportAndRethrowException(final PrintWriter writer, final Exception e)
+    throws Exception
   {
     writer.println();
     writer.println();
     writer.println();
     writer.println(
       "*** An exception occured. Since the response has already been committed, we're causing the changeset " +
-        "to be invalid, and including the exception details here. " + t.getLocalizedMessage());
+        "to be invalid, and including the exception details here. " + e.getLocalizedMessage());
     writer.print("*** Exception was: ");
-    t.printStackTrace(writer);
+    e.printStackTrace(writer);
     writer.flush();
+    throw e;
   }
 
   public void setChangesetService(final ChangesetService changesetService)

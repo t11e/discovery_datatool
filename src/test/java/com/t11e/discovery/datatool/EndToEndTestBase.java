@@ -1,7 +1,6 @@
 package com.t11e.discovery.datatool;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
-import javax.xml.stream.XMLStreamException;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -184,11 +182,11 @@ public abstract class EndToEndTestBase
       changesetController.publish(request, response,
         publisher, null, null, profile, false, forceSnapshot);
     }
-    catch (final XMLStreamException e)
+    catch (final RuntimeException e)
     {
-      throw new RuntimeException(e);
+      throw e;
     }
-    catch (final IOException e)
+    catch (final Exception e)
     {
       throw new RuntimeException(e);
     }

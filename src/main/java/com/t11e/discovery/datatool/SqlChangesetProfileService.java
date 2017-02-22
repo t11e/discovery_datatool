@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 public class SqlChangesetProfileService
   implements ChangesetProfileService
 {
+  private static final Logger logger = Logger.getLogger(SqlChangesetProfileService.class.getName());
   private static final Logger sqlLogger = Logger.getLogger(SqlChangesetProfileService.class.getName() + ".SQL");
   private String createSql;
   private String retrieveSql;
@@ -39,8 +40,13 @@ public class SqlChangesetProfileService
       {
         throw e;
       }
+      logger.fine("Automatically creating a new changeset profile");
       createProfile(profile);
       result = getChangesetProfileDateRange(profile);
+      if (result[0] != null) {
+        logger.warning("Possible misconfiguration detected. Newly created changest profile '" + profile +
+          "' has a valid startDate, did you mean to configure a NULL default when creating the table?");
+      }
     }
     return result;
   }

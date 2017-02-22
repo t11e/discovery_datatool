@@ -1,16 +1,14 @@
 package com.t11e.discovery.datatool;
 
-import java.io.IOException;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.XMLStreamException;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import junit.framework.Assert;
 
 public class ChangesetControllerTest
 {
@@ -18,7 +16,7 @@ public class ChangesetControllerTest
 
   @Test
   public void testExceptionDuringCommitedResponse()
-    throws XMLStreamException, IOException
+    throws Exception
   {
     final ChangesetExtractor changesetExtractor = new ChangesetExtractor()
     {
@@ -37,7 +35,15 @@ public class ChangesetControllerTest
     final MockHttpServletRequest request = new MockHttpServletRequest();
     final MockHttpServletResponse response = new MockHttpServletResponse();
     response.setCommitted(true);
-    controller.publishImpl(request, response, changesetExtractor, null, null);
+    try
+    {
+      controller.publishImpl(request, response, changesetExtractor, null, null);
+      Assert.fail("Expected RuntimeException");
+    }
+    catch (final RuntimeException e)
+    {
+      Assert.assertEquals("Here is the root cause", e.getMessage());
+    }
     Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
     final String responseAsString = response.getContentAsString();
     Assert.assertTrue("Response should contain exception notification, but was " + responseAsString,
@@ -48,7 +54,7 @@ public class ChangesetControllerTest
 
   @Test
   public void testExceptionDuringUncommitedResponse()
-    throws XMLStreamException, IOException
+    throws Exception
   {
     final ChangesetExtractor changesetExtractor = new ChangesetExtractor()
     {

@@ -36,6 +36,7 @@ public class SqlChangesetExtractor
   implements ChangesetExtractor, Validatable
 {
   private static final Logger logger = Logger.getLogger(SqlChangesetExtractor.class.getName());
+  private static final Logger progressLogger = Logger.getLogger(SqlChangesetExtractor.class.getName() + ".PROGRESS");
   private static final Logger sqlLogger = Logger.getLogger(SqlChangesetExtractor.class.getName() + ".SQL");
   private Collection<SqlAction> filteredActions = Collections.emptyList();
   private Collection<SqlAction> completeActions = Collections.emptyList();
@@ -61,7 +62,7 @@ public class SqlChangesetExtractor
         return filters.contains("any") || filters.contains(changesetType);
       }
     });
-    final ProgressLogger progress = new ProgressLoggerSimpleJavaUtil(logger, Level.INFO,
+    final ProgressLogger progress = new ProgressLoggerSimpleJavaUtil(progressLogger, Level.FINE,
       TimeUnit.MILLISECONDS.convert(10, TimeUnit.SECONDS));
     progress
       .setEstimatedWork(
@@ -134,11 +135,12 @@ public class SqlChangesetExtractor
     final Date start,
     final Date end)
   {
-    final ProgressLogger progress = new ProgressLoggerSimpleJavaUtil(logger, Level.INFO,
+    final ProgressLogger progress = new ProgressLoggerSimpleJavaUtil(progressLogger, Level.FINE,
       TimeUnit.MILLISECONDS.convert(3, TimeUnit.SECONDS))
       .setUnits("item", "items");
 
-    final boolean logTiming = logger.isLoggable(Level.FINEST);
+    final Level logTimingLevel = Level.FINEST;
+    final boolean logTiming = progressLogger.isLoggable(logTimingLevel);
     final SqlParameterSource params = new CaseInsensitveParameterSource()
       .addValue("start", start)
       .addValue("end", end)
@@ -189,9 +191,12 @@ public class SqlChangesetExtractor
       {
         progress.done();
       }
-      logQueryTimes(logTiming, watch, callbackHandler);
+      if (logTiming)
+      {
+        logQueryTimes(progressLogger, logTimingLevel, watch, callbackHandler);
       }
     }
+  }
 
   private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
@@ -201,17 +206,17 @@ public class SqlChangesetExtractor
     return StringUtils.abbreviate(sql, 40);
   }
 
-  private static void logQueryTimes(final boolean shouldLog, final StopWatch watch,
+  private static void logQueryTimes(final Logger logger, final Level level, final StopWatch watch,
     final RowCallbackHandler callbackHandler)
   {
-    if (shouldLog && watch != null)
+    if (watch != null)
     {
       watch.stop();
-      logger.fine("Query and subqueries took " + watch.getTime() + "ms [" + watch + "] total");
+      logger.log(level, "Query and subqueries took " + watch.getTime() + "ms [" + watch + "] total");
       if (callbackHandler instanceof CreateActionRowCallbackHandler)
       {
         final CreateActionRowCallbackHandler carch = (CreateActionRowCallbackHandler) callbackHandler;
-        logger.fine("Subquery total time " + carch.getTotalTime() + "ms for " + carch.getNumSubQueries()
+        logger.log(level, "Subquery total time " + carch.getTotalTime() + "ms for " + carch.getNumSubQueries()
           + " queries ("
           + (carch.getTotalTime() * 1.0 / carch.getNumSubQueries()) + " ms avg) - main query took "
           + (watch.getTime() - carch.getTotalTime()));
