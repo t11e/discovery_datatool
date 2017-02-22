@@ -159,7 +159,7 @@ public class ConfigurationManager
     }
   }
 
-  private void checkValid(final ConfigurableApplicationContext context)
+  private static void checkValid(final ConfigurableApplicationContext context)
   {
     {
       final long start = System.nanoTime();
@@ -366,7 +366,7 @@ public class ConfigurationManager
     return applicationContext;
   }
 
-  private void defineAndInstantiateSqlActionFromItemActionNode(final List<SqlAction> target,
+  private static void defineAndInstantiateSqlActionFromItemActionNode(final List<SqlAction> target,
     final GenericApplicationContext applicationContext, final PropertyCase propertyCase, final Node action,
     final String ns)
   {
@@ -387,7 +387,7 @@ public class ConfigurationManager
     defineAndInstantiateSqlAction(target, applicationContext, action, type, filter, propertyCase, ns);
   }
 
-  private void defineAndInstantiateSqlAction(final List<SqlAction> actions,
+  private static void defineAndInstantiateSqlAction(final List<SqlAction> actions,
     final GenericApplicationContext applicationContext, final Node setItem, final String action, final String filter,
     final PropertyCase propertyCase, final String ns)
   {
@@ -399,13 +399,14 @@ public class ConfigurationManager
     instantiateAction(actions, applicationContext, registerSqlAction(applicationContext, builder));
   }
 
-  private void instantiateAction(final List<SqlAction> target, final GenericApplicationContext applicationContext,
+  private static void instantiateAction(final List<SqlAction> target,
+    final GenericApplicationContext applicationContext,
     final String beanName)
   {
     target.add(applicationContext.getBean(beanName, SqlAction.class));
   }
 
-  private String registerSqlAction(final GenericApplicationContext applicationContext,
+  private static String registerSqlAction(final GenericApplicationContext applicationContext,
     final BeanDefinitionBuilder builder)
   {
     final String beanName = "SqlAction-" + System.identityHashCode(builder);
@@ -414,7 +415,7 @@ public class ConfigurationManager
   }
 
   @SuppressWarnings("unchecked")
-  private void fillActionBeanDefinition(final BeanDefinitionBuilder builder, final Node parentElementToQuery,
+  private static void fillActionBeanDefinition(final BeanDefinitionBuilder builder, final Node parentElementToQuery,
     final PropertyCase propertyCase, final String ns)
   {
     builder.addPropertyValue("idColumn", parentElementToQuery.valueOf("@idColumn"));
@@ -485,7 +486,8 @@ public class ConfigurationManager
     }
   }
 
-  private void addAttributeValueIfNotNull(final BeanDefinitionBuilder builder, final Node node, final String attribute)
+  private static void addAttributeValueIfNotNull(final BeanDefinitionBuilder builder, final Node node,
+    final String attribute)
   {
 
     final Node attrNode = node.selectSingleNode("@" + attribute);
@@ -522,7 +524,7 @@ public class ConfigurationManager
   }
 
   @SuppressWarnings("unchecked")
-  private void parseConfiguration(
+  private static void parseConfiguration(
     final InputStream is,
     final Document[] documentHolder,
     final String[] namespaceHolder)

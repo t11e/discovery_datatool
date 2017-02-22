@@ -84,7 +84,7 @@ public class ChangesetController
         final Date[] range = changesetProfileService.getChangesetProfileDateRange(profile, dryRun);
         start = forceSnapshot ? null : range[0];
         end = range[1];
-      }
+        }
       catch (final NoSuchProfileException e)
       {
         response.sendError(HttpServletResponse.SC_NOT_FOUND, e.getMessage());
@@ -149,20 +149,20 @@ public class ChangesetController
       }
       if (success)
       {
-        xml.writeEndElement();
-        xml.writeCharacters("\n");
-        xml.writeEndDocument();
-        xml.flush();
+      xml.writeEndElement();
+      xml.writeCharacters("\n");
+      xml.writeEndDocument();
+      xml.flush();
+    }
+    }
+      if (os instanceof GZIPOutputStream)
+      {
+        final GZIPOutputStream gos = (GZIPOutputStream) os;
+        gos.finish();
       }
     }
-    if (os instanceof GZIPOutputStream)
-    {
-      final GZIPOutputStream gos = (GZIPOutputStream) os;
-      gos.finish();
-    }
-  }
 
-  private void reportException(final PrintWriter writer, final Throwable t)
+  private static void reportException(final PrintWriter writer, final Throwable t)
   {
     writer.println();
     writer.println();

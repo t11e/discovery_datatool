@@ -192,7 +192,7 @@ public class AddToItemTest
       "/changeset/add-to-item[@id='3']/properties/struct/entry[@name='First_name']/string/text()");
   }
 
-  private String newProfile()
+  private static String newProfile()
   {
     return "test-" + new Random(System.currentTimeMillis()).nextLong();
   }

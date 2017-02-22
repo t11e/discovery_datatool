@@ -49,7 +49,7 @@ public class FeedProviderTest
     assertNotNull(doc.selectSingleNode("/changeset/remove-item[@locator='6' and @provider='' and @kind='']"));
   }
 
-  private void assertNoIdProviderOrKindProperties(final Node node)
+  private static void assertNoIdProviderOrKindProperties(final Node node)
   {
     assertEquals(0,
       node.selectNodes("./properties/struct/entry[@name='id' or @name='kind' or @name='provider']").size());

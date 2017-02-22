@@ -126,7 +126,7 @@ public class SqlChangesetExtractor
     return result;
   }
 
-  private void process(
+  private static void process(
     final NamedParameterJdbcOperations jdbcTemplate,
     final ChangesetWriter writer,
     final SqlAction sqlAction,
@@ -190,18 +190,19 @@ public class SqlChangesetExtractor
         progress.done();
       }
       logQueryTimes(logTiming, watch, callbackHandler);
+      }
     }
-  }
 
   private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
-  private String abbreviateSql(final SqlAction sqlAction)
+  private static String abbreviateSql(final SqlAction sqlAction)
   {
     final String sql = WHITESPACE.matcher(sqlAction.getQuery()).replaceAll(" ");
     return StringUtils.abbreviate(sql, 40);
   }
 
-  private void logQueryTimes(final boolean shouldLog, final StopWatch watch, final RowCallbackHandler callbackHandler)
+  private static void logQueryTimes(final boolean shouldLog, final StopWatch watch,
+    final RowCallbackHandler callbackHandler)
   {
     if (shouldLog && watch != null)
     {
@@ -255,7 +256,7 @@ public class SqlChangesetExtractor
     return result;
   }
 
-  private void validateAction(final Collection<String> result, final String context,
+  private static void validateAction(final Collection<String> result, final String context,
     final JdbcOperations jdbcTemplate, final SqlAction action)
   {
     {
@@ -272,7 +273,7 @@ public class SqlChangesetExtractor
     }
   }
 
-  private void checkValidSql(final Collection<String> result, final String context,
+  private static void checkValidSql(final Collection<String> result, final String context,
     final JdbcOperations jdbcTemplate, final String sql, final SqlParameterSource params)
   {
     final long start = System.nanoTime();

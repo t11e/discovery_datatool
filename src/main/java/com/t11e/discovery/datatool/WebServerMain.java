@@ -95,7 +95,7 @@ public class WebServerMain
     main.keyPassword = options.valueOf(keyPassword);
     main.trustStore = options.valueOf(truststoreFile);
     main.trustStorePassword = options.valueOf(truststorePassword);
-    main.warPath = main.findWarPath();
+    main.warPath = findWarPath();
     main.init();
     return main;
   }
@@ -198,7 +198,7 @@ public class WebServerMain
     server = null;
   }
 
-  private String findWarPath()
+  private static String findWarPath()
   {
     final String resourceName = WebServerMain.class.getName().replace('.', '/') + ".class";
     final URL url = WebServerMain.class.getClassLoader().getResource(resourceName);
