@@ -2,6 +2,8 @@ package com.t11e.discovery.datatool;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -9,17 +11,18 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 public class SqlChangesetProfileService
   implements ChangesetProfileService
 {
+  private static final Logger sqlLogger = Logger.getLogger(SqlChangesetProfileService.class.getName() + ".SQL");
   private String createSql;
   private String retrieveSql;
   private String retrieveStartColumn;
   private String retrieveEndColumn;
   private String updateSql;
-  private NamedParameterJdbcTemplate jdbcTemplate;
+  private NamedParameterJdbcOperations jdbcTemplate;
 
   @Override
   public Date[] getChangesetProfileDateRange(final String profile,
@@ -91,7 +94,7 @@ public class SqlChangesetProfileService
   @Required
   public void setDataSource(final DataSource dataSource)
   {
-    jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    jdbcTemplate = LoggingNamedParameterJdbcTemplate.create(dataSource, sqlLogger, Level.FINEST);
   }
 
   /** Optional. Setting this enables profile auto-creation. */

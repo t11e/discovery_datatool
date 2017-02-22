@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 import javax.xml.stream.XMLStreamException;
@@ -25,7 +27,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -37,18 +39,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
     locations = {"applicationContext-test.xml"})
 public abstract class EndToEndTestBase
 {
-
+  private final Logger sqlLogger = Logger.getLogger(getClass().getName() + ".SQL");
   @Autowired
   protected ChangesetController changesetController;
   @Autowired
   protected ConfigurationManager configurationManager;
-  protected NamedParameterJdbcTemplate template;
+  protected NamedParameterJdbcOperations template;
 
   @Before
   public final void setUp()
   {
     configurationManager.loadConfiguration(getConfigurationXml(), false);
-    template = new NamedParameterJdbcTemplate(configurationManager.getBean(DataSource.class));
+    template = LoggingNamedParameterJdbcTemplate
+      .create(configurationManager.getBean(DataSource.class), sqlLogger, Level.FINEST);
     executeSqlScripts(getSetupScripts());
     if (shouldValidateSql())
     {

@@ -26,7 +26,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterUtils;
 import org.springframework.jdbc.core.namedparam.ParsedSql;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -37,6 +36,7 @@ public class SqlChangesetExtractor
   implements ChangesetExtractor, Validatable
 {
   private static final Logger logger = Logger.getLogger(SqlChangesetExtractor.class.getName());
+  private static final Logger sqlLogger = Logger.getLogger(SqlChangesetExtractor.class.getName() + ".SQL");
   private Collection<SqlAction> filteredActions = Collections.emptyList();
   private Collection<SqlAction> completeActions = Collections.emptyList();
   private Collection<SqlAction> incrementalActions = Collections.emptyList();
@@ -73,8 +73,8 @@ public class SqlChangesetExtractor
     try
     {
       conn = dataSource.getConnection();
-      final NamedParameterJdbcOperations jdbcTemplate =
-          new NamedParameterJdbcTemplate(new SingleConnectionDataSource(conn, true));
+      final NamedParameterJdbcOperations jdbcTemplate = LoggingNamedParameterJdbcTemplate
+        .create(new SingleConnectionDataSource(conn, true), sqlLogger, Level.FINEST);
       for (final SqlAction action : realizedFilteredActions)
       {
           process(jdbcTemplate, writer, action, changesetType, start, end);
