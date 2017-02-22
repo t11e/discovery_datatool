@@ -111,8 +111,8 @@
         <delete file="build.ant/war.lib"/>
     </target>
 
-  <target name="dev-server" depends="compile"
-      description="Run a Jetty server using the freshly compiled classes, you can edit the ftl files in place while this is running.">
+  <target name="server" depends="compile"
+      description="Run a Jetty server using the freshly compiled classes.">
       <path id="jetty.classpath.dev">
           <fileset dir="lib">
               <include name="**/*.jar"/>
@@ -130,7 +130,7 @@
       </antcall>
   </target>
 
-  <property name="server.port" value="8080"/>
+  <property name="server.port" value="8089"/>
   <target name="jetty">
       <java fork="true" maxmemory="256m"
           classname="org.mortbay.xml.XmlConfiguration">
@@ -150,7 +150,7 @@
               value="src/test/java/logging.properties"/>
           <sysproperty key="jetty.port" value="${server.port}"/>
 <!--
-          <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,address=8081,suspend=n"/>
+          <jvmarg line="-agentlib:jdwp=transport=dt_socket,server=y,address=8088,suspend=n"/>
 -->
           <arg line="${argline}"/>
       </java>
